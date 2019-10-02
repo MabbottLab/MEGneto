@@ -1,0 +1,69 @@
+HeadMotionTool version history
+
+1.0.0 2012-07-13
+  - First release
+1.0.1 2012-07-20
+  - GUI command line argument implemented, which allows to run the program 
+    as a command line tool only (the GUI does not appear).
+  - Mouse cursor indicates when calculating.
+  - Bug fixes:
+    - nMin not integer in call to PartitionTimeSeries.
+    - HeadSamplePeriod simplified and works even when data was resampled.
+1.0.2 2012-10-05
+  - Added "workarounds" to prevent extra clicks during calculations to be 
+    queued, and to avoid changing radio button selection during 
+    calculations.
+  - Made compatible with older versions of Matlab (no ~ output).
+  - Bug fixes:
+    - "Save as initial position" button not enabled when it should be.
+    - Fonts and transparency loaded from user settings file, but not applied.
+    - Font size dialog cancel button or bad input caused errors.
+    - Single-trial datasets with zeros (aborted) didn't work.
+1.0.3 2012-10-09
+  - Simplified calculating the initial "stable" inter-coil distances, 
+    reducing computation time by more than half and removing the need for 
+    mex files.
+  - Behaves adequately when all trials are rejected, allowing to restore.
+  - Bug fixes: 
+    - Restoring the original head position didn't work properly; openhc 
+      gave an error.
+    - Restoring a dataset didn't properly update all fields and graphs.
+    - Rejecting trials didn't properly update the "calculated median 
+      distance from initial" field.
+1.0.4 2012-10-10
+  - changeHeadPos --help output is no longer displayed when testing if CTF 
+    software installed.
+  - Bug fixes:
+    - Restoring a dataset was using the standard coil positions instead of 
+      the measured positions (error in openhc).
+    - Rejecting trials after correcting the initial position was using the 
+      old initial position.
+    - Program now correctly applies previous renderer instead of always 
+      starting in transparency mode.
+1.0.5 2013-10-08
+  - Using command line version ('GUI', false), no longer loads the user 
+    preference file.  This would lead to unpredictable behavior and 
+    useless defaults.
+  - User preference file no longer forced to be in program directory. Can 
+    now be saved and loaded manually (new menus).  Will be loaded 
+    automatically if found in the current working directory and using the GUI.
+1.1 2014-06-05
+  - Moved many subfunctions to a 'private' directory.
+  - Created HeadMotionStats.
+  - Could not reproduce reported bug in HeadMotionTool: doesn't correct 
+    initial position when no GUI.
+1.2 2016-03-11
+  - Option to run with Fieldtrip data structures instead of CTF datasets, 
+    from command line.
+  - GUI changed to act "modal", i.e. output is now only returned when 
+    figure is closed. 
+
+
+Feature ideas:
+  - Make correcting the initial position not depend on CTF software such 
+    that the program works on any platform.
+  - Add RejectTrials command line option that would however save a 
+    screenshot of the figure before 
+  - openhc should recognize "missing" hc data, i.e. file says something 
+    like "data missing" instead of the normal content.  Use first position 
+    and recreate?

@@ -1,0 +1,8 @@
+LAG                 
+RAG                   
+PCC                   
+vMPFC                  
+dMPFC                
+RMPFC                   
+LITG                    
+RITG                    

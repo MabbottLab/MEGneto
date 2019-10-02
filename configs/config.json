@@ -1,0 +1,83 @@
+{
+    "config" : {
+        "epoching" : {
+            "period" : 30,
+            "totalTime" : 120,
+            "headMotion" : {
+                "thr" : 10
+            }
+        },
+        "cleaningOptions" : {
+            "artifact" : {
+                "detection" : 1,
+                "rejection" : "complete",
+                "muscle" : {
+                    "bpfilter"    : "yes",
+                    "bpfreq"      : [110, 140],
+                    "bpfiltord"   : 8,
+                    "bpfilttype"  : "but",
+                    "hilbert"     : "yes",
+                    "boxcar"      : 0.2,
+
+                    "cutoff"      : 30,
+                    "trlpadding"  : 0.5,
+                    "fltpadding"  : 0.1,
+                    "artpadding"  : 0.1
+                },
+                "jump" : {
+                    "cutoff" : 35
+                },
+                "icaClean" : null,
+                "rmNoisyTrials" : null
+            },
+            "rmBadChannels" : 2
+        },
+        "filteringParameters" : {
+            "channel"    : ["MEG", "MEGREF", "REFGRAD", "REFMAG"], 
+            "dftfilter"  : "yes",                 
+            "dftfreq"    : [60, 120],           
+            "bpfilter"   : "yes",                 
+            "bpfreq"     : [1, 150],
+            "bpfiltord"  : 5,                  
+            "sampleRate" : 600,               
+            "CTFlayout"  : "CTF151.lay"
+        },
+        "taskFunc": {
+            "function": "@taskTrialFun",
+            "type": "anonymous",
+            "file": "",
+            "workspace": [
+                {
+                }
+            ],
+            "within_file_path": "__base_function"
+        },
+
+        "task" : {
+            "isRest" : 0,
+            "trialdef" : {
+                "details" : {
+                    "name" : ["TPCorrect"],
+                    "includeOnce" : ["Correct"],
+                    "exclude" : ["Incorrect"], 
+                    "include" : ["Correct"],
+                    "countOnly" : false
+                },
+                "light" : {
+                	"avgStartThresh" : [-0.5, 0.96]
+                },
+                "parameters" : {
+                    "t0shift" : 0.023,
+                    "tSearch" : [-0.1, 0.1],
+                    "tEpoch" : [-2.0, 2.0]
+                },
+                "markers" : {
+                    "correct" : ["Correct"],
+                    "incorrect" : ["Incorrect"],
+                    "t0marker" : "OfflineLightOn",
+                    "newTrig" : ["Hit"]
+                }
+            }
+        }
+    }
+}

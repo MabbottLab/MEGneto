@@ -1,0 +1,6 @@
+The meg-connectivity/functions/external folder contains misc MATLAB helper
+functions downloaded from various sources like MATLAB Exchange which are
+required to run the functions given in the meg-connectivity/functions directory.
+
+In general, external scripts refer to scripts which are written outside
+of the Hospital for Sick Children.

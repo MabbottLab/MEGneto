@@ -1,0 +1,8 @@
+-60  -28  24    0   0.000   L Second Somatosensory Cortex (II)             
+35   -26  55    0   0.000   R Central Sulcus           
+-37  -19  53    0   0.000   L Central Sulcus          
+57   -28  23    0   0.000   R Second Somatosensory Cortex (II)         
+-1   -17  55    0   0.000   L Supplementary Motor Area         
+4    -15  53    0   0.000   R Supplementary Motor Area        
+-30  -18  10    0   0.000   L Putamen        
+30   -17  9     0   0.000   R Putamen         

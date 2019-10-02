@@ -1,0 +1,7 @@
+-25  -67   48   0   0.0000   L Posterior Intraparietal Sulcus                     
+23   -69   49   0   0.0000   R Posterior Intraparietal Sulcus                   
+-26  -12   53   0   0.0000   L Frontal Eye Field                   
+30   -13   53   0   0.0000   R Frontal Eye Field                   
+-43  -72   -8   0   0.0000   L Middle Temporal Gyrus                  
+42   -70   -11  0   0.0000   R Middle Temporal Gyrus
+                   

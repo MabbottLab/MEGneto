@@ -1,0 +1,5 @@
+12   32  30     0   0.0000   R Anterior ACC                
+-13  34  16     0   0.0000   L Anterior ACC         
+10   34  16     0   0.0000   R Ventral Anterior ACC         
+-42  6   4      0   0.0000   L Insula              
+43   7   2      0   0.0000   R Insula           
