@@ -12,7 +12,9 @@ function paths = megne2setup(project_path, analysis_name, rawdata_path, mri_path
 
 %% INPUT
 
-megne2_name = find_megne2();
+% Identify where megne2 is running
+megne2_name = which(mfilename());
+megne2_name = megne2_name(1:end-(length(['/' mfilename() '.m'])));
 if nargin < 5
     overwrite = false;
 end
