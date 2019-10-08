@@ -1,5 +1,5 @@
 function paths = megne2setup(project_path, analysis_name, rawdata_path, mri_path, overwrite)
-%%megne2setup
+%%  megne2setup
 % This function will create a subfolder to PROJECT_PATH
 % or the current working directory if PROJECT_PATH is not provided called
 % ANALYSIS_NAME, create config
@@ -15,22 +15,28 @@ function paths = megne2setup(project_path, analysis_name, rawdata_path, mri_path
 % Identify where megne2 is running
 megne2_name = which(mfilename());
 megne2_name = megne2_name(1:end-(length(['/' mfilename() '.m'])));
+megne2_parent = megne2_name(1:end-(length('/MEGneto')));
 if nargin < 5
     overwrite = false;
 end
 
 %% PATH SETUP
 
-prior_dir = pwd();
-cd(megne2_name)
+prior_dir = pwd();      % Keep track of prior directory
+cd(megne2_name)         % Set path to main MEGne code
 addpath('.')
-addpath(genpath('functions'))
-addpath('external/glob')
-addpath('external/jsonlab')
-fieldtrip = glob('external/fieldtrip*');
-if length(fieldtrip) > 1; warning(['Multiple fieldtrip versions, using ' fieldtrip{1}]); end
-addpath(fieldtrip{1});
-ft_defaults();
+addpath(genpath('functions'))   % Add path of functions
+addpath('external/glob')        % glob makes finding paths very easy
+addpath('external/jsonlab')     % json parser
+
+% Check whether FieldTrip is visible
+addpath(strcat(prior_dir, '/fieldtrip'))
+if ~exist('ft_defaults','file')                 % If not, throw error
+    error('FieldTrip not visible in path.')
+else
+    ft_defaults;                                % If so, run FT setup file
+end
+
 cd(prior_dir);
 
 %% INPUT CHECKING AND CLEANING
