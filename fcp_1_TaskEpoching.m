@@ -1,4 +1,4 @@
-function [p] = fcp_1_TaskEpoching(paths)
+function [ ] = fcp_1_TaskEpoching(paths)
 % fcp_1taskepoching
 % Version 3 Ming Scott
 % 2019 June 19
@@ -17,6 +17,7 @@ function [p] = fcp_1_TaskEpoching(paths)
 % Before running this function, make sure you have subj_fcp1.csv in the
 % configs set up, and your preferred parameters in the analysis json
 
+%% Read in config settings and match *.ds files to subject IDs
 config = load_config(paths, paths.name);
 config = config.config;
 step = 'fcp1';
@@ -30,12 +31,12 @@ end
 
 write_match_if_not_empty(paths,step);
 
-if length(unique(subj_match.pid)) ~= length(subj_match.pid);
+if length(unique(subj_match.pid)) ~= length(subj_match.pid)
     error('More than one ds per participant!')
 end
 
-%%% OUTPUTS %%% Note: Only set up on inital run, edit config in config
-%%% files afterwards
+%%% OUTPUTS %%% 
+%%% Note: Only set up on inital run, edit config in config files afterwards
 fcp1_output.fig_headmotion = 'headmotion.png';
 fcp1_output.trial_cfg = 'ft_meg_trl_cfg.json';
 fcp1_output.trial_cfgHM = 'ft_meg_trl_cfgHM.json';
@@ -49,8 +50,6 @@ fcp1_output.trigger_figure = 'triggerfigure.png';
 fcp1_output.timeseries_figure = @(trial) ['Trial_', sprintf('%04d',trial), '.png'];
 
 save_to_json(fcp1_output, [paths.conf_dir '/fcp1_output.json'])
-
-
 
 %% Run epoching
 % determine which subjects to process
@@ -67,14 +66,19 @@ for ss = rangeOFsubj
     
     
     %%% Plot triggers %%%
+%     numt0marker = plotTriggers(...
+%         [paths.rawdata '/' subj_match.ds{ss}],...
+%         config.task.trialdef.markers.t0marker, 'savePath',...
+%         [paths.(subj_match.pid{ss}) '/' fcp1_output.trigger_figure],...
+%         'showFigure', true); %for Debugging
     numt0marker = plotTriggers(...
-        [paths.rawdata '/' subj_match.ds{ss}],...
+        [subj_match.ds{ss}],... % for some reason, mine was a full file name already
         config.task.trialdef.markers.t0marker, 'savePath',...
         [paths.(subj_match.pid{ss}) '/' fcp1_output.trigger_figure],...
-        'showFigure', true); %for Debugging
+        'showFigure', false); % set showFigure to true for debugging
     %     plotTriggers(p.subj.subj_ds{ss}, 'savePath', p.paths.trigger_figure(ss), 'showFigure', false);
     if numt0marker < 5
-        warning('Not enough markers found - check marker file!');
+        warning('Not enough markers found - check marker file!')
         continue
     else
         fprintf('\n %d markers were found for %s \n ',...
@@ -95,7 +99,8 @@ for ss = rangeOFsubj
     %% Do Epoching %%%
     
     cfg = [];
-    cfg.dataset = [paths.rawdata '/' subj_match.ds{ss}];
+    % cfg.dataset = [paths.rawdata '/' subj_match.ds{ss}];
+    cfg.dataset = [subj_match.ds{ss}];
     cfg.trialfun = config.taskFunc; %@taskTrialFun;
     cfg.trialdef = config.task.trialdef;
     cfg.continuous         = 'yes';
@@ -171,7 +176,8 @@ for ss = rangeOFsubj
     disp('Detecting bad channels ...')
     disp('   ')
     cfg                         = [];
-    cfg.dataset                 = [paths.rawdata '/' subj_match.ds{ss}];
+    % cfg.dataset                 = [paths.rawdata '/' subj_match.ds{ss}];
+    cfg.dataset                 = [subj_match.ds{ss}];
     cfg.bchthr = 60;% 75-85 quantile
     cfg.sections = 3; % divids into 3 sections
     [badChannels,resMat] = detectBadChannels(cfg,paths.name);
