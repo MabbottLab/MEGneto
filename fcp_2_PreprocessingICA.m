@@ -17,8 +17,10 @@ subj_ds = load_participants(paths,step);
 pids = readtable(paths.all_subj_pids);
 [subj_match, failure] = ds_pid_match(paths,step);
 ssSubjPath = @(x) paths.(subj_match.pid{x});
-rawdata = cellfun(@(x) [paths.rawdata '/' x], subj_match.ds, 'UniformOutput', false);
-
+% This will be modified when we settle on folder structure
+% For now, temporary fix
+% rawdata = cellfun(@(x) [paths.rawdata '/' x], subj_match.ds, 'UniformOutput', false);
+rawdata = subj_match.ds;
 if isempty(subj_match)
     error('No participants selected')
 end
@@ -81,10 +83,10 @@ if calculation == true% && false
             error('Epoched mat %s was not found', [ssSubjPath(ss) '/' fcp1_output.trial_cfg]);
         end
         
-        
-        
+                
         % define data to import and filter
-        cfg.dataset = [paths.rawdata '/' subj_match.ds{ss}];
+        % cfg.dataset = [paths.rawdata '/' subj_match.ds{ss}];
+        cfg.dataset = [subj_match.ds{ss}];
         
         disp('Filtering Data....');
         
@@ -134,9 +136,10 @@ if interactive == true% || true
     end
 end
 if calculation == true
+    fcp2_output.bad_chann = loadjson([paths.anout_grp '/group_rmBadChan.json']);
     for ss = rangeOFsubj
         load([ssSubjPath(ss) '/' fcp2_output.data_noisecorr],'-mat','data_noisecorr');
-        fcp2_output.bad_chann{ss} = readcell([paths.(subj_match.pid{ss}) '/badchannels.csv']);
+        % fcp2_output.bad_chann{ss} = readcell([paths.(subj_match.pid{ss}) '/badchannels.csv']);
         % remove and repair bad channels
         if config.cleaningOptions.rmBadChannels == 1
             
