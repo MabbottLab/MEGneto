@@ -64,7 +64,7 @@ Detects and removes timewindows or full trials with excessive head motion, muscl
 - fcp_1_TaskEpoching.m, line 133: I think the config settings are already found within the JSON config, then overwritten by this section.
 - JSON config setting of 1 for rmBadChannels meaningless - currently runs it regardless of specification, and without any options to modify bad channel detection parameters
 
-### 1B.  Preprocessing | Bad channel and ICA
+### 1B.  Preprocessing | fcp_2_PreprocessingICA.m
 
 Allows for manual removal of problematic channels, preparation and execution of ICA, user guided removal of ICA components that reflect heartbeat/blink artifacts. 
 
@@ -101,6 +101,25 @@ Allows for manual removal of problematic channels, preparation and execution of 
 - Specify PCA to run before ICA and num components to reduce run time
 
 ### 2. Beamforming
+
+Source reconstruction analysis.
+
+- Load config information from JSON files, check IDs
+- Call *ft_read_mri* to import T1 template from spm8
+- Specify coordinate system in FT
+- Call *ft_volumesegment.m*: segments anatomical MRI into T1 template specs
+- Call *ft_prepare_headmodel.m*: constructs a volume conduction model based on geometry of head, takes prev as input
+- Call *ft_convert_units.m*: convert volume to cm for CTF type
+- Create figure w/ template head model, dipole grid
+- Call *ft_read_atlas.m*, *ft_convert_units.m*: load atlas, convert units
+- Call *ft_volumelookup.m*: create binary mask based on desired ROIs
+
+
+
+#### Critical fixes
+
+#### Nice-to-haves
+
 
 ### 3. Functional connectivity analysis
 
