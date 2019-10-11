@@ -1,10 +1,12 @@
 # MEGneto: MEGne3 Branch
  
-Pipeline on MATLAB with FieldTrip to process MEG data and run functional connectivity analyses. Developed by the Mabbott Lab @ SickKids, Toronto, Canada. 
+Pipeline on MATLAB with FieldTrip to process MEG data and run functional connectivity analyses. Developed @ SickKids, Toronto, Canada. 
 
-Important: this repo and FieldTrip top-level folder should be visible upfront.
+See the PDF 'workflow' to get an overview of the pipeline.
 
 ## Modules
+
+Important: this repo and FieldTrip top-level folder should be visible upfront.
 
 ### 0. Setup
 
@@ -25,7 +27,7 @@ Important: this repo and FieldTrip top-level folder should be visible upfront.
 - path_generation.m: specify output folder structure
 - megne2setup.m: generally, clean up excessive data type conversion
 
-### 1A. Preprocessing | fcp_1_TaskEpoching.m
+### 1. Preprocessing | fcp_1_TaskEpoching.m
 
 Detects and removes timewindows or full trials with excessive head motion, muscle/jump artifacts, detects noisy channels but does not remove. 
 
@@ -64,7 +66,7 @@ Detects and removes timewindows or full trials with excessive head motion, muscl
 - fcp_1_TaskEpoching.m, line 133: I think the config settings are already found within the JSON config, then overwritten by this section.
 - JSON config setting of 1 for rmBadChannels meaningless - currently runs it regardless of specification, and without any options to modify bad channel detection parameters
 
-### 1B.  Preprocessing | fcp_2_PreprocessingICA.m
+### 2.  Preprocessing | fcp_2_PreprocessingICA.m
 
 Allows for manual removal of problematic channels, preparation and execution of ICA, user guided removal of ICA components that reflect heartbeat/blink artifacts. 
 
@@ -100,7 +102,7 @@ Allows for manual removal of problematic channels, preparation and execution of 
 - Separate bad channel removal or channel repair from ICA
 - Specify PCA to run before ICA and num components to reduce run time
 
-### 2. Beamforming
+### 3. Beamforming
 
 Source reconstruction analysis.
 
@@ -112,18 +114,32 @@ Source reconstruction analysis.
 - Call *ft_convert_units.m*: convert volume to cm for CTF type
 - Create figure w/ template head model, dipole grid
 - Call *ft_read_atlas.m*, *ft_convert_units.m*: load atlas, convert units
-- Call *ft_volumelookup.m*: create binary mask based on desired ROIs
-
-
+- Call *ft_volumelookup.m*: create binary mask; once applied, will isolate desired regions
+- Load subject's MRI, preprocessed MEG data
+- Carry out similar procedure to template head model generation above
+- Call *ft_sourceplot.m*: visualize/check alignment between template and subject head models; save output image
+- Check alignment between subject head and source model; save output image
+- Call *ft_prepare_leadfield.m*: compute the lead field matrix
+- Source reconstruction:
+   - Either 'Tlock' or 'csd'
+   - Set parameters
+   - Call *ft_sourceanalysis.m* + other steps specific to the type of source recon
+- Call *ft_sourcedescriptives.m*: project to dominant orientation (largest eigenvector)
+- Call *ft_sourceinterpolate.m*: interpolate functional data onto anatomical data using prev as input, subject MRI
 
 #### Critical fixes
+- Separate connectivity analysis into its own code
 
 #### Nice-to-haves
-
+- Ability to parallel process participants through analysis
 
 ### 3. Functional connectivity analysis
 
+- Call *ft_connectivityanalysis.m*
+
 ## Historical contributors
+
+**This list is incomplete!**
 
 - March 2016: Simeon Wong, Anne Keller
 - November 2016: Sonya Bells
