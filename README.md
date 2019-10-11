@@ -133,7 +133,7 @@ Source reconstruction analysis.
 #### Nice-to-haves
 - Ability to parallel process participants through analysis
 
-### 3. Functional connectivity analysis
+### 4. Functional connectivity analysis
 
 - Call *ft_connectivityanalysis.m*
 
