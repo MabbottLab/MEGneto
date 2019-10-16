@@ -60,7 +60,7 @@
                     "name" : ["TPCorrect"],
                     "includeOnce" : [""],
                     "exclude" : [""], 
-                    "include" : ["Correct"],
+                    "include" : ["correct"],
                     "countOnly" : false
                 },
                 "light" : {

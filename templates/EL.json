@@ -71,8 +71,8 @@
                     "tEpoch" : [-2.0, 2.0 ]
                 },
                 "markers" : {
-                    "correct" : ["CorrectLeft", "CorrectRight"],
-                    "incorrect" : ["IncorrectLeft", "IncorrectRight"],
+                    "correct" : ["LeftCorrect", "RightCorrect"],
+                    "incorrect" : ["LeftIncorrect", "RightIncorrect"],
                     "t0marker" : "OfflineLightOn",
                     "newTrig" : ["Hit"]
                 }
