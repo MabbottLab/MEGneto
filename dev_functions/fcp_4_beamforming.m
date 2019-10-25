@@ -1,4 +1,5 @@
-function [source,source_conn,parc_conn] = fcp_4_beamforming(paths)
+function [source] = fcp_4_beamforming(paths)
+% function [source,source_conn,parc_conn] = fcp_4_beamforming(paths)
 
 %icacleaned data ft_meg_data_cfg.mat
 %mri subj/MRI/subj_V2.mri
@@ -24,7 +25,6 @@ subj_ds = load_participants(paths,step);
 pids = readtable(paths.all_subj_pids);
 [subj_match, failure] = ds_pid_match(paths,step);
 ssSubjPath = @(x) paths.(subj_match.pid{x});
-
 
 
 % NOTE: the path to the template file is user-specific

@@ -34,33 +34,35 @@ paths = megne2setup(project_path, analysis_name, rawdata_path, mri_path, true);
 stopRecordAndDisplay
 
 %% fcp_1: task epoching, jump/muscle artifact detection, bad channel detection
-
-startRecordPerformance
+%  To be populated with more information
 MEG_ds = struct2table(dir(paths.rawdata));
 writecell(MEG_ds.name(3:(height(MEG_ds))), paths.('subj_fcp1'));
 fcp_1_TaskEpoching(paths)
-stopRecordAndDisplay
 
 %% fcp_2: ICA
-
-startRecordPerformance
+%  To be populated with more information
 writecell(MEG_ds.name(3:(height(MEG_ds))), paths.('subj_fcp2'));
 fcp_2_PreprocessingICA(paths)
-stopRecordAndDisplay
 
 %% fcp_2_5: human identifies bad ICA components, reject those components
-
-startRecordPerformance
+%  To be populated with more information
 fcp_2_5_checkpoint(paths)
-stopRecordAndDisplay
 
 %% fcp_3: bad channel repair
-
-startRecordPerformance
+%  To be populated with more information
 writecell(MEG_ds.name(3:(height(MEG_ds))), paths.('subj_fcp3'));
 fcp_3_ChannelRepair(paths)
-stopRecordAndDisplay
 
 %% fcp_4: beamforming
 % writecell(MEG_ds.name(3:(height(MEG_ds))), paths.('subj_fcp4'));
 % fcp_4_beamforming(paths)
+
+% Gutted for pipeline testing
+[source, source_proj] = fcp_4_beamforming_gutted(paths);
+
+%% fcp_5: connectivity
+
+% Gutted for pipeline testing
+conn_stats = fcp_5_connectivity_gutted(paths, source, source_proj);
+
+
