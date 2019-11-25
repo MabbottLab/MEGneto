@@ -33,7 +33,8 @@ for ii = 1:length(all_participants)
     pids{ii} = all_participants{ii}(length(paths.rawmri)+2:end-7);
     all_participants{ii} = [paths.anout '/' all_participants{ii}(length(paths.rawmri)+2:end-7)];
 end
-all_participants = cell2table(all_participants', 'VariableNames', pids);
+all_participants = cell2struct(all_participants,pids);
+all_participants = struct2table(all_participants);
 
 paths = [paths, all_participants];
 pids = cellfun(@char,pids,'UniformOutput',false);

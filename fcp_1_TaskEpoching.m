@@ -72,7 +72,7 @@ for ss = rangeOFsubj
 %         [paths.(subj_match.pid{ss}) '/' fcp1_output.trigger_figure],...
 %         'showFigure', true); %for Debugging
     numt0marker = plotTriggers(...
-        [subj_match.ds{ss}],... % for some reason, mine was a full file name already
+        [paths.rawdata '/' subj_match.ds{ss}],... % for some reason, mine was a full file name already
         config.task.trialdef.markers.t0marker, 'savePath',...
         [paths.(subj_match.pid{ss}) '/' fcp1_output.trigger_figure],...
         'showFigure', false); % set showFigure to true for debugging
@@ -99,8 +99,7 @@ for ss = rangeOFsubj
     %% Do Epoching %%%
     
     cfg = [];
-    % cfg.dataset = [paths.rawdata '/' subj_match.ds{ss}];
-    cfg.dataset = [subj_match.ds{ss}];
+    cfg.dataset = [paths.rawdata '\' subj_match.ds{ss}];
     cfg.trialfun = config.taskFunc; %@taskTrialFun;
     cfg.trialdef = config.task.trialdef;
     cfg.continuous         = 'yes';
@@ -111,7 +110,7 @@ for ss = rangeOFsubj
 %     try
         [~, ~, cfg, grad] = HeadMotionTool('Fieldtrip', cfg, ...
             'RejectThreshold', config.epoching.headMotion.thr, 'RejectTrials', true, 'CorrectInitial', true, ...
-            'SavePictureFile', [paths.(subj_match.pid{ss}) '/' fcp1_output.fig_headmotion],...
+            'SavePictureFile', [paths.(subj_match.pid{ss}) '\' fcp1_output.fig_headmotion],...
             'GUI', false);
 %     catch
 %         warning('HeadMotionTool error!');
@@ -176,8 +175,7 @@ for ss = rangeOFsubj
     disp('Detecting bad channels ...')
     disp('   ')
     cfg                         = [];
-    % cfg.dataset                 = [paths.rawdata '/' subj_match.ds{ss}];
-    cfg.dataset                 = [subj_match.ds{ss}];
+    cfg.dataset                 = [paths.rawdata '/' subj_match.ds{ss}];
     cfg.bchthr = 60;% 75-85 quantile
     cfg.sections = 3; % divids into 3 sections
     [badChannels,resMat] = detectBadChannels(cfg,paths.name);

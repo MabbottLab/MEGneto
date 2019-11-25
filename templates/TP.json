@@ -60,7 +60,7 @@
                     "name" : ["TPCorrect"],
                     "includeOnce" : [""],
                     "exclude" : [""], 
-                    "include" : ["Correct"],
+                    "include" : ["correct"],
                     "countOnly" : false
                 },
                 "light" : {
@@ -71,12 +71,36 @@
                     "tEpoch" : [-2.0, 2.0 ]
                 },
                 "markers" : {
-                    "correct" : ["CorrectLeft", "CorrectRight"],
-                    "incorrect" : ["IncorrectLeft", "IncorrectRight"],
+                    "correct" : ["LeftCorrect", "RightCorrect"],
+                    "incorrect" : ["LeftIncorrect", "RightIncorrect"],
                     "t0marker" : "OfflineLightOn",
                     "newTrig" : ["Hit"]
                 }
             }
-        }
-    }
+        },
+		"beamforming" : {
+			"headmodel" : {
+				"method" : "singleshell",
+				"units" : "cm"
+			},
+			"template" : {
+				"grid" : {
+					"resolution" : 1,
+					"tight" : "yes",
+					"inwardshift" : -1.5
+				},
+				"coordsys" : "spm"
+			},
+			"atlas" : {
+				"filepath" : "/template/atlas/aal/ROI_MNI_V4.nii",
+				"inputcoord" : "mni"
+			},
+			"checkMRIvolumes" : {
+				"method" : "slice",
+				"slicesdim" : 2,
+				"nslices" : 20,
+				"funparameter" : "pow"
+			}
+		}
+	}
 }

@@ -1,4 +1,5 @@
-function [source,source_conn,parc_conn] = fcp_3_beamforming_sourcegrid(inddata, ftpath, data, paths)
+function [source] = fcp_4_beamforming(paths)
+% function [source,source_conn,parc_conn] = fcp_4_beamforming(paths)
 
 %icacleaned data ft_meg_data_cfg.mat
 %mri subj/MRI/subj_V2.mri
@@ -19,34 +20,36 @@ function [source,source_conn,parc_conn] = fcp_3_beamforming_sourcegrid(inddata, 
 
 config = load_config(paths, paths.name);
 config = config.config;
-step = 'fcp2';
+step = 'fcp4';
 subj_ds = load_participants(paths,step);
 pids = readtable(paths.all_subj_pids);
 [subj_match, failure] = ds_pid_match(paths,step);
 ssSubjPath = @(x) paths.(subj_match.pid{x});
 
 
-
 % NOTE: the path to the template file is user-specific
+ftpath = which('ft_defaults.m');
+ftpath = ftpath(1:30);
 template = ft_read_mri(fullfile(ftpath, '/external/spm8/templates/T1.nii'));
-template.coordsys = config.beamforming.template.coordsys; % so that FieldTrip knows how to interpret the coordinate system
+template.coordsys = config.beamforming.template.coordsys;
+% template.coordsys = config.beamforming.template.coordsys; % so that FieldTrip knows how to interpret the coordinate system
 
 % segment the template brain and construct a volume conduction model (i.e. head model):
 % this is needed to describe the boundary that define which dipole locations are 'inside' the brain.
 cfg          = [];
-template_seg = ft_volumesegment(cfg, template);
+template_seg = ft_volumesegment(cfg, template); % unit: mm
 
 cfg          = [];
 cfg.method   = config.beamforming.headmodel.method; %p.sourcemodel.headmodel_method 
-template_headmodel = ft_prepare_headmodel(cfg, template_seg);
+template_headmodel = ft_prepare_headmodel(cfg, template_seg); % unit: mm
 template_headmodel = ft_convert_units(template_headmodel, config.beamforming.headmodel.units); % Convert the vol to cm, because the CTF convenction is to express everything in cm.
 
 % construct the dipole grid in the template brain coordinates
 % the negative inwardshift means an outward shift of the brain surface for inside/outside detection
 cfg = [];
-cfg.grid.resolution = config.beamforming.template.grid.resolution;
-cfg.grid.tight      = config.beamforming.template.grid.tight;
-cfg.inwardshift     = config.beamforming.template.inwardshift;
+cfg.resolution      = config.beamforming.template.grid.resolution;
+cfg.tight           = config.beamforming.template.grid.tight;
+cfg.inwardshift     = config.beamforming.template.grid.inwardshift;
 cfg.headmodel       = template_headmodel;
 template_grid       = ft_prepare_sourcemodel(cfg);
 
@@ -82,85 +85,86 @@ figure;ft_plot_mesh(template_grid.pos(template_grid.inside,:));
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % For visualization only
 
+rangeOFsubj = 1:length(subj_match.ds);
 
-% read the single subject anatomical MRI, this should be aligned to MEG head coordinates
-% if the MRI is not aligned, you should use ft_volumerealign
-mri = ft_read_mri(inddata.mri);
-mri = ft_convert_units(mri,'cm');
-% mri.unit = 'cm';
-if any(mri.hdr.fiducial.mri.nas) == 0 || any(mri.hdr.fiducial.mri.lpa) == 0  || any(mri.hdr.fiducial.mri.rpa) == 0
-	error('No fiducials found for subject %s!',inddata.ID);
+for ss = rangeOFsubj
+    % read the single subject anatomical MRI, this should be aligned to MEG head coordinates
+    % if the MRI is not aligned, you should use ft_volumerealign
+    mri = ft_read_mri([paths.rawmri '\' subj_match.pid{ss} '_V2.mri']);
+    mri = ft_convert_units(mri,'cm');
+    if any(mri.hdr.fiducial.mri.nas) == 0 || any(mri.hdr.fiducial.mri.lpa) == 0  || any(mri.hdr.fiducial.mri.rpa) == 0
+        error('No fiducials found for subject %s!',inddata.ID);
+    end
+
+
+    % segment the anatomical MRI
+    cfg        = [];
+    cfg.output = 'brain';
+    seg        = ft_volumesegment(cfg, mri);
+
+    % construct the volume conductor model (i.e. head model) for each subject
+    % this is optional, and for the purpose of this tutorial only required for
+    % plotting, later on
+    cfg        = [];
+    cfg.method = config.beamforming.headmodel.method;
+    hdm  = ft_prepare_headmodel(cfg, seg);
+    hdm = ft_convert_units(hdm,headmodel_units);
+
+
+    % check segmented mri volumes for proper alignment (brain) and save as image
+    seg.transform  = mri.transform;
+    seg.anatomy    = mri.anatomy;
+
+    cfg = [];
+    cfg.method          = config.beamforming.checkMRIvolumes.method;
+    cfg.slicesdim       = config.beamforming.checkMRIvolumes.slicesdim;
+    cfg.nslices         = config.beamforming.checkMRIvolumes.nslices;
+    cfg.maskparameter    = 0.5;
+    % cfg.title           = ['Segmentation: ', inddata.ID];
+    ft_sourceplot(cfg, seg);
+
+    hf = gcf;
+    hf.Position(1:2) = [10 10]; 
+    hf.Position(3:4) = (800 / hf.Position(4)) .* hf.Position(3:4);
+    print(hf, inddata.segmentationfigure, '-dpng', '-r600');
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %plot of tissue probability maps 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % create the subject specific grid, using the template grid that has just been created
+    cfg                = [];
+    cfg.grid.warpmni   = config.beamforming.subj.grid.warpmni;
+    cfg.grid.template  = template_grid;
+    cfg.grid.nonlinear = config.beamforming.subj.grid.nonlinear;
+    cfg.mri            = mri;
+    cfg.grid.unit      =config.beamforming.subj.grid.unit; %mm
+    grid               = ft_prepare_sourcemodel(cfg);
+
+    %coords = sourcemodel.pos;
+
+    % make a figure of the single subject headmodel, and grid positions
+    figure; hold on;
+    ft_plot_vol(hdm, 'edgecolor', 'none', 'facealpha', 0.4);
+    ft_plot_mesh(grid.pos(grid.inside,:));
+
+    %load data = ft_meg_data_cfg.mat
+
+    % check alignment of source model and head model and save as image
+    figure('Name',['Subject: ', inddata.ID]);
+    hold on;
+    ft_plot_vol(hdm,'edgecolor','none','facecolor', 'cortex'); % plot head model
+    alpha 0.4; % opacity of headmodel
+    ft_plot_mesh(grid.pos(grid.inside,:)); % plot source model
+    ft_plot_sens(data.grad,'style','ob'); % plot MEG channels (sensors)
+    hold off;
+    view(45,10);
+
+    hf = gcf;
+    hf.Position(1:2) = [10 10];
+    hf.Position(3:4) = (800 / hf.Position(4)) .* hf.Position(3:4);
+
+    %saveas(hf, char(inddata.sourcefigure), 'fig');
+    print(hf, inddata.sourcefigure, '-dpng', '-r600');
 end
-
-
-% segment the anatomical MRI
-cfg        = [];
-cfg.output = 'brain';
-seg        = ft_volumesegment(cfg, mri);
-
-% construct the volume conductor model (i.e. head model) for each subject
-% this is optional, and for the purpose of this tutorial only required for
-% plotting, later on
-cfg        = [];
-cfg.method = config.beamforming.headmodel.method;
-hdm  = ft_prepare_headmodel(cfg, seg);
-% hdm = ft_convert_units(hdm,headmodel_units);
-
-
-% check segmented mri volumes for proper alignment (brain) and save as image
-seg.transform  = mri.transform;
-seg.anatomy    = mri.anatomy;
-    
-cfg = [];
-cfg.method          = config.beamforming.checkMRIvolumes.method;
-cfg.slicesdim       = config.beamforming.checkMRIvolumes.slicesdim;
-cfg.nslices         = config.beamforming.checkMRIvolumes.nslices;
-cfg.funparameter    = config.beamforming.checkMRIvolumes.funparameter;
-cfg.title           = ['Segmentation: ', inddata.ID];
-cfg.colorbar        = config.beamforming.checkMRIvolumes.colorbar;
-ft_sourceplot(cfg, seg);
-    
-hf = gcf;
-hf.Position(1:2) = [10 10]; 
-hf.Position(3:4) = (800 / hf.Position(4)) .* hf.Position(3:4);
-print(hf, inddata.segmentationfigure, '-dpng', '-r600');
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%plot of tissue probability maps 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% create the subject specific grid, using the template grid that has just been created
-cfg                = [];
-cfg.grid.warpmni   = config.beamforming.subj.grid.warpmni;
-cfg.grid.template  = template_grid;
-cfg.grid.nonlinear = config.beamforming.subj.grid.nonlinear;
-cfg.mri            = mri;
-cfg.grid.unit      =config.beamforming.subj.grid.unit; %mm
-grid               = ft_prepare_sourcemodel(cfg);
-
-%coords = sourcemodel.pos;
-
-% make a figure of the single subject headmodel, and grid positions
-figure; hold on;
-ft_plot_vol(hdm, 'edgecolor', 'none', 'facealpha', 0.4);
-ft_plot_mesh(grid.pos(grid.inside,:));
-
-%load data = ft_meg_data_cfg.mat
-
-% check alignment of source model and head model and save as image
-figure('Name',['Subject: ', inddata.ID]);
-hold on;
-ft_plot_vol(hdm,'edgecolor','none','facecolor', 'cortex'); % plot head model
-alpha 0.4; % opacity of headmodel
-ft_plot_mesh(grid.pos(grid.inside,:)); % plot source model
-ft_plot_sens(data.grad,'style','ob'); % plot MEG channels (sensors)
-hold off;
-view(45,10);
-    
-hf = gcf;
-hf.Position(1:2) = [10 10];
-hf.Position(3:4) = (800 / hf.Position(4)) .* hf.Position(3:4);
-    
-%saveas(hf, char(inddata.sourcefigure), 'fig');
-print(hf, inddata.sourcefigure, '-dpng', '-r600');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% compute the leadfield

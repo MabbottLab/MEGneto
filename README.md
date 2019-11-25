@@ -74,10 +74,6 @@ Allows for manual removal of problematic channels, preparation and execution of 
 - Import and filter raw *.ds data
 - Load gradiometer config file
 - Load 3rd order gradients for noise reduction in CTF
-- Specify whether bad channel removal is manual or not?
-   - If manual, call *inputBADchannels.m*: interactive user-input
-- Call *ft_prepare_neighbours.m*: Specify sensor removal parameters, prepare
-- Call *ft_channelrepair*: replaces bad or missing channels with plain average of neighbouring sensors
 - If no ICA:
    - Resample and return
 - If yes ICA:
@@ -101,8 +97,27 @@ Allows for manual removal of problematic channels, preparation and execution of 
 - Save filtered ft_preprocessing output to prevent repetitions
 - Separate bad channel removal or channel repair from ICA
 - Specify PCA to run before ICA and num components to reduce run time
+- Modify loops to prevent re-loading JSON files
+- Add component number to y-axis when inspecting ICA results
+- Move fcp_2_output to same config folder
 
-### 3. Beamforming
+### 2.5. Checkpoint | fcp_2_5_checkpoint.m
+
+After ICA, need human to identify components corresponding with heartbeat and eye movement artifacts. 
+
+- Pull in cfg JSONs that contain epoch information
+- Loop over each participant
+- Get user input as numeric array of components to be rejected
+- Back-project ICA decomop. onto original data after component removal
+- Save ICA denoised data
+
+### 3. Channel repair | fcp_3_ChannelRepair.m
+
+- Pull in ICA-denoised data, list of bad channels outputted from fcp_1
+- For each bad channel, replace signal with average of neighbours
+- Save final preprocessed data
+
+### 4. Beamforming | fcp_4_beamforming.m
 
 Source reconstruction analysis.
 
@@ -133,7 +148,7 @@ Source reconstruction analysis.
 #### Nice-to-haves
 - Ability to parallel process participants through analysis
 
-### 4. Functional connectivity analysis
+### 5. Functional connectivity analysis
 
 - Call *ft_connectivityanalysis.m*
 

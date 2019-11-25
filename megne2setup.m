@@ -90,7 +90,7 @@ if overwrite == true || ~exist(paths.mainconf,'file')
 end
 
 for ii = 1:height(subj)
-    mkdir(paths.(subj.pids{ii}));
+    mkdir(char(paths.(subj.pids{ii})));
 end
 
 paths_cell = table2cell(paths)';
