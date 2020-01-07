@@ -1,4 +1,4 @@
-function fcp_3_ChannelRepair(paths)
+function fcp_3_ChannelRepair(paths, included_fcp2)
 
 % After a human identifies ICA components that correspond to artifacts,
 % this code will back-project leftover ICA components to data, as well as
@@ -24,17 +24,19 @@ if length(unique(subj_match.pid)) ~= length(subj_match.pid)
 end
 
 fcp1_output = load_config(paths,'fcp1_output');
-fcp2_output = loadjson([paths.anout_grp '\fcp2_5_output.json']);
+fcp2_output = loadjson([paths.anout_grp '/fcp2_5_output.json']);
 fcp2_output = recursive_json_struct_string_to_func(fcp2_output);
 
 rangeOFsubj = 1:height(subj_match);
 
 disp('Starting channel repair...');
 for ss = rangeOFsubj
+    fprintf('\n\nWorking on SUBJECT: %s\n', subj_match.pid{ss});
+
     load([ssSubjPath(ss) '/' fcp2_output.preprocessedData_cfg],'-mat','data');
 
     % remove and repair bad channels
-    if config.cleaningOptions.rmBadChannels == 1
+    if config.cleaningOptions.rmBadChannels == 1 && ~isempty(fcp2_output.bad_chann{included_fcp2(ss)}{1})
 
         disp('Finding neighbours ...')
 
@@ -50,8 +52,8 @@ for ss = rangeOFsubj
         disp('Repairing bad channels ...')
         cfg = [];
         %         cfg.method         = 'weighted'; %'average', 'spline' or 'slap' (default = 'weighted')
-        badChanns = fcp2_output.bad_chann(ss);
-        badChanns = cellstr('M' + string(split(badChanns, 'M')));
+        badChann = fcp2_output.bad_chann{included_fcp2(ss)};
+        badChanns = cellstr('M' + split(string(badChann), 'M'));
         cfg.badchannel     = badChanns(2:length(badChanns));
         %cfg.missingchannel = cell-array, see FT_CHANNELSELECTION for details
         cfg.neighbours     = neighbours; %neighbourhood structure, see also FT_PREPARE_NEIGHBOURS
@@ -62,6 +64,8 @@ for ss = rangeOFsubj
         save([ssSubjPath(ss) '/ft_meg_fullyProcessed'],'data','-v7.3')
 
         disp('Done Removing Bad Channels.');
-
+    else
+        fprintf('\n\nSUBJECT: %s\n has no bad channels', subj_match.pid{ss});
+        save([ssSubjPath(ss) '/ft_meg_fullyProcessed'],'data','-v7.3')
     end
 end

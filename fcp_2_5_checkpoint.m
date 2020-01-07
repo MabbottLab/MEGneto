@@ -24,7 +24,7 @@ if length(unique(subj_match.pid)) ~= length(subj_match.pid)
 end
 
 fcp1_output = load_config(paths,'fcp1_output');
-fcp2_output = loadjson([paths.anout_grp '\fcp2_output.json']);
+fcp2_output = loadjson([paths.anout_grp '/fcp2_output.json']);
 fcp2_output = recursive_json_struct_string_to_func(fcp2_output);
 
 rangeOFsubj = 1:height(subj_match);

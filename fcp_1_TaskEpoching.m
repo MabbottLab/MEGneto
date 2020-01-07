@@ -75,8 +75,7 @@ for ss = rangeOFsubj
         [paths.rawdata '/' subj_match.ds{ss}],... % for some reason, mine was a full file name already
         config.task.trialdef.markers.t0marker, 'savePath',...
         [paths.(subj_match.pid{ss}) '/' fcp1_output.trigger_figure],...
-        'showFigure', false); % set showFigure to true for debugging
-    %     plotTriggers(p.subj.subj_ds{ss}, 'savePath', p.paths.trigger_figure(ss), 'showFigure', false);
+        'showFigure', true); % set showFigure to true for debugging
     if numt0marker < 5
         warning('Not enough markers found - check marker file!')
         continue
@@ -99,7 +98,7 @@ for ss = rangeOFsubj
     %% Do Epoching %%%
     
     cfg = [];
-    cfg.dataset = [paths.rawdata '\' subj_match.ds{ss}];
+    cfg.dataset = [paths.rawdata '/' subj_match.ds{ss}];
     cfg.trialfun = config.taskFunc; %@taskTrialFun;
     cfg.trialdef = config.task.trialdef;
     cfg.continuous         = 'yes';

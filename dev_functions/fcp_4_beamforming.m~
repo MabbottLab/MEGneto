@@ -274,6 +274,6 @@ for ss = rangeOFsubj
         
     clear coords catmatrix srate vector_virtual_sources vector_virtual_sources_trial source_timeseries ...
         sources_innode ori_avg ori_avg_trial ori_116 atlas sourcemodel source_t_trials projection seg mri data grid hdm ...
-        source_t_avg tlock leadfield aal_node ori_region ori_innode ori_region_padded
+        source_t_avg tlock leadfield aal_node ori_region ori_innode
     fprintf('\nDone subject %s! \n', subj_match.pid{ss});
 end

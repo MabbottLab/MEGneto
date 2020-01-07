@@ -25,24 +25,23 @@
 %                       - subj_01
 %                       - 
 %                   - config
-startRecordPerformance
-analysis_name = 'TP';
-project_path = 'C:\Users\julie tseng\Data';
-rawdata_path = 'C:\Users\julie tseng\Data\MEG\left';
-mri_path = 'C:\Users\julie tseng\Data\MRIs';
-paths = megne2setup(project_path, analysis_name, rawdata_path, mri_path, true);
-stopRecordAndDisplay
+% startRecordPerformance
+analysis_name = 'Both';
+project_path = 'SoT_both_30dec2019';
+rawdata_path = '/mnt/sda/juanita/datasets/both';
+mri_path = '/mnt/sda/juanita/MRIs';
+paths = megne2setup(project_path, analysis_name, rawdata_path, mri_path, false);
+% stopRecordAndDisplay
 
 %% fcp_1: task epoching, jump/muscle artifact detection, bad channel detection
 %  To be populated with more information
-MEG_ds = struct2table(dir(paths.rawdata));
-writecell(MEG_ds.name(3:(height(MEG_ds))), paths.('subj_fcp1'));
+
 fcp_1_TaskEpoching(paths)
 
 %% fcp_2: ICA
-%  To be populated with more information
-writecell(MEG_ds.name(3:(height(MEG_ds))), paths.('subj_fcp2'));
-fcp_2_PreprocessingICA(paths)
+excluded = [16, 18, 27, 44, 47, 60, 71];
+included = setdiff(1:76, excluded);
+fcp_2_PreprocessingICA(paths, included, 1)
 
 %% fcp_2_5: human identifies bad ICA components, reject those components
 %  To be populated with more information
@@ -50,12 +49,16 @@ fcp_2_5_checkpoint(paths)
 
 %% fcp_3: bad channel repair
 %  To be populated with more information
-writecell(MEG_ds.name(3:(height(MEG_ds))), paths.('subj_fcp3'));
-fcp_3_ChannelRepair(paths)
+excluded_fcp2 = sort([16, 18, 27, 44, 47, 60, 71, 28, 37, 43, 52, 4, 8, ...
+    35, 36, 63, 67, 76]);
+% excluded_fcp2_5 = sort([25, 34, 40, 47, 55, 4, 8, 32, 33, 57, 61, 69]);
+included_fcp2 = setdiff(1:76, excluded_fcp2);
+% included_fcp2_5 = setdiff(1:69, excluded_fcp2_5);
+fcp_3_ChannelRepair(paths, included_fcp2)
 
 %% fcp_4: beamforming
 % writecell(MEG_ds.name(3:(height(MEG_ds))), paths.('subj_fcp4'));
-% fcp_4_beamforming(paths)
+fcp_4_beamforming(paths)
 
 % Gutted for pipeline testing
 [source, source_proj] = fcp_4_beamforming_gutted(paths);
@@ -63,6 +66,6 @@ fcp_3_ChannelRepair(paths)
 %% fcp_5: connectivity
 
 % Gutted for pipeline testing
-conn_stats = fcp_5_connectivity_gutted(paths, source, source_proj);
+fcp_5_taskconnectivity(paths);
 
 
