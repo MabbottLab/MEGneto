@@ -1,49 +1,89 @@
 function [paths, pids] = path_generation(project_path, analysis_name, rawdata_path, mri_path)
-%PATH_GENERATION Path struct generator for Megne2 pipeline
-%   Sets up the locations of all relevant input files in a depth-1 table.
-paths.name = analysis_name;
 
-paths.home = project_path;
-paths.analyses = [paths.home '/analysis'];
-paths.anhome = [paths.analyses '/' analysis_name];
-paths.anout = [paths.anhome '/analysis'];
-paths.anout_grp = [paths.anout '/group'];
-paths.conf_dir = [paths.anhome '/config'];
-paths.mainconf = [paths.conf_dir '/' paths.name '.json'];
-paths.paths = [paths.conf_dir '/paths.json'];
-paths.all_subj_pids = [paths.conf_dir '/all_subj_pids.csv'];
-paths.subj_fcp1 = [paths.conf_dir '/subj_fcp1.csv'];
-paths.subj_fcp2 = [paths.conf_dir '/subj_fcp2.csv'];
-paths.subj_fcp3 = [paths.conf_dir '/subj_fcp3.csv'];
-paths.subj_fcp4 = [paths.conf_dir '/subj_fcp4.csv'];
-paths.subj_fcp5 = [paths.conf_dir '/subj_fcp5.csv'];
-paths.subj_fcp1_match = [paths.conf_dir '/subj_match_fcp1.csv'];
-paths.subj_fcp2_match = [paths.conf_dir '/subj_match_fcp2.csv'];
-paths.subj_fcp3_match = [paths.conf_dir '/subj_match_fcp3.csv'];
-paths.subj_fcp4_match = [paths.conf_dir '/subj_match_fcp4.csv'];
-paths.subj_fcp5_match = [paths.conf_dir '/subj_match_fcp5.csv'];
-paths.rawdata = rawdata_path;
-paths.rawmri = mri_path;
+% PATH_GENERATION sets up the locations of all relevant input files in a 
+% depth-1 table. This struct feeds forward into each fcp_x step. If a paths
+% struct has already been saved as a JSON to the appropriate location, this
+% code will retrieve that struct and return it. 
+% 
+% INPUTS:
+%   project_path        =   string: name and location of project directory 
+%                           (if no location defined, then it will be created 
+%                           in current working directory. 
+%   analysis_name       =   string
+%   rawdata_path        =   string defining MEG data path (*.ds folders)
+%   mri_path            =   string defining MRI data path (*.mri)
+%
+% RETURNS:
+%   paths               =   struct defining paths to data, participant
+%                           folders, analysis folders, config files, etc. 
+%   pids                =   table of all participant IDs
+%
+% See also: MEGNE2SETUP, PATH_CHECK
 
-paths = struct2table(paths);
+% Last updated by: Julie Tseng, 2020-01-07
+%   This file is part of MEGneto, see https://github.com/SonyaBells/MEGneto
+%   for the documentation and details.
+%   
 
-all_participants = glob([paths.rawmri '/*.mri']);
-pids = cell(length(all_participants),1);
-for ii = 1:length(all_participants)
-    pids{ii} = all_participants{ii}(length(paths.rawmri)+2:end-7);
-    all_participants{ii} = [paths.anout '/' all_participants{ii}(length(paths.rawmri)+2:end-7)];
-end
-all_participants = cell2struct(all_participants,pids);
-all_participants = struct2table(all_participants);
+%% Begin code
 
-paths = [paths, all_participants];
-pids = cellfun(@char,pids,'UniformOutput',false);
-pids = cell2table(pids);
+paths.home = project_path;      % home folder of project 
+paths.analyses = [paths.home '/analysis'];              % umbrella analysis folder
+paths.anhome = [paths.analyses '/' analysis_name]; % specific analysis folder
+paths.conf_dir = [paths.anhome '/config'];  % specific analysis config files
+paths.paths = [paths.conf_dir '/paths.json']; % location of JSON record of paths struct
 
-if exist(paths.paths, 'file')
+% if this paths struct has already been generated before
+if exist(paths.paths, 'file') % then retrieve it and return
     warning(['paths.json already exists, retrieving from ' paths.paths]);
     paths = loadjson(paths.paths);
     paths = struct2table(paths);
+    pids = readtable(paths.all_subj_pids);
+else % otherwise, define the rest of the paths struct
+    paths.name = analysis_name;     % analysis name (e.g., BOTH)
+    paths.anout = [paths.anhome '/analysis'];               % specific analysis OUTPUT folder
+    paths.anout_grp = [paths.anout '/group'];               % specific analysis GROUP output folder
+    paths.mainconf = [paths.conf_dir '/' paths.name '.json'];       % location of JSON config file
+    paths.all_subj_pids = [paths.conf_dir '/all_subj_pids.csv'];    % CSV of ALL participants under analysis
+
+    % initialize empty CSVs to define participants included at each stage
+    % to be filled manually by the user
+    paths.subj_fcp1 = [paths.conf_dir '/subj_fcp1.csv'];
+    paths.subj_fcp2 = [paths.conf_dir '/subj_fcp2.csv'];
+    paths.subj_fcp3 = [paths.conf_dir '/subj_fcp3.csv'];
+    paths.subj_fcp4 = [paths.conf_dir '/subj_fcp4.csv'];
+    paths.subj_fcp5 = [paths.conf_dir '/subj_fcp5.csv'];
+
+    % initialize empty CSVs to define *matched* participants who have both MRI
+    % and MEG datasets
+    paths.subj_fcp1_match = [paths.conf_dir '/subj_match_fcp1.csv'];
+    paths.subj_fcp2_match = [paths.conf_dir '/subj_match_fcp2.csv'];
+    paths.subj_fcp3_match = [paths.conf_dir '/subj_match_fcp3.csv'];
+    paths.subj_fcp4_match = [paths.conf_dir '/subj_match_fcp4.csv'];
+    paths.subj_fcp5_match = [paths.conf_dir '/subj_match_fcp5.csv'];
+
+    % paths to MEG and MRI data
+    paths.rawdata = rawdata_path;
+    paths.rawmri = mri_path;
+
+    % individual MRI data paths
+    paths = struct2table(paths);
+    all_participants = glob([paths.rawmri '/*.mri']);
+    pids = cell(length(all_participants),1);
+    for ii = 1:length(all_participants)
+        pids{ii} = all_participants{ii}(length(paths.rawmri)+2:end-7);
+        all_participants{ii} = [paths.anout '/' all_participants{ii}(length(paths.rawmri)+2:end-7)];
+    end
+    all_participants = cell2struct(all_participants,pids);
+    all_participants = struct2table(all_participants);
+
+    % append individual participant paths to overall paths struct
+    paths = [paths, all_participants]; 
+
+    % save and return all PIDs
+    pids = cellfun(@char,pids,'UniformOutput',false); 
+    pids = cell2table(pids);
 end
+
 end
 

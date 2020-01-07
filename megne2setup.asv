@@ -157,8 +157,8 @@ for ii = 1:length(csv)
         fclose(fid);
     end
 end
-writetable(subj, paths.all_subj_pids);
 
-%%  run final check that everything initialized correctly
+% 
+writetable(subj,paths.all_subj_pids);
 path_check(paths, {'name'});
 
