@@ -16,8 +16,9 @@ function fcp_4_beamforming(paths)
 %
 % OUTPUTS:
 %   .mat
-%       - catmatrix:     
-%       - srate:
+%       - catmatrix:    num_samples x num_trials x num_nodes
+%       - srate:        sampling rate
+%       - coords:       coordinates of source points w/in
 %
 % See also: 
 %
