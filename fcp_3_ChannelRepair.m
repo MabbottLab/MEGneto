@@ -1,4 +1,4 @@
-function fcp_3_ChannelRepair(paths, included_fcp2)
+function fcp_3_ChannelRepair(paths)
 
 % FCP_3_CHANNELREPAIR remove and repair bad channels detected from fcp_1, 
 % but that we held off on removing until the data had been ICA-cleaned. 
@@ -30,8 +30,8 @@ config      = config.config;
 step        = 'fcp3';
 
 % check for matched MRI and MEG data
-subj_match = ds_pid_match(paths,step);
-ssSubjPath = @(x) paths.(subj_match.pid{x});
+subj_match  = ds_pid_match(paths,step);
+ssSubjPath  = @(x) paths.(subj_match.pid{x});
 if isempty(subj_match) % if there are no full sets of data
     error('No participants selected')
 end
@@ -47,6 +47,12 @@ end
 % pull in fcp_2/2_5 output, containing ICA-cleaned data
 fcp2_output = loadjson([paths.anout_grp '/fcp2_5_output.json']);
 fcp2_output = recursive_json_struct_string_to_func(fcp2_output);
+
+% participants to be included
+pid_fcp1    = readtable(paths.subj_fcp1_match).Var1; % get fcp_1 ppts
+pid_fcp3    = subj_match.pid; % get fcp_3 ppts
+match_func  = cellfun(@(x) ismember(x, pid_fcp3), pid_fcp1, 'UniformOutput', 0);
+included    = find(cell2mat(match_func)); % get indices of included
 
 %% REPAIR BAD CHANNELS
 
@@ -75,7 +81,7 @@ for ss = rangeOFsubj
         disp('Repairing bad channels ...')
 
         % load bad channels
-        badChann    = fcp2_output.bad_chann{included_fcp2(ss)};
+        badChann    = fcp2_output.bad_chann{included(ss)};
         badChanns   = cellstr('M' + split(string(badChann), 'M'));
         
         % run repair
