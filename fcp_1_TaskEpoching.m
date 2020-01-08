@@ -1,7 +1,7 @@
 function fcp_1_TaskEpoching(paths)
 
 % FCP_1_TASKEPOCHING will epoch MEG data into trials depending on the
-% desired marker. 
+% desired marker, detect and reject muscle/jump artifacts, and 
 % 
 % NOTES:
 %   - Ensure that subj_fcp1.csv is populated with the subject IDs of
@@ -12,7 +12,7 @@ function fcp_1_TaskEpoching(paths)
 %
 % INPUTS:
 %   paths               =   struct defining paths to data, participant
-%                       folders, analysis folders, config files, etc. 
+%                           folders, analysis folders, config files, etc. 
 %
 % OUTPUTS:
 %   fcp1_output         = struct with locations of output files
@@ -27,10 +27,13 @@ function fcp_1_TaskEpoching(paths)
 %     .group_rmBadChan  = 'group_rmBadChan.json': lists of bad channs
 %     .numtrls          = number of trials across participants
 %     .HMremove_trls    = number of trials removed due to head motion
-
+%     .noisy_trl        = muscle and jump artifact trial timestamps
+%     .Nremove_trls     = total number of noisy trials removed
+%     .bad_chann        = string array; bad channels detected for each 
+%                         participant
 %
-% See also: DS_PID_MATCH, WRITE_MATCH_IF_NOT_EMPTY, HEADMOTIONTOOL,
-%           DETECTBADCHANNELS
+% See also: DS_PID_MATCH, WRITE_MATCH_IF_NOT_EMPTY, PLOTTRIGGERS, 
+%           HEADMOTIONTOOL, DETECTBADCHANNELS
 
 % Last updated by: Julie Tseng, 2020-01-07
 %   This file is part of MEGneto, see https://github.com/SonyaBells/MEGneto
