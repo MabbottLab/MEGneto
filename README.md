@@ -68,7 +68,7 @@ Detects and removes timewindows or full trials with excessive head motion, muscl
 
 ### 2.  Preprocessing | fcp_2_PreprocessingICA.m
 
-Allows for manual removal of problematic channels, preparation and execution of ICA, user guided removal of ICA components that reflect heartbeat/blink artifacts. 
+Accounts for 3rd order gradient signal, prepares (i.e., downsamples signal and omits signal from bad channels) and carries out ICA on MEG data. 
 
 - Pull in cfg JSONs that contain epoch information
 - Import and filter raw *.ds data
@@ -83,33 +83,24 @@ Allows for manual removal of problematic channels, preparation and execution of 
    - Specify ICA parameters (e.g., runica, fastica, etc. - currently set to runica without specifying PCA num components)
    - Call *ft_componentanalysis.m*: run ICA
    - Save output
-   - If interactive: 
-      - Display each component for review and record user input
-   - If not itneractive:
-      - Get list of components to be removed
-      - Call *ft_rejectcomponent.m*
-      - Save output
-
+  
 #### Critical fixes
 - Add bad channels output from fcp_1 to be removed here?
 
 #### Nice-to-haves
 - Save filtered ft_preprocessing output to prevent repetitions
-- Separate bad channel removal or channel repair from ICA
-- Specify PCA to run before ICA and num components to reduce run time
-- Modify loops to prevent re-loading JSON files
 - Add component number to y-axis when inspecting ICA results
 - Move fcp_2_output to same config folder
 
 ### 2.5. Checkpoint | fcp_2_5_checkpoint.m
 
-After ICA, need human to identify components corresponding with heartbeat and eye movement artifacts. 
-
+  Interactive session that guides user through inspection of ICA components to identify components associate with artifacts such as heartbeats, blinks. After inspection, backprojects ICA components to remove signal corresponding with bad ICA components. 
+  
 - Pull in cfg JSONs that contain epoch information
 - Loop over each participant
 - Get user input as numeric array of components to be rejected
-- Back-project ICA decomop. onto original data after component removal
-- Save ICA denoised data
+- Back-project ICA decomp. onto original data after component removal
+- Save ICA-denoised data
 
 ### 3. Channel repair | fcp_3_ChannelRepair.m
 
@@ -119,7 +110,7 @@ After ICA, need human to identify components corresponding with heartbeat and ey
 
 ### 4. Beamforming | fcp_4_beamforming.m
 
-Source reconstruction analysis.
+Map functional data onto source model, and interpolate to AAL atlas regions.
 
 - Load config information from JSON files, check IDs
 - Call *ft_read_mri* to import T1 template from spm8
@@ -141,16 +132,30 @@ Source reconstruction analysis.
    - Call *ft_sourceanalysis.m* + other steps specific to the type of source recon
 - Call *ft_sourcedescriptives.m*: project to dominant orientation (largest eigenvector)
 - Call *ft_sourceinterpolate.m*: interpolate functional data onto anatomical data using prev as input, subject MRI
+- Load AAL region atlas and create timeseries matrix for each participant with a timeseries per AAL node
 
 #### Critical fixes
-- Separate connectivity analysis into its own code
+- ~Separate connectivity analysis into its own code~ done: 2020-01-09
 
 #### Nice-to-haves
 - Ability to parallel process participants through analysis
 
 ### 5. Functional connectivity analysis
 
-- Call *ft_connectivityanalysis.m*
+Run PLI or PLV connectivity analyses to examine functional connectivity between regions.
+
+-Load participant source timeseries matrices (catmatrix)
+- Apply Hilbert filter to isolate frequency band
+- Return PLI or PLV connectivity between pairs of AAL nodes
+- Repeat for each trial and frequency band
+- Save individual adjacency matrix
+- Then, repeat for all participants
+- Take average across trials for each participant and assemble all-participant adjacency matrix
+
+#### Critical fixes
+
+#### Nice-to-haves
+- Re-implement data check to ensure all participants have properly processed inputs
 
 ## Historical contributors
 
