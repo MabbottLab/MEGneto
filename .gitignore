@@ -1,2 +1,8 @@
+# mac git file
 .DS_Store
-.DS_Store
+
+# matlab autosave extension
+*.m~
+
+# windows autosave
+*.asv
