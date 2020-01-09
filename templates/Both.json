@@ -18,7 +18,6 @@
                     "bpfilttype"  : "but",
                     "hilbert"     : "yes",
                     "boxcar"      : 0.2,
-
                     "cutoff"      : 30,
                     "trlpadding"  : 0.5,
                     "fltpadding"  : 0.1,
@@ -52,15 +51,14 @@
             ],
             "within_file_path": "__base_function"
         },
-
         "task" : {
             "isRest" : 0,
             "trialdef" : {
                 "details" : {
-                    "name" : ["TPCorrect"],
+                    "name" : ["Correct"],
                     "includeOnce" : [""],
                     "exclude" : [""], 
-                    "include" : ["correct"],
+                    "include" : ["Correct"],
                     "countOnly" : false
                 },
                 "light" : {
@@ -71,36 +69,59 @@
                     "tEpoch" : [-2.0, 2.0 ]
                 },
                 "markers" : {
-                    "correct" : ["LeftCorrect", "RightCorrect"],
-                    "incorrect" : ["LeftIncorrect", "RightIncorrect"],
+                    "Correct" : ["LeftCorrect", "RightCorrect"],
+                    "Incorrect" : ["LeftIncorrect", "RightIncorrect"],
                     "t0marker" : "OfflineLightOn",
                     "newTrig" : ["Hit"]
                 }
             }
         },
-		"beamforming" : {
-			"headmodel" : {
-				"method" : "singleshell",
-				"units" : "cm"
+	"beamforming" : {
+		"headmodel" : {
+			"method" : "singleshell",
+			"units" : "cm"
+		},
+		"template" : {
+			"grid" : {
+				"resolution" : 1,
+				"tight" : "yes",
+				"inwardshift" : -0.8
 			},
-			"template" : {
-				"grid" : {
-					"resolution" : 1,
-					"tight" : "yes",
-					"inwardshift" : -1.5
-				},
-				"coordsys" : "spm"
-			},
-			"atlas" : {
-				"filepath" : "/template/atlas/aal/ROI_MNI_V4.nii",
-				"inputcoord" : "mni"
-			},
-			"checkMRIvolumes" : {
-				"method" : "slice",
-				"slicesdim" : 2,
-				"nslices" : 20,
-				"funparameter" : "pow"
+			"coordsys" : "spm"
+		},
+		"atlas" : {
+			"filepath" : "/template/atlas/aal/ROI_MNI_V4.nii",
+			"inputcoord" : "mni"
+		},
+		"checkMRIvolumes" : {
+			"method" : "slice",
+			"slicesdim" : 2,
+			"nslices" : 20,
+			"funparameter" : "pow"
+		},
+		"subj" : {
+			"grid" : {
+				"warpmni": "yes",
+				"nonlinear": "yes",
+				"unit": "cm"
 			}
-		}
+		},
+		"leadfield" : {
+			"reducerank" : "no",
+			"normalize" : "no" 
+		},
+		"timeDomain" : {
+			"covariance" : "yes",
+			"covariancewindow" : "all",
+			"vartrllength" : 2, 
+			"projectmom" : "yes"
+		},
+		"options" : {
+			"keeptrials" : "yes",
+			"keepfilter" : "yes",
+			"rawtrial" : "yes"		
+		},
+		"method" : "lcmv"
+	}    
 	}
 }
