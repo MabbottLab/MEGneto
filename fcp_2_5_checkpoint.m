@@ -150,7 +150,7 @@ end
 
 % save fcp_2_5 output
 disp('Saving...');
-save_to_json(fcp2_output,[paths.anout_grp '/fcp2_5_output.json'])
+save_to_json(fcp2_output, [paths.anout_grp '/fcp2_5_output.json'])
 disp('Done.')
 
 end

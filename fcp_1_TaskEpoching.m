@@ -72,9 +72,6 @@ end
         fcp1_output.subj_epochInfo  = 'subj_epoching_info.mat';
         fcp1_output.group_rmBadChan = 'group_rmBadChan.json';
 
-% save to file the paths
-save_to_json(fcp1_output, [paths.conf_dir '/fcp1_output.json'])
-
 %% EPOCHING
 
 for ss = 1:length(subj_match.ds) % for each participant
@@ -143,20 +140,20 @@ for ss = 1:length(subj_match.ds) % for each participant
     if config.cleaningOptions.artifact.detection == 1
         
         %%% Muscle Artifacts %%%
-        cfg.artfctdef.muscle.bpfilter    = 'yes';
-        cfg.artfctdef.muscle.bpfreq      = [110 140];
-        cfg.artfctdef.muscle.bpfiltord   = 8;
-        cfg.artfctdef.muscle.bpfilttype  = 'but';
-        cfg.artfctdef.muscle.hilbert     = 'yes';
-        cfg.artfctdef.muscle.boxcar      = 0.2;
-        cfg.artfctdef.muscle.cutoff      = 30; % default is 8 (makes enough epochs for good DS)
-        cfg.artfctdef.muscle.trlpadding  = 0.5; % get errors in ft_artifact_muscle without these
-        cfg.artfctdef.muscle.fltpadding  = 0.1;
-        cfg.artfctdef.muscle.artpadding  = 0.1;
+        cfg.artfctdef.muscle.bpfilter    = config.cleaningOptions.artifact.muscle.bpfilter;
+        cfg.artfctdef.muscle.bpfreq      = config.cleaningOptions.artifact.muscle.bpfreq;
+        cfg.artfctdef.muscle.bpfiltord   = config.cleaningOptions.artifact.muscle.bpfiltord;
+        cfg.artfctdef.muscle.bpfilttype  = config.cleaningOptions.artifact.muscle.bpfilttype;
+        cfg.artfctdef.muscle.hilbert     = config.cleaningOptions.artifact.muscle.hilbert;
+        cfg.artfctdef.muscle.boxcar      = config.cleaningOptions.artifact.muscle.boxcar;
+        cfg.artfctdef.muscle.cutoff      = config.cleaningOptions.artifact.muscle.cutoff;
+        cfg.artfctdef.muscle.trlpadding  = config.cleaningOptions.artifact.muscle.trlpadding; 
+        cfg.artfctdef.muscle.fltpadding  = config.cleaningOptions.artifact.muscle.fltpadding;
+        cfg.artfctdef.muscle.artpadding  = config.cleaningOptions.artifact.muscle.artpadding;
         [cfg, muscle_artifact]           = ft_artifact_muscle(cfg);
         
         %%%% Jump Artifacts %%%
-        cfg.artfctdef.jump.cutoff        = 35 ; % default is 22 (makes enough epochs for good DS)
+        cfg.artfctdef.jump.cutoff        = config.cleaningOptions.artifact.jump.cutoff;
         [cfg, jump_artifact]             = ft_artifact_jump(cfg);
         
 %%% ARTIFACT REJECTION ----------------------------------------------------
@@ -201,6 +198,6 @@ end
 
 % save all output
 disp('Saving...');
-save_to_json(fcp1_output, [paths.anout_grp '/fcp1_output'], true);
+save_to_json(fcp1_output, [paths.anout_grp '/fcp1_output.json'], true);
 disp('Done FCP_1.');
 end
