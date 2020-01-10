@@ -1,4 +1,4 @@
-# MEGneto: MEGne3 Branch
+# MEGneto 3.0
  
 Pipeline on MATLAB with FieldTrip to process MEG data and run functional connectivity analyses. Developed @ SickKids, Toronto, Canada. 
 
