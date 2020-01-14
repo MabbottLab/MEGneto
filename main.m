@@ -35,7 +35,8 @@ paths = megne2setup(project_path, analysis_name, rawdata_path, mri_path, false);
 
 %% fcp_1: task epoching, jump/muscle artifact detection, bad channel detection
 %  To be populated with more information
-
+MEG_ds = struct2table(dir(paths.rawdata));
+writecell(MEG_ds.name(3:(height(MEG_ds))), paths.('subj_fcp1'));
 fcp_1_TaskEpoching(paths)
 
 %% fcp_2: ICA
