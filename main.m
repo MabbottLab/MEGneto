@@ -26,9 +26,9 @@
 %                       - 
 %                   - config
 % startRecordPerformance
-analysis_name = 'Both';
-project_path = 'SoT_both_30dec2019';
-rawdata_path = '/mnt/sda/juanita/datasets/both';
+analysis_name = 'SoT_right_14jan2020';
+project_path = '/mnt/sda/juanita/MEGneto';
+rawdata_path = '/mnt/sda/juanita/datasets/right';
 mri_path = '/mnt/sda/juanita/MRIs';
 paths = megne2setup(project_path, analysis_name, rawdata_path, mri_path, false);
 % stopRecordAndDisplay

@@ -102,7 +102,6 @@ end
 
 % run path_generation to generate locations
 [paths, subj] = path_generation(project_path, analysis_name, rawdata_path, mri_path);
-save_to_json(paths,paths.paths); % save JSON paths for later reloading
 
 % FOLDER STRUCTURE
 % project_path
@@ -158,6 +157,9 @@ for ii = 1:length(csv)
     end
 end
 writetable(subj, paths.all_subj_pids);
+
+% save JSON paths for later reloading
+save_to_json(paths,paths.paths); 
 
 %%  run final check that everything initialized correctly
 path_check(paths, {'name'});
