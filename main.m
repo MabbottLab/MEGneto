@@ -37,7 +37,10 @@ paths = megne2setup(project_path, analysis_name, rawdata_path, mri_path, false);
 %  To be populated with more information
 MEG_ds = struct2table(dir(paths.rawdata));
 writecell(MEG_ds.name(3:(height(MEG_ds))), paths.('subj_fcp1'));
+<<<<<<< HEAD
 
+=======
+>>>>>>> f8ccd90d55d82d3970d91e1f15f13c7eb998f6cc
 fcp_1_TaskEpoching(paths)
 
 %% fcp_2: ICA
