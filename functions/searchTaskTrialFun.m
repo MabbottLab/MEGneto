@@ -136,7 +136,11 @@ for tt = 1:height(cfg.trialdef.details)
             % get latencies
             for mm = 1:length(includes)
                 % trl_tmp(rr,4+mm) = selected_trials.eventTiming{rr}{strcmpi(selected_trials.event{rr}, includes{mm})};
-                trl_tmp(rr,4+mm) = selected_trials.eventTiming{rr}{contains{rr}} + timeToSamp(cfg.trialdef.parameters.t0shift);
+                if contains{rr} ~= 0
+                    trl_tmp(rr,4+mm) = selected_trials.eventTiming{rr}{contains{rr}} + timeToSamp(cfg.trialdef.parameters.t0shift);
+                else
+                    trl_tmp(rr,4+mm) = NaN;
+                end
             end
             
             % convert to milliseconds wrt t=0
