@@ -97,6 +97,8 @@ contains = contains{1}; % for now, we're just handling one class of triggers
 contains = cellfun(@(x) find(x,1),contains,'UniformOutput',false);
 % Replaces the empty strings with zeros
 contains(cellfun(@isempty,contains)) = {0};
+contains_clean = cell2mat(contains);
+contains_clean = contains_clean(contains_clean > 0);
 % Converts to a numerical vector, where nonzero integer values are truthy
 filtered_trial_list = cell2mat(contains);
 
@@ -136,11 +138,7 @@ for tt = 1:height(cfg.trialdef.details)
             % get latencies
             for mm = 1:length(includes)
                 % trl_tmp(rr,4+mm) = selected_trials.eventTiming{rr}{strcmpi(selected_trials.event{rr}, includes{mm})};
-                if contains{rr} ~= 0
-                    trl_tmp(rr,4+mm) = selected_trials.eventTiming{rr}{contains{rr}} + timeToSamp(cfg.trialdef.parameters.t0shift);
-                else
-                    trl_tmp(rr,4+mm) = NaN;
-                end
+                    trl_tmp(rr,4+mm) = selected_trials.eventTiming{rr}{contains_clean(rr)} + timeToSamp(cfg.trialdef.parameters.t0shift);
             end
             
             % convert to milliseconds wrt t=0
