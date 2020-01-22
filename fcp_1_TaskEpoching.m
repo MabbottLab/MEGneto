@@ -198,6 +198,6 @@ end
 
 % save all output
 disp('Saving...');
-save_to_json(fcp1_output, [paths.anout_grp '/fcp1_output.json'], true);
+save_to_json(fcp1_output, [paths.conf_dir '/fcp1_output.json'], true);
 disp('Done FCP_1.');
 end

@@ -1,4 +1,4 @@
-function fcp_2_PreprocessingICA(paths)
+function fcp_2_PreprocessingICA(paths, skip_preprocessing)
 
 % FCP_2_PREPROCESSINGICA will prepare epoched data for ICA preprocessing,
 % then carry out the ICA omitting signal from bad channels. This step also
@@ -66,91 +66,97 @@ fcp1_output     = load_config(paths, 'fcp1_output');
         fcp2_output.data_icacomp          =  'icacomponents.mat';
 
 %% PROCESSING
-
+skip_preprocessing = 0 % 0 = run ICA, 1 = skip ICA
 % determine which subjects to process
 rangeOFsubj = 1:height(subj_match);
+if ~skip_preprocessing
+    disp('Starting Preprocessing...');
+    for ss = rangeOFsubj %1:rangeOFsubj
 
-disp('Starting Preprocessing...');
-for ss = rangeOFsubj %1:rangeOFsubj
+        fprintf('\n\n==================================\nSUBJECT: %s\n', subj_match.pid{ss});
 
-    fprintf('\n\n==================================\nSUBJECT: %s\n', subj_match.pid{ss});
-
-%%% LOAD DATA -------------------------------------------------------------
-    % load trial definition
-    if exist([ssSubjPath(ss) '/' fcp1_output.trial_cfg], 'file')
-        % if RESTING STATE
-        if config.task.isRest == false 
-            samples = loadjson([ssSubjPath(ss) '/' fcp1_output.trial_cfg]);
-            cfg     = [];
-            cfg.trl = samples.trl;
-            disp('Epoched file found!');
-            disp([ssSubjPath(ss) '/' fcp1_output.trial_cfg]);
-        % if TASK
-        else 
-            % data where only excessive head motion removed
-            if config.cleaningOptions.artifact.rmNoisyTrls == 0
-                samples = loadjson([ssSubjPath '/' fcp1_output.trial_cfgHM]);
-                cfg     = [];
-                cfg.trl = samples.trl;
-                disp('Epoched file found!');
-                disp([ssSubjPath(ss) '/' fcp1_output.trial_cfgHM]);
-            % data where artifacts were also rejected
-            elseif config.cleaningOptions.artifact.rmNoisyTrls == 1
+    %%% LOAD DATA -------------------------------------------------------------
+        % load trial definition
+        if exist([ssSubjPath(ss) '/' fcp1_output.trial_cfg], 'file')
+            % if RESTING STATE
+            if config.task.isRest == false 
                 samples = loadjson([ssSubjPath(ss) '/' fcp1_output.trial_cfg]);
                 cfg     = [];
                 cfg.trl = samples.trl;
                 disp('Epoched file found!');
                 disp([ssSubjPath(ss) '/' fcp1_output.trial_cfg]);
+            % if TASK
+            else 
+                % data where only excessive head motion removed
+                if config.cleaningOptions.artifact.rmNoisyTrls == 0
+                    samples = loadjson([ssSubjPath '/' fcp1_output.trial_cfgHM]);
+                    cfg     = [];
+                    cfg.trl = samples.trl;
+                    disp('Epoched file found!');
+                    disp([ssSubjPath(ss) '/' fcp1_output.trial_cfgHM]);
+                % data where artifacts were also rejected
+                elseif config.cleaningOptions.artifact.rmNoisyTrls == 1
+                    samples = loadjson([ssSubjPath(ss) '/' fcp1_output.trial_cfg]);
+                    cfg     = [];
+                    cfg.trl = samples.trl;
+                    disp('Epoched file found!');
+                    disp([ssSubjPath(ss) '/' fcp1_output.trial_cfg]);
+                end
             end
+        else
+            error('Epoched mat %s was not found', [ssSubjPath(ss) '/' fcp1_output.trial_cfg]);
         end
-    else
-        error('Epoched mat %s was not found', [ssSubjPath(ss) '/' fcp1_output.trial_cfg]);
+
+        % load data
+        cfg.dataset = [paths.rawdata '/' subj_match.ds{ss}];
+
+    %%% FILTER DATA -----------------------------------------------------------
+        disp('Filtering Data....');
+
+        cfg.channel     = config.filteringParameters.channel;
+        cfg.dftfilter   = config.filteringParameters.dftfilter;
+        cfg.dftfreq     = config.filteringParameters.dftfreq;
+        cfg.bpfilter    = config.filteringParameters.bpfilter;
+        cfg.bpfreq      = config.filteringParameters.bpfreq;
+        cfg.bpfiltord   = config.filteringParameters.bpfiltord;
+        cfg.continuous  = 'yes';
+        dataFiltered = ft_preprocessing(cfg);
+
+    %%% ACCOUNTING FOR GRADIOMETERS -------------------------------------------
+        if exist([ssSubjPath(ss) '/' fcp1_output.grad_cfg] , 'file')
+            fprintf('Loading gradiometer configuration from file...\n');
+            dataFiltered.grad       = loadjson([ssSubjPath(ss) '/' fcp1_output.grad_cfg]);
+            dataFiltered.hdr.grad   = dataFiltered.grad;
+        else
+            warning('No modified gradiometer definitions found!');
+        end
+
+        % synthetic 3rd order grads - for noise reduction in CTF no ref channels stored
+        cfg             = [];
+        cfg.gradient    = 'G3BR';
+        data_noisecorr  = ft_denoise_synthetic(cfg,dataFiltered);
+
+        % save data with noise reduction thru 3rd order gradients
+        save([ssSubjPath(ss) '/' fcp2_output.data_noisecorr], 'data_noisecorr', '-v7.3')
     end
-
-    % load data
-    cfg.dataset = [paths.rawdata '/' subj_match.ds{ss}];
-
-%%% FILTER DATA -----------------------------------------------------------
-    disp('Filtering Data....');
-
-    cfg.channel     = config.filteringParameters.channel;
-    cfg.dftfilter   = config.filteringParameters.dftfilter;
-    cfg.dftfreq     = config.filteringParameters.dftfreq;
-    cfg.bpfilter    = config.filteringParameters.bpfilter;
-    cfg.bpfreq      = config.filteringParameters.bpfreq;
-    cfg.bpfiltord   = config.filteringParameters.bpfiltord;
-    cfg.continuous  = 'yes';
-    dataFiltered = ft_preprocessing(cfg);
-
-%%% ACCOUNTING FOR GRADIOMETERS -------------------------------------------
-    if exist([ssSubjPath(ss) '/' fcp1_output.grad_cfg] , 'file')
-        fprintf('Loading gradiometer configuration from file...\n');
-        dataFiltered.grad       = loadjson([ssSubjPath(ss) '/' fcp1_output.grad_cfg]);
-        dataFiltered.hdr.grad   = dataFiltered.grad;
-    else
-        warning('No modified gradiometer definitions found!');
-    end
-
-    % synthetic 3rd order grads - for noise reduction in CTF no ref channels stored
-    cfg             = [];
-    cfg.gradient    = 'G3BR';
-    data_noisecorr  = ft_denoise_synthetic(cfg,dataFiltered);
-    
-    % save data with noise reduction thru 3rd order gradients
-    save([ssSubjPath(ss) '/' fcp2_output.data_noisecorr], 'data_noisecorr', '-v7.3')
 end
 
 % load bad channels
 fcp2_output.bad_chann = fcp1_output.bad_chann;
 
 % remove participants
-pid_fcp1    = readtable(paths.subj_fcp1_match).Var1; % get fcp_1 ppts
+pid_fcp1    = readtable(paths.subj_fcp1_match); % get fcp_1 ppts
+pid_fcp1    = pid_fcp1.Var1; % in a struct format for comparison
 pid_fcp2    = subj_match.pid; % get fcp_2 ppts
 match_func  = cellfun(@(x) ismember(x, pid_fcp2), pid_fcp1, 'UniformOutput', 0);
 included    = find(cell2mat(match_func)); % get indices of included
 
 for ss = rangeOFsubj
-
+    
+    if skip_preprocessing
+        load([ssSubjPath(ss) '/' fcp2_output.data_noisecorr]);
+    end
+    
     % if you don't want to run ICA
     if config.cleaningOptions.artifact.icaClean == 0
         disp('No ICA requested, saving data... ');
