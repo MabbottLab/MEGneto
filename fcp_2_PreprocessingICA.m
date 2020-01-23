@@ -1,4 +1,4 @@
-function fcp_2_PreprocessingICA(paths, skip_preprocessing)
+function fcp_2_PreprocessingICA(paths)
 
 % FCP_2_PREPROCESSINGICA will prepare epoched data for ICA preprocessing,
 % then carry out the ICA omitting signal from bad channels. This step also
@@ -66,15 +66,16 @@ fcp1_output     = load_config(paths, 'fcp1_output');
         fcp2_output.data_icacomp          =  'icacomponents.mat';
 
 %% PROCESSING
-skip_preprocessing = 0 % 0 = run ICA, 1 = skip ICA
+
 % determine which subjects to process
 rangeOFsubj = 1:height(subj_match);
-if ~skip_preprocessing
-    disp('Starting Preprocessing...');
-    for ss = rangeOFsubj %1:rangeOFsubj
+for ss = rangeOFsubj %1:rangeOFsubj
 
-        fprintf('\n\n==================================\nSUBJECT: %s\n', subj_match.pid{ss});
+    fprintf('\n\n==================================\nSUBJECT: %s\n', subj_match.pid{ss});
 
+    % check whether preprocessed files already exist
+    if ~exist([ssSubjPath(ss) '/' fcp2_output.data_noisecorr], 'file')
+        disp('Starting Preprocessing...');
     %%% LOAD DATA -------------------------------------------------------------
         % load trial definition
         if exist([ssSubjPath(ss) '/' fcp1_output.trial_cfg], 'file')
@@ -138,11 +139,10 @@ if ~skip_preprocessing
 
         % save data with noise reduction thru 3rd order gradients
         save([ssSubjPath(ss) '/' fcp2_output.data_noisecorr], 'data_noisecorr', '-v7.3')
+    else
+        fprintf('Preprocessed data already exists! Skipping...\n');
     end
 end
-
-% load bad channels
-fcp2_output.bad_chann = fcp1_output.bad_chann;
 
 % remove participants
 pid_fcp1    = readtable(paths.subj_fcp1_match); % get fcp_1 ppts
@@ -153,9 +153,8 @@ included    = find(cell2mat(match_func)); % get indices of included
 
 for ss = rangeOFsubj
     
-    if skip_preprocessing
-        load([ssSubjPath(ss) '/' fcp2_output.data_noisecorr]);
-    end
+    % load filtered data
+    load([ssSubjPath(ss) '/' fcp2_output.data_noisecorr]);
     
     % if you don't want to run ICA
     if config.cleaningOptions.artifact.icaClean == 0
@@ -183,12 +182,13 @@ for ss = rangeOFsubj
         data_resampICA  = ft_resampledata(cfg, data_noisecorr);
 
         % first, handle bad channels if they exist
-        if  ~isempty(fcp2_output.bad_chann{included(ss)}{1})
-            badChann    = fcp2_output.bad_chann{included(ss)};              % get list of bad channels from fcp_1
-            badChanns   = cellstr('M' + split(string(badChann), 'M'));      % split the string into channels
-            keepsies = setdiff(data_noisecorr.label, badChanns);            % determine which to keep
-            cfg = [];
-            cfg.channel = keepsies;
+        % load info about bad channels
+        channel_check = dir([paths.(subj_match.pid{ss}) '/badChannels.json']);
+
+        if channel_check.bytes > 5 % 5 = NULL, anything larger means populated
+            badChanns   = loadjson([paths.(subj_match.pid{ss}) '/badChannels.json']); % get list of bad channels from fcp_1
+            cfg         = [];
+            cfg.channel = setdiff(data_noisecorr.label, badChanns);         % specify included channels
             data_resampICArmBadCh = ft_selectdata(cfg, data_resampICA);     % select channel data
 
             % Run ICA
