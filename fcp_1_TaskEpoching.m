@@ -86,7 +86,7 @@ for ss = 1:length(subj_match.ds) % for each participant
         [paths.rawdata '/' subj_match.ds{ss}], ...               % path to *.ds folder
         config.task.trialdef.markers.t0marker, 'savePath', ...   % consult config for t0 marker definition
         [paths.(subj_match.pid{ss}) '/' fcp1_output.trigger_figure], ... % save marker figure
-        'showFigure', true); % set showFigure to true for debugging
+        'showFigure', false); % set showFigure to true for debugging
     
     % if there were less than 5 markers found, throw a warning
     if numt0marker < 5
@@ -182,7 +182,10 @@ for ss = 1:length(subj_match.ds) % for each participant
     
     % record bad channels for that participant
     fcp1_output.bad_chann{ss,1} = badChannels;
-    
+    save_to_json(badChannels,...
+        [paths.(subj_match.pid{ss}) '/badChannels.json'],...
+        true);
+
 %%% CELEBRATORY MESSAGE ---------------------------------------------------
     fprintf('\nDone subject %s! \n',subj_match.pid{ss})
     close all    
