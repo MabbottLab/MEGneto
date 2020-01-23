@@ -33,7 +33,7 @@ function fcp_2_5_checkpoint(paths)
 % load config JSON with analysis parameters
 config      = load_config(paths, paths.name);
 config      = config.config;
-step        = 'fcp2';
+step        = 'fcp2_5';
 
 % check for matched MRI and MEG data
 subj_match = ds_pid_match(paths,step);
@@ -164,14 +164,9 @@ function disp_ica_chans(ss, ssSubjPath, config, fcp2_output)
     cfg.channel     = [1:5]; % components to be plotted
     cfg.viewmode    = 'component';
     cfg.layout      = config.filteringParameters.CTFlayout;
-    cfg.fontsize    = 0.02;
     cfg.axisfontsize = 8;
     cfg.linewidth   = 0.2;
     cfg.plotlabels  = 'yes';
+    cfg.position    = [300 200 1500 800];
     ft_databrowser(cfg, comp);
-
-    % edit display
-    hf2 = gcf;
-    hf2.Position(1:2) = [300 200];
-    hf2.Position(3:4) = [1500,800];
 end

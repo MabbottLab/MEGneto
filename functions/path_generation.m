@@ -50,6 +50,7 @@ else % otherwise, define the rest of the paths struct
     % to be filled manually by the user
     paths.subj_fcp1 = [paths.conf_dir '/subj_fcp1.csv'];
     paths.subj_fcp2 = [paths.conf_dir '/subj_fcp2.csv'];
+    paths.subj_fcp2_5 = [paths.conf_dir '/subj_fcp2_5.csv'];
     paths.subj_fcp3 = [paths.conf_dir '/subj_fcp3.csv'];
     paths.subj_fcp4 = [paths.conf_dir '/subj_fcp4.csv'];
     paths.subj_fcp5 = [paths.conf_dir '/subj_fcp5.csv'];
@@ -58,6 +59,7 @@ else % otherwise, define the rest of the paths struct
     % and MEG datasets
     paths.subj_fcp1_match = [paths.conf_dir '/subj_match_fcp1.csv'];
     paths.subj_fcp2_match = [paths.conf_dir '/subj_match_fcp2.csv'];
+    paths.subj_fcp2_5_match = [paths.conf_dir '/subj_match_fcp2_5.csv'];
     paths.subj_fcp3_match = [paths.conf_dir '/subj_match_fcp3.csv'];
     paths.subj_fcp4_match = [paths.conf_dir '/subj_match_fcp4.csv'];
     paths.subj_fcp5_match = [paths.conf_dir '/subj_match_fcp5.csv'];
