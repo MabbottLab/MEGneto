@@ -23,7 +23,6 @@ function fcp_1_TaskEpoching(paths)
 %     .trial_cfgHM      = 'ft_meg_trl_cfgHM.json': head motion removed
 %     .trial_grad_cfg   = 'ft_meg_grad_cfg.json': HM and 3rd order grad
 %                          removed
-%     .subj_epochInfo   = 'subj_epoching_info.mat'
 %     .group_rmBadChan  = 'group_rmBadChan.json': lists of bad channs
 %     .numtrls          = number of trials across participants
 %     .HMremove_trls    = number of trials removed due to head motion
