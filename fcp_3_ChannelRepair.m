@@ -48,12 +48,6 @@ end
 fcp2_output = loadjson([paths.anout_grp '/fcp2_5_output.json']);
 fcp2_output = recursive_json_struct_string_to_func(fcp2_output);
 
-% participants to be included
-pid_fcp1    = readtable(paths.subj_fcp1_match).Var1; % get fcp_1 ppts
-pid_fcp3    = subj_match.pid; % get fcp_3 ppts
-match_func  = cellfun(@(x) ismember(x, pid_fcp3), pid_fcp1, 'UniformOutput', 0);
-included    = find(cell2mat(match_func)); % get indices of included
-
 %% REPAIR BAD CHANNELS
 
 rangeOFsubj = 1:height(subj_match);
@@ -66,7 +60,9 @@ for ss = rangeOFsubj
     load([ssSubjPath(ss) '/' fcp2_output.preprocessedData_cfg],'-mat','data');
 
 %%% IF THERE ARE BAD CHANNELS TO REMOVE
-    if config.cleaningOptions.rmBadChannels == 1 && ~isempty(fcp2_output.bad_chann{included_fcp2(ss)}{1})
+    % get info about bad channels
+    channel_check = dir([paths.(subj_match.pid{ss}) '/badChannels.json']);
+    if config.cleaningOptions.rmBadChannels == 1 && channel_check.bytes > 5
 
     %%% FIND NEIGHBOURS ---------------------------------------------------
         disp('Finding neighbours ...')
@@ -80,14 +76,10 @@ for ss = rangeOFsubj
     %%% REPAIR BAD CHANNELS -----------------------------------------------
         disp('Repairing bad channels ...')
 
-        % load bad channels
-        badChann    = fcp2_output.bad_chann{included(ss)};
-        badChanns   = cellstr('M' + split(string(badChann), 'M'));
-        
         % run repair
         cfg             = [];
         cfg.method      = 'weighted';        %'average', 'spline' or 'slap' (default = 'weighted')
-        cfg.badchannel  = badChanns(2:length(badChanns));
+        cfg.badchannel  = loadjson([paths.(subj_match.pid{ss}) '/badChannels.json'])'; 
         cfg.neighbours  = neighbours; %neighbourhood structure, see also FT_PREPARE_NEIGHBOURS
         cfg.senstype    = 'meg';
         data            = ft_channelrepair(cfg, data);
