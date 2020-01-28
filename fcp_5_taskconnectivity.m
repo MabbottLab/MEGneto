@@ -43,6 +43,10 @@ if strcmp(config.connectivity.method,'pli')
     connfn     = @(H1,H2) abs(mean(sign(angle(H1)-angle(H2)), 1));
 elseif strcmp(config.connectivity.method,'plv')
     connfn     = @(H1,H2) abs(mean(exp(1i .* (angle(H1)-angle(H2))), 1));
+elseif strcmp(config.connectivity.method,'wpli')
+    connfn     = @(H1,H2) abs(mean(abs(angle(H1)-angle(H2)).*(sign(angle(H1)-angle(H2))),1))/mean(angle(H1)-angle(H2));
+elseif strcmp(config.connectivity.method,'coh')
+    connfn     = @(H1,H2) abs(mean(H1.*conj(H2))./sqrt(mean(abs(H1).^2).*mean(abs(H2).^2)));
 end
 
 %%% OTHER USEFUL FUNCTIONS ------------------------------------------------
@@ -143,9 +147,9 @@ all_adjmat = nan(90, 90, length(subj_match.ds), length(config.connectivity.filt_
           H_data = complex(zeros(num_samples, num_trials, num_sources)); 
           
           %%% FOR EACH TRIAL
+          fprintf('Processing trial ');
           for tt = 1:num_trials
-            fprintf('Working on trial %d... \n',tt);
-            
+            fprintf('\b\b\b\b%d...', tt);
             %%% FOR EACH AAL NODE/SOURCE
             for kk = 1:num_sources
               % mean center or z-score the timeseries before filtering
@@ -158,13 +162,16 @@ all_adjmat = nan(90, 90, length(subj_match.ds), length(config.connectivity.filt_
               end
             end
           end
+          fprintf('\n');
 %%% CALCULATE CONNECTIVITY ------------------------------------------------
+          fprintf('Onto the connectivity calculations!\n')
           for aa = 1:num_sources
             for bb = aa+1:num_sources
               p_adjmat(aa,bb,:) = connfn(H_data(:,:,aa), H_data(:,:,bb));
               p_adjmat(bb,aa,:) = p_adjmat(aa,bb,:);
             end
-          end      
+          end
+          fprintf('Done this band.')
 %%% COPY TEMP MATRIX INTO SUBJECT-MATRIX ----------------------------------
           adjmat(:,:,:,fq) = p_adjmat;
         end % repeat for each frequency band
