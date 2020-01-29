@@ -158,6 +158,8 @@ all_adjmat = nan(90, 90, length(subj_match.ds), length(config.connectivity.filt_
               end
             end
           end
+          
+          % so H_data = num_samples x num_trials x num_nodes
 %%% CALCULATE CONNECTIVITY ------------------------------------------------
           for aa = 1:num_sources
             for bb = aa+1:num_sources
