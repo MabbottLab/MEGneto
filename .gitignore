@@ -1,0 +1,11 @@
+# mac git file
+.DS_Store
+
+# matlab autosave extension
+*.m~
+
+# windows autosave
+*.asv
+
+SoT_both_*
+Right*

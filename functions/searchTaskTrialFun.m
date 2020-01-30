@@ -12,7 +12,7 @@ function [trl,eventslist]= searchTaskTrialFun(cfg)
 % cfg.trialdef.parameters.t0shift    - time in seconds to offset t0marker (presentation delay)
 % cfg.trialdef.details.trigger    - name of trigger
 % cfg.trialdef.details.include    - what other trigger to include
-% cfg.trialdef.details.exclude    - what other trigger to exinclude
+% cfg.trialdef.details.exclude    - what other trigger to exclude
 % cfg.traildef.tEpoch     - time window  eg. [-1.5 1.5]
 %%
 % check inputs
@@ -90,13 +90,15 @@ end
 contains = cellfun(@(x) cellfun(@(y) ...
         strcmp(x,y),...
         unfiltered_trials.event,'UniformOutput',false),... x
-        cfg.trialdef.details.include,'UniformOutput',false); % y
-contains = contains{1};
+        cfg.trialdef.markers.(cfg.trialdef.details.include{:}),'UniformOutput',false); % y
+contains = contains{1}; % for now, we're just handling one class of triggers
 % Finds the first instance of a marker designated for inclusion in each
 % trial, else returns and empty string
 contains = cellfun(@(x) find(x,1),contains,'UniformOutput',false);
 % Replaces the empty strings with zeros
 contains(cellfun(@isempty,contains)) = {0};
+contains_clean = cell2mat(contains);
+contains_clean = contains_clean(contains_clean > 0);
 % Converts to a numerical vector, where nonzero integer values are truthy
 filtered_trial_list = cell2mat(contains);
 
@@ -118,7 +120,8 @@ for tt = 1:height(cfg.trialdef.details)
     end
     
     if ~cfg.trialdef.details.countOnly(tt)
-        trl_tmp = zeros(height(selected_trials), 4 + length(cfg.trialdef.details.include{tt}));
+        % Why length(cfg.trialdef... include?)
+        trl_tmp = zeros(height(selected_trials), 4 + length(cfg.trialdef.details.include));
         trl_tmp(:,1) = selected_trials.t0sample + timeToSamp(cfg.trialdef.parameters.tEpoch(1));
         trl_tmp(:,2) = selected_trials.t0sample + timeToSamp(cfg.trialdef.parameters.tEpoch(2));
         trl_tmp(:,3) = timeToSamp(cfg.trialdef.parameters.tEpoch(1));
@@ -127,14 +130,15 @@ for tt = 1:height(cfg.trialdef.details)
         % shift all trials by t0shift
         trl_tmp(:,1:2) = trl_tmp(:,1:2) + timeToSamp(cfg.trialdef.parameters.t0shift);
         
-        % combine includeonce and includes for stats
+        % combine include once and includes for stats
         includes = reshape(cat(2, cfg.trialdef.details.include(tt), cfg.trialdef.details.includeOnce(tt)), [], 1);
         includes = includes(~isempty(includes));
         % loop through trials and pull latency
-        for rr = 1:size(trl_tmp,1)
+        for rr = 1:size(trl_tmp,1) % for each trial
             % get latencies
             for mm = 1:length(includes)
-                trl_tmp(rr,4+mm) = selected_trials.eventTiming{rr}{strcmpi(selected_trials.event{rr}, includes{mm})};
+                % trl_tmp(rr,4+mm) = selected_trials.eventTiming{rr}{strcmpi(selected_trials.event{rr}, includes{mm})};
+                    trl_tmp(rr,4+mm) = selected_trials.eventTiming{rr}{contains_clean(rr)} + timeToSamp(cfg.trialdef.parameters.t0shift);
             end
             
             % convert to milliseconds wrt t=0

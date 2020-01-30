@@ -2,7 +2,7 @@ function [numt0marker] = plotTriggers( dataset, t0marker , varargin )
 %PLOTTRIGGERS Plot all the triggers in the file over time
 
 p = inputParser;
-addParameter(p, 'showFigure', true);
+addParameter(p, 'showFigure', false);
 addParameter(p, 'savePath', []);
 addParameter(p, 'xUnits', 'samples', @(x) any(strcmp(x, {'samples', 'sec', 'msec'})));
 parse(p, varargin{:});

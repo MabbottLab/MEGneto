@@ -1,204 +1,205 @@
-function [p] = fcp_1_TaskEpoching(paths)
-% fcp_1taskepoching
-% Version 3 Ming Scott
-% 2019 June 19
-% Version 2 Sonya Bells
-% 2016 November 1
-% Version 1 Simeon Wong, Anne Keller
-% 2016 March 7
-%
-% INPUT FILES:
-% - raw .ds (MEG 'RAW' dataset with at least 3 min of continuous recording)
-%
-% OUTPUT FILES:
-% - ft_cfg.mat containing a fieldtrip cfg structure with the 'trl' parameter set to the selected
-%   trials.
-%
-% Before running this function, make sure you have subj_fcp1.csv in the
-% configs set up, and your preferred parameters in the analysis json
+function fcp_1_TaskEpoching(paths)
 
-config = load_config(paths, paths.name);
-config = config.config;
-step = 'fcp1';
-subj_ds = load_participants(paths,step);
-pids = readtable(paths.all_subj_pids);
-[subj_match, failure] = ds_pid_match(paths,step);
+% FCP_1_TASKEPOCHING will epoch MEG data into trials depending on the
+% desired marker, detect and reject muscle/jump artifacts, and 
+% 
+% NOTES:
+%   - Ensure that subj_fcp1.csv is populated with the subject IDs of
+%   included participants. 
+%   - Desired parameters should be defined in the JSON config file.
+%   User should double-check that the JSON config file is populated
+%   appropriately, especially if a template JSON was copied over. 
+%
+% INPUTS:
+%   paths               =   struct defining paths to data, participant
+%                           folders, analysis folders, config files, etc. 
+%
+% OUTPUTS:
+%   fcp1_output         = struct with locations of output files
+%     .fig_headmotion   = 'headmotion.png': image of head motion graph
+%     .trigger_figure   = 'triggerfigure.png': image of markers
+%     .trial_cfg        = 'ft_meg_trl_cfg.json': fieldtrip cfg structure
+%                          with the 'trl' parameter set to selected trials
+%     .trial_cfgHM      = 'ft_meg_trl_cfgHM.json': head motion removed
+%     .trial_grad_cfg   = 'ft_meg_grad_cfg.json': HM and 3rd order grad
+%                          removed
+%     .group_rmBadChan  = 'group_rmBadChan.json': lists of bad channs
+%     .numtrls          = number of trials across participants
+%     .HMremove_trls    = number of trials removed due to head motion
+%     .noisy_trl        = muscle and jump artifact trial timestamps
+%     .Nremove_trls     = total number of noisy trials removed
+%     .bad_chann        = string array; bad channels detected for each 
+%                         participant
+%
+% See also: DS_PID_MATCH, WRITE_MATCH_IF_NOT_EMPTY, PLOTTRIGGERS, 
+%           HEADMOTIONTOOL, DETECTBADCHANNELS
 
-if isempty(subj_match)
+% Last updated by: Julie Tseng, 2020-01-07
+%   This file is part of MEGneto, see https://github.com/SonyaBells/MEGneto
+%   for the documentation and details.
+
+%% SETUP: LOAD CONFIG, PARTICIPANTS, CHECK FOR FULL DATASET, OUTPUTS
+
+% load config JSON with analysis parameters
+config      = load_config(paths, paths.name);
+config      = config.config;
+step        = 'fcp1';
+
+% check for matched MRI and MEG data
+subj_match = ds_pid_match(paths,step);
+if isempty(subj_match) % if there are no full sets of data
     error('No participants selected')
 end
 
+% save the final participants list to the subj_match_fcp1 CSV
 write_match_if_not_empty(paths,step);
 
-if length(unique(subj_match.pid)) ~= length(subj_match.pid);
+% check for multiple *.ds folders for participants
+if length(unique(subj_match.pid)) ~= length(subj_match.pid)
     error('More than one ds per participant!')
 end
 
-%%% OUTPUTS %%% Note: Only set up on inital run, edit config in config
-%%% files afterwards
-fcp1_output.fig_headmotion = 'headmotion.png';
-fcp1_output.trial_cfg = 'ft_meg_trl_cfg.json';
-fcp1_output.trial_cfgHM = 'ft_meg_trl_cfgHM.json';
-fcp1_output.grad_cfg = 'ft_meg_grad_cfg.json';
-fcp1_output.subj_epochInfo  = 'subj_epoching_info.mat';
+% initialize output files
+    % images
+        fcp1_output.fig_headmotion  = 'headmotion.png';
+        fcp1_output.trigger_figure  = 'triggerfigure.png';
+    % data at various stages of cleaning
+        fcp1_output.trial_cfg       = 'ft_meg_trl_cfg.json';
+        fcp1_output.trial_cfgHM     = 'ft_meg_trl_cfgHM.json';
+        fcp1_output.grad_cfg        = 'ft_meg_grad_cfg.json';
+    % record keeping
+        fcp1_output.subj_epochInfo  = 'subj_epoching_info.mat';
+        fcp1_output.group_rmBadChan = 'group_rmBadChan.json';
 
-fcp1_output.group_rmBadChan = 'group_rmBadChan.json';
+%% EPOCHING
 
-% Trial timeseries figures
-fcp1_output.trigger_figure = 'triggerfigure.png';
-fcp1_output.timeseries_figure = @(trial) ['Trial_', sprintf('%04d',trial), '.png'];
-
-save_to_json(fcp1_output, [paths.conf_dir '/fcp1_output.json'])
-
-
-
-%% Run epoching
-% determine which subjects to process
-rangeOFsubj = 1:length(subj_match.ds);
-
-for ss = rangeOFsubj
+for ss = 1:length(subj_match.ds) % for each participant
     
-    %     if ~p.subj.include(ss) % skip subject if excluded from analysis
-    %         continue
-    %     end
-    
-    fprintf('\n\n==================================\nDS_FILE: %s\nSUBJECT: %s\n', ...
+    fprintf('\n\n==================================\n...DS_FILE: %s\nSUBJECT: %s\n', ...
         subj_match.ds{ss}, subj_match.pid{ss});
-    
-    
-    %%% Plot triggers %%%
+
+%%% GRAB T0 MARKERS -------------------------------------------------------
+    fprintf('Finding t0 markers...\n')
+
     numt0marker = plotTriggers(...
-        [paths.rawdata '/' subj_match.ds{ss}],...
-        config.task.trialdef.markers.t0marker, 'savePath',...
-        [paths.(subj_match.pid{ss}) '/' fcp1_output.trigger_figure],...
-        'showFigure', true); %for Debugging
-    %     plotTriggers(p.subj.subj_ds{ss}, 'savePath', p.paths.trigger_figure(ss), 'showFigure', false);
+        [paths.rawdata '/' subj_match.ds{ss}], ...               % path to *.ds folder
+        config.task.trialdef.markers.t0marker, 'savePath', ...   % consult config for t0 marker definition
+        [paths.(subj_match.pid{ss}) '/' fcp1_output.trigger_figure], ... % save marker figure
+        'showFigure', false); % set showFigure to true for debugging
+    
+    % if there were less than 5 markers found, throw a warning
     if numt0marker < 5
-        warning('Not enough markers found - check marker file!');
+        warning('Not enough markers found - check marker file!')
         continue
-    else
+    else % otherwise, display how many markers were found
         fprintf('\n %d markers were found for %s \n ',...
             numt0marker,config.task.trialdef.markers.t0marker)
     end
     
-    %%% Check if there are missing Triggers %%%
-    %Define structure of error checking
-    %     p.trialdef.Error.includeError = 0;
-    %     p.trialdef.Error.includeOnceError = 0;
-    %     p.trialdef.Error.t0marker = 0;
-    %     p.trialdef.Error2.t0marker = 0;
-    %
-    %     p = checkForMissingTriggers( p.subj.subj_ds{ss} , p);
-    %     if ~p.trialdef.Error.t0marker(ss)
-    %           continue
-    %     else
-    %% Do Epoching %%%
+%%% EPOCHING --------------------------------------------------------------
+    fprintf('Epoching into trials...\n')
+
+    cfg             = [];
+    cfg.dataset     = [paths.rawdata '/' subj_match.ds{ss}]; 
+    cfg.trialfun    = config.taskFunc; 
+    cfg.trialdef    = config.task.trialdef;
+    cfg.continuous  = 'yes';
+    cfg             = ft_definetrial(cfg);
     
-    cfg = [];
-    cfg.dataset = [paths.rawdata '/' subj_match.ds{ss}];
-    cfg.trialfun = config.taskFunc; %@taskTrialFun;
-    cfg.trialdef = config.task.trialdef;
-    cfg.continuous         = 'yes';
-    cfg  = ft_definetrial(cfg);
-    cfg_orig = cfg;
-    %%% Head motion correction %%%
-    % call headmotion tool
-%     try
+    cfg_orig                    = cfg; % keep the original epoched data
+    fcp1_output.numtrls{ss,1}   = length(cfg_orig.trl); % record num trials
+
+%%% HEAD MOTION CORRECTION ------------------------------------------------
+    fprintf('Looking for excessive head motion...\n')
+
+    try
         [~, ~, cfg, grad] = HeadMotionTool('Fieldtrip', cfg, ...
             'RejectThreshold', config.epoching.headMotion.thr, 'RejectTrials', true, 'CorrectInitial', true, ...
             'SavePictureFile', [paths.(subj_match.pid{ss}) '/' fcp1_output.fig_headmotion],...
             'GUI', false);
-%     catch
-%         warning('HeadMotionTool error!');
-%     end
-    fcp1_output.Numtrls{ss,1} = length(cfg_orig.trl);
+    catch
+        warning('HeadMotionTool error!\n');
+    end
+    
+    % record number of trials removed due to head motion
     fcp1_output.HMremove_trls{ss,1} = length(cfg_orig.trl)-length(cfg.trl);
+    % throw a warning if there are more than 90% of trials removed
     if fcp1_output.HMremove_trls{ss,1} > length(cfg_orig.trl)*0.9
-        warning(sprintf('\n\n \t\t Check head motion!!! \n\n'))
+        warning('\n\n \t\t Check head motion!!! \n\n')
         continue
     end
     
-    
-    cfg_HM = cfg;
-    save_to_json(cfg,...
+    save_to_json(cfg,...                % save the HM-removed data
         [paths.(subj_match.pid{ss}) '/' fcp1_output.trial_cfgHM],...
         true);
-    %    save(p.paths.trial_cfgHM((ss)), '-struct', 'cfg');
-    %%
+
+%%% ARTIFACT DETECTION ----------------------------------------------------
+    fprintf('Detecting muscle and jump artifacts...\n')
+
     if config.cleaningOptions.artifact.detection == 1
-        %%%% find muscle artifacts %%%
-        %Optimal for identifying muscle artifacts
-        cfg.artfctdef.muscle.bpfilter    = 'yes';
-        cfg.artfctdef.muscle.bpfreq      = [110 140];
-        cfg.artfctdef.muscle.bpfiltord   = 8;
-        cfg.artfctdef.muscle.bpfilttype  = 'but';
-        cfg.artfctdef.muscle.hilbert     = 'yes';
-        cfg.artfctdef.muscle.boxcar      = 0.2;
         
-        cfg.artfctdef.muscle.cutoff      = 30; % default is 8 (makes enough epochs for good DS)
-        cfg.artfctdef.muscle.trlpadding  = 0.5; % get errors in ft_artifact_muscle without these
-        cfg.artfctdef.muscle.fltpadding  = 0.1;
-        cfg.artfctdef.muscle.artpadding  = 0.1;
-        [cfg,muscle_artifact] = ft_artifact_muscle(cfg);
+        %%% Muscle Artifacts %%%
+        cfg.artfctdef.muscle.bpfilter    = config.cleaningOptions.artifact.muscle.bpfilter;
+        cfg.artfctdef.muscle.bpfreq      = config.cleaningOptions.artifact.muscle.bpfreq;
+        cfg.artfctdef.muscle.bpfiltord   = config.cleaningOptions.artifact.muscle.bpfiltord;
+        cfg.artfctdef.muscle.bpfilttype  = config.cleaningOptions.artifact.muscle.bpfilttype;
+        cfg.artfctdef.muscle.hilbert     = config.cleaningOptions.artifact.muscle.hilbert;
+        cfg.artfctdef.muscle.boxcar      = config.cleaningOptions.artifact.muscle.boxcar;
+        cfg.artfctdef.muscle.cutoff      = config.cleaningOptions.artifact.muscle.cutoff;
+        cfg.artfctdef.muscle.trlpadding  = config.cleaningOptions.artifact.muscle.trlpadding; 
+        cfg.artfctdef.muscle.fltpadding  = config.cleaningOptions.artifact.muscle.fltpadding;
+        cfg.artfctdef.muscle.artpadding  = config.cleaningOptions.artifact.muscle.artpadding;
+        [cfg, muscle_artifact]           = ft_artifact_muscle(cfg);
         
-        %%%% find jump artifacts %%%
-        cfg.artfctdef.jump.cutoff        = 35 ; % default is 22 (makes enough epochs for good DS)
-        [cfg,jump_artifact] = ft_artifact_jump(cfg);
+        %%%% Jump Artifacts %%%
+        cfg.artfctdef.jump.cutoff        = config.cleaningOptions.artifact.jump.cutoff;
+        [cfg, jump_artifact]             = ft_artifact_jump(cfg);
         
-        cfg.artfctdef.reject = 'complete'; % this rejects complete trials, use 'partial' if you want to do partial artifact rejection
-        %         cfg.artfctdef.eog.artifact = artifact_EOG; %
-        %         cfg.artfctdef.jump.artifact = artifact_jump;
-        %         cfg.artfctdef.muscle.artifact = artifact_muscle;
-        cfg = ft_rejectartifact(cfg);
-        total_artifacts = [muscle_artifact; jump_artifact];
-        % add number of noise trials
-        fcp1_output.noisy_trl{ss,1} = total_artifacts;
-        fcp1_output.Nremove_trls{ss,1} = length(cfg.trlold)-length(cfg.trl);
+%%% ARTIFACT REJECTION ----------------------------------------------------
+        cfg.artfctdef.reject             = 'complete'; % remove complete trials
+        cfg                              = ft_rejectartifact(cfg);
+        fcp1_output.noisy_trl{ss,1}      = [muscle_artifact; jump_artifact];
+        fcp1_output.Nremove_trls{ss,1}   = length(cfg.trlold)-length(cfg.trl);
     end
     
-    %%% Save fieldtrip configuration %%%
-    save_to_json(cfg,...
+    % save cleaned data progress
+    save_to_json(cfg,... 
         [paths.(subj_match.pid{ss}) '/' fcp1_output.trial_cfg],...
         true);
     save_to_json(grad,...
         [paths.(subj_match.pid{ss}) '/' fcp1_output.grad_cfg],...
         true);
-%     save(p.paths.trial_cfg((ss)), '-struct', 'cfg');
-%     save(p.paths.grad_cfg((ss)), '-struct', 'grad');
+
+%%% BAD CHANNEL DETECTION -------------------------------------------------
+    fprintf('Detecting bad channels ...\n')
     
-    %%% Finding Bad Channels %%%
-    disp('   ')
-    disp('Detecting bad channels ...')
-    disp('   ')
-    cfg                         = [];
-    cfg.dataset                 = [paths.rawdata '/' subj_match.ds{ss}];
-    cfg.bchthr = 60;% 75-85 quantile
-    cfg.sections = 3; % divids into 3 sections
-    [badChannels,resMat] = detectBadChannels(cfg,paths.name);
+    cfg             = [];
+    cfg.dataset     = [paths.rawdata '/' subj_match.ds{ss}];
+    cfg.bchthr      = 60; % threshold; 75-85 quantile
+    cfg.sections    = 3; % divide into 3 sections
+    badChannels     = detectBadChannels(cfg,paths.name);
     
-    % add bad channels to p-structure
+    % record bad channels for that participant
     fcp1_output.bad_chann{ss,1} = badChannels;
+    save_to_json(badChannels,...
+        [paths.(subj_match.pid{ss}) '/badChannels.json'],...
+        true);
+
+%%% CELEBRATORY MESSAGE ---------------------------------------------------
     fprintf('\nDone subject %s! \n',subj_match.pid{ss})
-    
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    close all
-    
-end 
-disp('   ');
-bad_subj = subj_match.pid(cellfun('length',fcp1_output.bad_chann) > 15) ; % find subjects with more than 15 bad channels (alert user)
+    close all    
+end % repeat for next participant
+
+%%% FLAG PARTICIPANTS WITH MANY BAD CHANNELS ------------------------------
+
+% who has more than 15 bad channels detected?
+bad_subj = subj_match.pid(cellfun('length',fcp1_output.bad_chann) > 15); 
 for i=1:length(bad_subj)
     warning([bad_subj{i},' has more than 15 BAD CHANNELS.']);
 end
 
-
-% save all bad channels (just in case)
-all_bad_chann = fcp1_output.bad_chann;
-save_to_json(all_bad_chann, [paths.anout_grp '/' fcp1_output.group_rmBadChan], true);
-
 % save all output
-save_to_json(fcp1_output, [paths.anout_grp '/fcp1_output'], true);
-% save p-structure
-% disp('Saving...');
-% save(p.paths.p_strct,'p','-mat','-v7');
-% disp('Done.');
+disp('Saving...');
+save_to_json(fcp1_output, [paths.conf_dir '/fcp1_output.json'], true);
+disp('Done FCP_1.');
 end
