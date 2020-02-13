@@ -162,7 +162,7 @@ all_adjmat = nan(90, 90, length(subj_match.ds), length(config.connectivity.filt_
               end
             end
           end
-          fprintf('\n');
+
 %%% CALCULATE CONNECTIVITY ------------------------------------------------
           fprintf('Onto the connectivity calculations!\n')
           for aa = 1:num_sources

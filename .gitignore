@@ -9,3 +9,9 @@
 
 SoT_both_*
 Right*
+
+# analysis folder
+analysis/
+
+# a new ds store?
+external/.DS_Store

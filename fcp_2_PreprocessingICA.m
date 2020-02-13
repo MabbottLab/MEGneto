@@ -136,6 +136,14 @@ for ss = rangeOFsubj %1:rangeOFsubj
         cfg             = [];
         cfg.gradient    = 'G3BR';
         data_noisecorr  = ft_denoise_synthetic(cfg,dataFiltered);
+        
+        % Resample all datasets
+        cfg             = [];
+        cfg.resamplefs  = config.filteringParameters.sampleRate;
+        cfg.detrend     = 'no';
+        data_resamp     = ft_resampledata(cfg, data_noisecorr);
+        data_noisecorr  = data_resamp;
+        clear data_resamp;
 
         % save data with noise reduction thru 3rd order gradients
         save([ssSubjPath(ss) '/' fcp2_output.data_noisecorr], 'data_noisecorr', '-v7.3')
@@ -155,24 +163,18 @@ for ss = rangeOFsubj
     
     % load filtered data
     load([ssSubjPath(ss) '/' fcp2_output.data_noisecorr]);
-    
+
     % if you don't want to run ICA
     if config.cleaningOptions.artifact.icaClean == 0
         disp('No ICA requested, saving data... ');
 
-        % Resample all datasets
-        cfg             = [];
-        cfg.resamplefs  = config.filteringParameters.sampleRate;
-        cfg.detrend     = 'no';
-        data_resamp     = ft_resampledata(cfg, data_noisecorr);
-
         % save data file
-        data            = data_resamp;
+        data = data_noisecorr;
+        clear data_noisecorr;
         save([ssSubjPath(ss) '/' fcp2_output.preprocessedData_cfg],'data','-v7.3');
         disp('Done.');
 %%% ICA -------------------------------------------------------------------
     elseif config.cleaningOptions.artifact.icaClean == 1
-        
         disp('Running ICA!');
         
         % downsample the data to speed up the next step

@@ -52,7 +52,7 @@ end
 
 %%% LOAD T1 TEMPLATE FROM SPM W/IN FIELDTRIP ------------------------------
 ftpath      = which('ft_defaults.m');
-ftpath      = ftpath(1:35);
+ftpath      = ftpath(1:end-14);
 template    = ft_read_mri(fullfile(ftpath, '/external/spm8/templates/T1.nii'));
 template.coordsys = config.beamforming.template.coordsys;
 
@@ -82,29 +82,29 @@ template_grid       = ft_prepare_sourcemodel(cfg);
 %   hold on
 %   ft_plot_vol(template_headmodel, 'facecolor', 'cortex', 'edgecolor', 'none');alpha 0.5; camlight;
 %   ft_plot_mesh(template_grid.pos(template_grid.inside,:));
+% 
+% % VISUALIZATION: ALIGNMENT ----------------------------------------------
 
-%%% VISUALIZATION: ALIGNMENT ----------------------------------------------
-
-%%% load atlas and create a binary mask
+% %% load atlas and create a binary mask
 %   atlas = ft_read_atlas([ftpath '/' config.beamforming.atlas.filepath]);
 %   atlas = ft_convert_units(atlas, config.beamforming.headmodel.units);% assure that atlas and template_grid are expressed in the %same units
-
-%%% get internal tissue labels
+% 
+% %% get internal tissue labels
 %   cfg         = [];
 %   cfg.atlas   = atlas;
 %   cfg.roi     = atlas.tissuelabel;
 %   cfg.inputcoord = config.beamforming.atlas.inputcoord;
 %   mask        = ft_volumelookup(cfg,template_grid);
-
-%%% create temporary mask according to the atlas entries
+% 
+% %% create temporary mask according to the atlas entries
 %   tmp           = repmat(template_grid.inside,1,1);
 %   tmp(tmp==1)   = 0;
 %   tmp(mask)     = 1;
-
-%%% define inside locations according to the atlas based mask
+% 
+% %% define inside locations according to the atlas based mask
 %   template_grid.inside = tmp;
-
-%%% plot the atlas based grid
+% 
+% %% plot the atlas based grid
 %   figure;
 %   ft_plot_mesh(template_grid.pos(template_grid.inside,:));
 
@@ -139,6 +139,16 @@ for ss = rangeOFsubj
     
 %%% LOAD MEG DATA ---------------------------------------------------------
     load([ssSubjPath(ss) '/ft_meg_fullyProcessed.mat'],'-mat','data');
+    
+    % Resample all datasets
+    if ~(config.filteringParameters.sampleRate == data.fsample)
+        cfg             = [];
+        cfg.resamplefs  = config.filteringParameters.sampleRate;
+        cfg.detrend     = 'no';
+        data_resamp     = ft_resampledata(cfg, data);
+        data = data_resamp;
+        clear data_resamp
+    end
 
 %%% VISUALIZATION: CHECK SEGMENTED MRI FOR PROPER ALIGNMENT ---------------
 %     seg.transform  = mri.transform;
@@ -210,7 +220,7 @@ for ss = rangeOFsubj
     cfg.covariancewindow   = config.beamforming.timeDomain.covariancewindow;
     cfg.vartrllength       = config.beamforming.timeDomain.vartrllength;
     cfg.keeptrials         = config.beamforming.options.keeptrials;
-    tlock = ft_timelockanalysis(cfg, data);  
+    tlock                  = ft_timelockanalysis(cfg, data);  
 
     %%% calculate sensor weights (actual beamforming)
     cfg                 = [];
@@ -229,11 +239,11 @@ for ss = rangeOFsubj
     cfg.grad             = data.grad; % sensor position (gradiometer)
     cfg.headmodel        = hdm;
     cfg.method           = config.beamforming.method;
-    cfg.keeptrials       = config.beamforming.options.keeptrials;
-    cfg.keepfilter       = config.beamforming.options.keepfilter;
+    cfg.keeptrials       = 'yes';
+    % cfg.keepfilter       = config.beamforming.options.keepfilter;
     cfg.rawtrial         = config.beamforming.options.rawtrial;
     source_t_trials      = ft_sourceanalysis(cfg, tlock);
-
+    
     %%% project virtual sources to strongest (dominant) orientation
     %%% (taking the largest eigenvector of the sources timeseries)
     cfg                  = [];
