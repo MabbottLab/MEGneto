@@ -38,6 +38,15 @@ function fcp_1_TaskEpoching(paths)
 %   This file is part of MEGneto, see https://github.com/SonyaBells/MEGneto
 %   for the documentation and details.
 
+%% SET UP LOGGING FILE
+
+right_now = clock;
+log_filename = [paths.conf_dir '/log_' sprintf('%d%d%d', right_now(1:3))];
+diary(log_filename)
+
+fprintf('%d:%d:%02.f       Now running **%s**.\n', ...
+    right_now(4:6), mfilename)
+
 %% SETUP: LOAD CONFIG, PARTICIPANTS, CHECK FOR FULL DATASET, OUTPUTS
 
 % load config JSON with analysis parameters
@@ -79,7 +88,8 @@ for ss = 1:length(subj_match.ds) % for each participant
         subj_match.ds{ss}, subj_match.pid{ss});
 
 %%% GRAB T0 MARKERS -------------------------------------------------------
-    fprintf('Finding t0 markers...\n')
+    right_now = clock;
+    fprintf('%d:%d:%02.f       Finding t0 markers...\n', right_now(4:6))
 
     numt0marker = plotTriggers(...
         [paths.rawdata '/' subj_match.ds{ss}], ...               % path to *.ds folder
@@ -97,7 +107,8 @@ for ss = 1:length(subj_match.ds) % for each participant
     end
     
 %%% EPOCHING --------------------------------------------------------------
-    fprintf('Epoching into trials...\n')
+    right_now = clock;
+    fprintf('%d:%d:%02.f       Epoching into trials...\n', right_now(4:6))
 
     cfg             = [];
     cfg.dataset     = [paths.rawdata '/' subj_match.ds{ss}]; 
@@ -110,7 +121,8 @@ for ss = 1:length(subj_match.ds) % for each participant
     fcp1_output.numtrls{ss,1}   = length(cfg_orig.trl); % record num trials
 
 %%% HEAD MOTION CORRECTION ------------------------------------------------
-    fprintf('Looking for excessive head motion...\n')
+    right_now = clock;
+    fprintf('%d:%d:%02.f       Looking for excessive head motion...\n', right_now(4:6))    
 
     try
         [~, ~, cfg, grad] = HeadMotionTool('Fieldtrip', cfg, ...
@@ -125,7 +137,7 @@ for ss = 1:length(subj_match.ds) % for each participant
     fcp1_output.HMremove_trls{ss,1} = length(cfg_orig.trl)-length(cfg.trl);
     % throw a warning if there are more than 90% of trials removed
     if fcp1_output.HMremove_trls{ss,1} > length(cfg_orig.trl)*0.9
-        warning('\n\n \t\t Check head motion!!! \n\n')
+        warning('\n\n \t\t Check head motion for this subject!\n\n')
         continue
     end
     
@@ -134,7 +146,8 @@ for ss = 1:length(subj_match.ds) % for each participant
         true);
 
 %%% ARTIFACT DETECTION ----------------------------------------------------
-    fprintf('Detecting muscle and jump artifacts...\n')
+    right_now = clock;
+    fprintf('%d:%d:%02.f       Detecting muscle and jump artifacts...\n', right_now(4:6))
 
     if config.cleaningOptions.artifact.detection == 1
         
@@ -171,7 +184,8 @@ for ss = 1:length(subj_match.ds) % for each participant
         true);
 
 %%% BAD CHANNEL DETECTION -------------------------------------------------
-    fprintf('Detecting bad channels ...\n')
+    right_now = clock;
+    fprintf('%d:%d:%02.f       Detecting bad channels...\n', right_now(4:6))
     
     cfg             = [];
     cfg.dataset     = [paths.rawdata '/' subj_match.ds{ss}];
@@ -186,7 +200,9 @@ for ss = 1:length(subj_match.ds) % for each participant
         true);
 
 %%% CELEBRATORY MESSAGE ---------------------------------------------------
-    fprintf('\nDone subject %s! \n',subj_match.pid{ss})
+    right_now = clock;
+    fprintf('%d:%d:%02.f       Done subject %s!\n', ...
+        right_now(4:6), subj_match.pid{ss})
     close all    
 end % repeat for next participant
 
@@ -199,7 +215,12 @@ for i=1:length(bad_subj)
 end
 
 % save all output
-disp('Saving...');
 save_to_json(fcp1_output, [paths.conf_dir '/fcp1_output.json'], true);
-disp('Done FCP_1.');
+
+%% turn off diary
+right_now = clock;
+fprintf('%d:%d:%02.f       Done running **%s**.\n', ...
+    right_now(4:6), mfilename)
+diary off
+
 end
