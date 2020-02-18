@@ -26,6 +26,15 @@ function fcp_5_taskconnectivity(paths)
 %   for the documentation and details.
 %
 
+%% SET UP LOGGING FILE
+
+right_now = clock;
+log_filename = [paths.conf_dir '/log_' sprintf('%d%d%d', right_now(1:3))];
+diary(log_filename)
+
+fprintf('\n\n%d:%d:%02.f       Now running **%s**.\n', ...
+    right_now(4:6), mfilename)
+
 %% SETUP
 
 %%% PARTICIPANT IDS -------------------------------------------------------
@@ -121,9 +130,9 @@ all_adjmat = nan(90, 90, length(subj_match.ds), length(config.connectivity.filt_
   % fprintf('Running condition %s... \n', p.condition{cc});
   
     for ss = 1:length(subj_match.ds)
-        fprintf('\n\n==================================\nSUBJECT: %s\n', subj_match.pid{ss});
-
-        fprintf('Loading participant %s... \n',subj_match.pid{ss});
+        right_now = clock;
+        fprintf('%d:%d:%02.f       Working on subject %s!\n', ...
+            right_now(4:6), subj_match.pid{ss})
 
 %%% LOAD VIRTUAL SENSOR DATA ----------------------------------------------
         load([ssSubjPath(ss) '/AAL_beamforming_results'], '-mat'); 
@@ -187,4 +196,8 @@ all_adjmat = nan(90, 90, length(subj_match.ds), length(config.connectivity.filt_
 %%% SAVE MASTER ADJACENCY MATRIX WITH ALL PARTICIPANTS
 save([paths.anout_grp '/fcp_5_allParticipants_adjmats_' config.connectivity.method '.mat'],'all_adjmat','-v7.3');
 
-fprintf('\n\n============== Finished Processing ====================\n');  
+%% turn off diary
+right_now = clock;
+fprintf('%d:%d:%02.f ============== Finished Processing ====================\n', ...
+    right_now(4:6))
+diary off
