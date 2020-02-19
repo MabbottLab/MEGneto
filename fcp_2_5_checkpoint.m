@@ -144,7 +144,9 @@ for ss = rangeOFsubj
     end
 
     % save a JSON copy of the components
-    save_to_json(bad_comp, [ssSubjPath(ss) '/ICA_badcomp.json'])
+    right_now = clock;
+    save_to_json(bad_comp, fprintf('%s/ICA_badcomp_%d%d%d_%d%d.json', ...
+        ssSubjPath{ss}, right_now(1:5)));
 end
 
 %%% RECORD KEEPING --------------------------------------------------------
@@ -156,9 +158,16 @@ if config.cleaningOptions.artifact.icaClean == 1
 end
 
 % save fcp_2_5 output
-disp('Saving...');
+disp('Saving fcp_2_5 output...');
 save_to_json(fcp2_output, [paths.anout_grp '/fcp2_5_output.json'])
-disp('Done.')
+disp('Done.\n')
+
+%% turn off logging
+
+right_now = clock;
+fprintf('%d:%d:%02.f       Done running **%s**.\n', ...
+    right_now(4:6), mfilename)
+diary off
 
 end
 
