@@ -53,7 +53,9 @@ if strcmp(config.connectivity.method,'pli')
 elseif strcmp(config.connectivity.method,'plv')
     connfn     = @(H1,H2) abs(mean(exp(1i .* (angle(H1)-angle(H2))), 1));
 elseif strcmp(config.connectivity.method,'wpli')
-    connfn     = @(H1,H2) abs(mean(abs(angle(H1)-angle(H2)).*(sign(angle(H1)-angle(H2))),1))/mean(angle(H1)-angle(H2));
+    connfn     = @(H1,H2) abs(mean(abs(imag(H1)-imag(H2)).*(sign(angle(H1)-angle(H2))),1))/mean(abs(imag(H1)-imag(H2)));
+elseif strcmp(config.connectivity.method,'wpli_deb')
+    connfn     = @(H1,H2) (nansum(imag(H1-H2),1).^2-nansum((imag(H1-H2)).^2,1))/nansum(abs(imag(H1-H2)),1).^2-nansum((imag(H1-H2)).^2,1);
 elseif strcmp(config.connectivity.method,'coh')
     connfn     = @(H1,H2) abs(mean(H1.*conj(H2))./sqrt(mean(abs(H1).^2).*mean(abs(H2).^2)));
 end
