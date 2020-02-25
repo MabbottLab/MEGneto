@@ -141,6 +141,10 @@ for ss = rangeOFsubj
         % save cleaned data
         save([ssSubjPath(ss) '/' fcp2_output.preprocessedData_cfg],'data','-v7.3');
         close all
+    else % skip = 1, aka no bad components, re-save 
+        data            = data_noisecorr;
+        save([ssSubjPath(ss) '/' fcp2_output.preprocessedData_cfg],'data','-v7.3');
+        close all
     end
 
     % save a JSON copy of the components
