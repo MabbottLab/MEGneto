@@ -32,6 +32,16 @@ function paths = megne2setup(project_path, analysis_name, rawdata_path, mri_path
 %   This file is part of MEGneto, see https://github.com/SonyaBells/MEGneto
 %   for the documentation and details.
 
+%% SET UP LOGGING FILE
+
+right_now = clock;
+log_filename = [project_path '/analysis/' analysis_name '/config/log_' ...
+    sprintf('%d%d%d', right_now(1:3))];
+diary(log_filename)
+
+fprintf('%d:%d:%02.f       Now running **%s**.\n', ...
+    right_now(4:6), mfilename)
+
 %% GET IMPORTANT PATHS AND ADD APPROPRIATE FOLDERS
 
 % identify where MEGneto is running
@@ -163,4 +173,11 @@ save_to_json(paths,paths.paths);
 
 %%  run final check that everything initialized correctly
 path_check(paths, {'name'});
+
+%% turn off logging
+
+right_now = clock;
+fprintf('%d:%d:%02.f       Done running **%s**.\n', ...
+    right_now(4:6), mfilename)
+diary off
 

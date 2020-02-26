@@ -22,6 +22,15 @@ function fcp_3_ChannelRepair(paths)
 %   This file is part of MEGneto, see https://github.com/SonyaBells/MEGneto
 %   for the documentation and details.
 
+%% SET UP LOGGING FILE
+
+right_now = clock;
+log_filename = [paths.conf_dir '/log_' sprintf('%d%d%d', right_now(1:3))];
+diary(log_filename)
+
+fprintf('\n\n%d:%d:%02.f       Now running **%s**.\n', ...
+    right_now(4:6), mfilename)
+
 %% SETUP
 
 % load config JSON with analysis parameters
@@ -54,7 +63,9 @@ rangeOFsubj = 1:height(subj_match);
 
 disp('Starting channel repair...');
 for ss = rangeOFsubj
-    fprintf('\n\nWorking on SUBJECT: %s\n', subj_match.pid{ss});
+    right_now = clock;
+    fprintf('%d:%d:%02.f       Working on SUBJECT: %s!\n', ...
+        right_now(4:6), subj_match.pid{ss})
 
 %%% LOAD DATA -------------------------------------------------------------
     load([ssSubjPath(ss) '/' fcp2_output.preprocessedData_cfg],'-mat','data');
@@ -92,4 +103,11 @@ for ss = rangeOFsubj
         fprintf('\n\nSUBJECT: %s\n has no bad channels. \n', subj_match.pid{ss});
         save([ssSubjPath(ss) '/ft_meg_fullyProcessed'],'data','-v7.3')
     end
+    
+%% turn off diary
+right_now = clock;
+fprintf('%d:%d:%02.f       Done running **%s**.\n', ...
+    right_now(4:6), mfilename)
+diary off
+    
 end

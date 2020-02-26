@@ -32,6 +32,15 @@ function fcp_2_PreprocessingICA(paths)
 %   This file is part of MEGneto, see https://github.com/SonyaBells/MEGneto
 %   for the documentation and details.
 
+%% SET UP LOGGING FILE
+
+right_now = clock;
+log_filename = [paths.conf_dir '/log_' sprintf('%d%d%d', right_now(1:3))];
+diary(log_filename)
+
+fprintf('\n\n%d:%d:%02.f       Now running **%s**.\n', ...
+    right_now(4:6), mfilename)
+
 %% SETUP: LOAD CONFIG, CHECK PPTS, FCP_1 OUTPUT
 
 % load config JSON with analysis parameters
@@ -75,7 +84,9 @@ for ss = rangeOFsubj %1:rangeOFsubj
 
     % check whether preprocessed files already exist
     if ~exist([ssSubjPath(ss) '/' fcp2_output.data_noisecorr], 'file')
-        disp('Starting Preprocessing...');
+        right_now = clock;
+        fprintf('%d:%d:%02.f       Starting preprocessing...\n', right_now(4:6))
+
     %%% LOAD DATA -------------------------------------------------------------
         % load trial definition
         if exist([ssSubjPath(ss) '/' fcp1_output.trial_cfg], 'file')
@@ -112,7 +123,8 @@ for ss = rangeOFsubj %1:rangeOFsubj
         cfg.dataset = [paths.rawdata '/' subj_match.ds{ss}];
 
     %%% FILTER DATA -----------------------------------------------------------
-        disp('Filtering Data....');
+        right_now = clock;
+        fprintf('%d:%d:%02.f       Filtering data...\n', right_now(4:6))
 
         cfg.channel     = config.filteringParameters.channel;
         cfg.dftfilter   = config.filteringParameters.dftfilter;
@@ -125,7 +137,9 @@ for ss = rangeOFsubj %1:rangeOFsubj
 
     %%% ACCOUNTING FOR GRADIOMETERS -------------------------------------------
         if exist([ssSubjPath(ss) '/' fcp1_output.grad_cfg] , 'file')
-            fprintf('Loading gradiometer configuration from file...\n');
+            right_now = clock;
+            fprintf('%d:%d:%02.f       Loading gradiometer config from file...\n', right_now(4:6))
+
             dataFiltered.grad       = loadjson([ssSubjPath(ss) '/' fcp1_output.grad_cfg]);
             dataFiltered.hdr.grad   = dataFiltered.grad;
         else
@@ -166,7 +180,8 @@ for ss = rangeOFsubj
 
     % if you don't want to run ICA
     if config.cleaningOptions.artifact.icaClean == 0
-        disp('No ICA requested, saving data... ');
+        right_now = clock;
+        fprintf('%d:%d:%02.f       No ICA requested, saving data...\n', right_now(4:6))
 
         % save data file
         data = data_noisecorr;
@@ -175,8 +190,9 @@ for ss = rangeOFsubj
         disp('Done.');
 %%% ICA -------------------------------------------------------------------
     elseif config.cleaningOptions.artifact.icaClean == 1
-        disp('Running ICA!');
-        
+        right_now = clock;
+        fprintf('%d:%d:%02.f       Running ICA...\n', right_now(4:6))
+
         % downsample the data to speed up the next step
         cfg             = [];
         cfg.resamplefs  = 300;
@@ -209,13 +225,19 @@ for ss = rangeOFsubj
     end
 
     close all
-    fprintf('\nDone subject %s! \n',subj_match.pid{ss})
+    
+    right_now = clock;
+    fprintf('%d:%d:%02.f       Done subject %s!\n', right_now(4:6), subj_match.pid{ss})
 
 end
 
 %%% SAVE fcp_2 output -----------------------------------------------------
-disp('Saving...');
 save_to_json(fcp2_output,[paths.anout_grp '/fcp2_output.json'])
-disp('Done.')
+
+%% turn off diary
+right_now = clock;
+fprintf('%d:%d:%02.f       Done running **%s**.\n', ...
+    right_now(4:6), mfilename)
+diary off
 
 end

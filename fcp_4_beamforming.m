@@ -26,6 +26,15 @@ function fcp_4_beamforming(paths)
 %   This file is part of MEGneto, see https://github.com/SonyaBells/MEGneto
 %   for the documentation and details.
 
+%% SET UP LOGGING FILE
+
+right_now = clock;
+log_filename = [paths.conf_dir '/log_' sprintf('%d%d%d', right_now(1:3))];
+diary(log_filename)
+
+fprintf('\n\n%d:%d:%02.f       Now running **%s**.\n', ...
+    right_now(4:6), mfilename)
+
 %% SETUP
 
 % load config JSON with analysis parameters
@@ -114,7 +123,9 @@ rangeOFsubj = 1:length(subj_match.ds);
 
 for ss = rangeOFsubj
 %%% FOR EACH PARTICIPANT --------------------------------------------------
-    fprintf('\nWorking on subject %s! \n', subj_match.pid{ss});
+    right_now = clock;
+    fprintf('%d:%d:%02.f       Working on subject %s!\n', ...
+        right_now(4:6), subj_match.pid{ss})
 
 %%% LOAD ANATOMICAL MRI DATA ----------------------------------------------
     mri     = ft_read_mri([paths.rawmri '/' subj_match.pid{ss} '_V2.mri']);
@@ -211,6 +222,10 @@ for ss = rangeOFsubj
 
 %% ACTUAL BEAMFORMING
 
+    right_now = clock;
+    fprintf('%d:%d:%02.f       Now, for actual beamforming...\n', ...
+        right_now(4:6))
+
 %%% VECTOR - Time Domain Source Reconstruction ----------------------------
 
     %%% compute common spatial filter (returns: COVARIANCE MATRIX)
@@ -273,6 +288,10 @@ for ss = rangeOFsubj
     ori_avg                     = [];   % orientation average
 
     %%% FOR EACH TRIAL ----------------------------------------------------
+    right_now = clock;
+    fprintf('%d:%d:%02.f       Projecting to AAL sources!\n', ...
+        right_now(4:6))
+    
     for t = 1:projection.df
         vector_virtual_sources_trial = [];
         ori_avg_trial                = [];
@@ -333,5 +352,15 @@ for ss = rangeOFsubj
     clear coords catmatrix srate vector_virtual_sources vector_virtual_sources_trial source_timeseries ...
         sources_innode ori_avg ori_avg_trial ori_116 atlas sourcemodel source_t_trials projection seg mri data grid hdm ...
         source_t_avg tlock leadfield aal_node ori_region ori_innode ori_region_padded
-    fprintf('\nDone subject %s! \n', subj_match.pid{ss});
+    
+    right_now = clock;
+    fprintf('%d:%d:%02.f       Done subject %s!\n', ...
+        right_now(4:6), subj_match.pid{ss})
+    
 end
+
+%% turn off diary
+right_now = clock;
+fprintf('%d:%d:%02.f       Done running **%s**.\n', ...
+    right_now(4:6), mfilename)
+diary off
