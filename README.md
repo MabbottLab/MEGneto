@@ -3,6 +3,9 @@
 Pipeline on MATLAB with FieldTrip to process MEG data and run functional connectivity analyses. Developed @ SickKids, Toronto, Canada. 
 
 See the PDF 'workflow' to get an overview of the pipeline.
+## Dependencies
+MATLAB (version >= 2017)
+Fieldtrip (version >= 2019)
 
 ## Modules
 
