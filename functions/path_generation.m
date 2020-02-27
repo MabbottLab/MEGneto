@@ -66,8 +66,8 @@ else % otherwise, define the rest of the paths struct
     all_participants = glob([paths.rawmri '/*.mri']);
     pids = cell(length(all_participants),1);
     for ii = 1:length(all_participants)
-        pids{ii} = all_participants{ii}(length(paths.rawmri)+2:end-7);
-        all_participants{ii} = [paths.anout '/' all_participants{ii}(length(paths.rawmri)+2:end-7)];
+        pids{ii} = all_participants{ii}(length(paths.rawmri)+2:end-10); %need to fix for different naming conventions
+        all_participants{ii} = [paths.anout '/' all_participants{ii}(length(paths.rawmri)+2:end-10)];
     end
     all_participants = cell2struct(all_participants,pids);
     all_participants = struct2table(all_participants);
