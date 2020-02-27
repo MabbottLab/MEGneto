@@ -19,9 +19,9 @@ for tr = 1:num_trials
     Sxy(tr,:) = 2*dt^2/T*(fft(x(:,tr)').*conj(fft(y(:,tr)')));
 end
 
-Sxx = nanmean(Sxx(:,1:(fs/2+1)),1);
-Syy = nanmean(Syy(:,1:(fs/2+1)),1);
-Sxy = nanmean(Sxy(:,1:(fs/2+1)),1);
+Sxx = nanmean(Sxx(:,1:(fs*T/2+1)),1);
+Syy = nanmean(Syy(:,1:(fs*T/2+1)),1);
+Sxy = nanmean(Sxy(:,1:(fs*T/2+1)),1);
 
 coh = abs(Sxy)./(sqrt(Sxx).*sqrt(Syy));
 
