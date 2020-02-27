@@ -56,8 +56,6 @@ elseif strcmp(config.connectivity.method,'wpli')
     connfn     = @(H1,H2) abs(mean(abs(imag(H1)-imag(H2)).*(sign(angle(H1)-angle(H2))),1))/mean(abs(imag(H1)-imag(H2)));
 elseif strcmp(config.connectivity.method,'wpli_deb')
     connfn     = @(H1,H2) (nansum(imag(H1-H2),1).^2-nansum((imag(H1-H2)).^2,1))/nansum(abs(imag(H1-H2)),1).^2-nansum((imag(H1-H2)).^2,1);
-elseif strcmp(config.connectivity.method,'coh')
-    connfn     = @(H1,H2) abs(mean(H1.*conj(H2))./sqrt(mean(abs(H1).^2).*mean(abs(H2).^2)));
 end
 
 %%% OTHER USEFUL FUNCTIONS ------------------------------------------------
@@ -166,10 +164,14 @@ all_adjmat = nan(90, 90, length(subj_match.ds), length(config.connectivity.filt_
               % mean center or z-score the timeseries before filtering
               ts = prefilter(catmatrix(:,tt,kk));          
               % filter data, calculate hilbert transform, get instantaneous phase
-              if (max(length(fir_coef{fq})-1,length(1)-1)*3) < length(ts)          
-                H_data(:,tt,kk) = hilbert(filtfilt(fir_coef{fq}, 1, ts));
+              if ~strcmp(config.connectivity.method,'coh')
+                  if (max(length(fir_coef{fq})-1,length(1)-1)*3) < length(ts)          
+                    H_data(:,tt,kk) = hilbert(filtfilt(fir_coef{fq}, 1, ts));
+                  else
+                    H_data(:,tt,kk) = hilbert(filter(fir_coef{fq}, 1, ts));
+                  end
               else
-                H_data(:,tt,kk) = hilbert(filter(fir_coef{fq}, 1, ts));
+                H_data(:,tt,kk) = filtfilt(fir_coef{fq}, 1, ts);
               end
             end
           end
@@ -178,8 +180,13 @@ all_adjmat = nan(90, 90, length(subj_match.ds), length(config.connectivity.filt_
           fprintf('Onto the connectivity calculations!\n')
           for aa = 1:num_sources
             for bb = aa+1:num_sources
-              p_adjmat(aa,bb,:) = connfn(H_data(:,:,aa), H_data(:,:,bb));
-              p_adjmat(bb,aa,:) = p_adjmat(aa,bb,:);
+                if ~strcmp(config.connectivity.method, 'coh')
+                    p_adjmat(aa,bb,:) = connfn(H_data(:,:,aa), H_data(:,:,bb));
+                    p_adjmat(bb,aa,:) = p_adjmat(aa,bb,:);
+                else
+                    p_adjmat(aa,bb,:) = calculate_coherence(H_data(:,:,aa), H_data(:,:,bb));
+                    p_adjmat(bb,aa,:) = p_adjmat(aa,bb,:);
+                end
             end
           end
           fprintf('Done this band.')
