@@ -95,7 +95,7 @@ for ss = 1:length(subj_match.ds) % for each participant
     cfg.dataset     = [paths.rawdata '/' subj_match.ds{ss}]; 
     cfg.length		= 2; %epoch sections of 2s
     cfg.overlap 	= 0.5;
-    cfg             = ft_redefinetrial(cfg,data);
+    cfg             = ft_redefinetrial(cfg);
     
     % This step removes  2) few segments of data at the end of the recording (which only contails 0s) 
     % 1) DC-component (later if fcp_2)
