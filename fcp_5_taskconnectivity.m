@@ -41,7 +41,7 @@ fprintf('\n\n%d:%d:%02.f       Now running **%s**.\n', ...
 % load config JSON with analysis parameters
 config      = load_config(paths, paths.name);
 config      = config.config;
-step        = 'fcp4';
+step        = 'fcp5';
 
 % check for matched MRI and MEG data
 subj_match  = ds_pid_match(paths,step);
@@ -156,9 +156,8 @@ all_adjmat = nan(90, 90, length(subj_match.ds), length(config.connectivity.filt_
           H_data = complex(zeros(num_samples, num_trials, num_sources)); 
           
           %%% FOR EACH TRIAL
-          fprintf('Processing trial ');
           for tt = 1:num_trials
-            fprintf('\b\b\b\b%d...', tt);
+            fprintf('Processing trial %d...\n', tt);
             %%% FOR EACH AAL NODE/SOURCE
             for kk = 1:num_sources
               % mean center or z-score the timeseries before filtering
@@ -184,18 +183,21 @@ all_adjmat = nan(90, 90, length(subj_match.ds), length(config.connectivity.filt_
                     p_adjmat(aa,bb,:) = connfn(H_data(:,:,aa), H_data(:,:,bb));
                     p_adjmat(bb,aa,:) = p_adjmat(aa,bb,:);
                 else
-                    p_adjmat(aa,bb,:) = calculate_coherence(H_data(:,:,aa), H_data(:,:,bb));
+                    p_adjmat(aa,bb,:) = calculate_coherence(H_data(:,:,aa), H_data(:,:,bb), ...
+                        config.filteringParameters.sampleRate, ...
+                        sum(abs(config.task.trialdef.parameters.tEpoch)), ...
+                        config.connectivity.filt_freqs(fq,:));
                     p_adjmat(bb,aa,:) = p_adjmat(aa,bb,:);
                 end
             end
           end
-          fprintf('Done this band.')
+          fprintf('Done this band. ')
 %%% COPY TEMP MATRIX INTO SUBJECT-MATRIX ----------------------------------
           adjmat(:,:,:,fq) = p_adjmat;
         end % repeat for each frequency band
 
 %%% SAVE PARTICIPANT'S ADJACENCY MATRIX -----------------------------------
-        fprintf('Saving the mat file...');
+        fprintf('Saving the mat file...\n');
         save([ssSubjPath(ss) '/fcp_5_adjmat_' config.connectivity.method '.mat'],'adjmat','-mat','-v7.3')
 
 %%% CALCULATE AND RECORD AVG ACROSS TRIALS FOR THIS PARTICIPANT
