@@ -94,7 +94,8 @@ for ss = rangeOFsubj %1:rangeOFsubj
             if config.task.isRest == false 
                 samples = loadjson([ssSubjPath(ss) '/' fcp1_output.trial_cfg]);
                 cfg     = [];
-                cfg.trl = samples.trl;
+                cfg.trial = samples.trl;
+                cfg.demean = 'yes' %from fcp_1
                 disp('Epoched file found!');
                 disp([ssSubjPath(ss) '/' fcp1_output.trial_cfg]);
             % if TASK
@@ -178,7 +179,7 @@ for ss = rangeOFsubj
     % load filtered data
     load([ssSubjPath(ss) '/' fcp2_output.data_noisecorr]);
 
-    % if you don't want to run ICA
+    % if you don not want to run ICA
     if config.cleaningOptions.artifact.icaClean == 0
         right_now = clock;
         fprintf('%d:%d:%02.f       No ICA requested, saving data...\n', right_now(4:6))

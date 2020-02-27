@@ -17,12 +17,11 @@ function fcp_1_RestingStateEpoching(paths)
 % OUTPUTS:
 %   fcp1_output         = struct with locations of output files
 %     .fig_headmotion   = 'headmotion.png': image of head motion graph
-%     .trigger_figure   = 'triggerfigure.png': image of markers
 %     .trial_cfg        = 'ft_meg_trl_cfg.json': fieldtrip cfg structure
 %                          with the 'trl' parameter set to selected trials
 %     .trial_cfgHM      = 'ft_meg_trl_cfgHM.json': head motion removed
 %     .trial_grad_cfg   = 'ft_meg_grad_cfg.json': HM and 3rd order grad
-%                          removed
+%                          applied
 %     .group_rmBadChan  = 'group_rmBadChan.json': lists of bad channs
 %     .numtrls          = number of trials across participants
 %     .HMremove_trls    = number of trials removed due to head motion
@@ -35,9 +34,17 @@ function fcp_1_RestingStateEpoching(paths)
 %           HEADMOTIONTOOL, DETECTBADCHANNELS
 
 % Last updated by: Sonya Bells, 2020-02-13
-% Based on code written by Vasily Vakorin, Diana Harasym, Simeon Wong and Sonya Bells
 %   This file is part of MEGneto, see https://github.com/SonyaBells/MEGneto
 %   for the documentation and details.
+
+%% SET UP LOGGING FILE
+
+right_now = clock;
+log_filename = [paths.conf_dir '/log_' sprintf('%d%d%d', right_now(1:3))];
+diary(log_filename)
+
+fprintf('\n\n%d:%d:%02.f       Now running **%s**.\n', ...
+    right_now(4:6), mfilename)
 
 %% SETUP: LOAD CONFIG, PARTICIPANTS, CHECK FOR FULL DATASET, OUTPUTS
 
@@ -83,33 +90,26 @@ for ss = 1:length(subj_match.ds) % for each participant
 	%%% EPOCHING Resting State-----------------------------------------------
     fprintf('Epoching into Segments...\n')
 
-    cfg             = [];
-    cfg.dataset     = [paths.rawdata '/' subj_match.ds{ss}]; 
-    cfg.channel 	= {'MEG'}
-    cfg.continuous  = 'yes';
-    data 			= ft_preprocessing(cfg);
-
     % FT_REDEFINETRIAL allows you to adjust the time axis of your data, i.e. to change from stimulus-locked to response-locked.
     cfg 			= [];
+    cfg.dataset     = [paths.rawdata '/' subj_match.ds{ss}]; 
     cfg.length		= 2; %epoch sections of 2s
     cfg.overlap 	= 0.5;
     cfg             = ft_redefinetrial(cfg,data);
     
-    % This step removes 1) DC-component 2) few segments of data at the end of the recording (which only contails 0s)
-    cfg 			= [];
-    cfg.demean 		= 'yes';
-    cfg.trials 		= 1:(numel(data.trial)-6);
-    data  			= ft_preprocessing(cfg,data)
-
+    % This step removes  2) few segments of data at the end of the recording (which only contails 0s) 
+    % 1) DC-component (later if fcp_2)
+    cfg.trial 		= 1:(numel(cfg.trial)-6);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    data_orig                    = data; % keep the original epoched data
-    fcp1_output.numtrls{ss,1}   = length(data_orig.trl); % record num trials
+    cfg_orig                    = cfg; % keep the original epoched data
+    fcp1_output.numtrls{ss,1}   = length(cfg_orig.trial); % record num trials
 
 %%% HEAD MOTION CORRECTION ------------------------------------------------
-    fprintf('Looking for excessive head motion...\n')
-    cfg = data;
+    right_now = clock;
+    fprintf('%d:%d:%02.f       Looking for excessive head motion...\n', right_now(4:6))    
+
     try
         [~, ~, cfg, grad] = HeadMotionTool('Fieldtrip', cfg, ...
             'RejectThreshold', config.epoching.headMotion.thr, 'RejectTrials', true, 'CorrectInitial', true, ...
@@ -120,9 +120,9 @@ for ss = 1:length(subj_match.ds) % for each participant
     end
     
     % record number of trials removed due to head motion
-    fcp1_output.HMremove_trls{ss,1} = length(data_orig.trl)-length(cfg.trl);
+    fcp1_output.HMremove_trls{ss,1} = length(cfg_orig.trial)-length(cfg.trial);
     % throw a warning if there are more than 90% of trials removed
-    if fcp1_output.HMremove_trls{ss,1} > length(data_orig.trl)*0.9
+    if fcp1_output.HMremove_trls{ss,1} > length(cfg_orig.trial)*0.9
         warning('\n\n \t\t Check head motion!!! \n\n')
         continue
     end
@@ -133,7 +133,9 @@ for ss = 1:length(subj_match.ds) % for each participant
 
 
 %%% ARTIFACT DETECTION ----------------------------------------------------
-    fprintf('Detecting muscle and jump artifacts...\n')
+    right_now = clock;
+    fprintf('%d:%d:%02.f       Detecting muscle and jump artifacts...\n', right_now(4:6))
+
     if config.cleaningOptions.artifact.detection == 1
         
         %%% Muscle Artifacts %%%
@@ -157,7 +159,7 @@ for ss = 1:length(subj_match.ds) % for each participant
         cfg.artfctdef.reject             = 'complete'; % remove complete trials
         cfg                              = ft_rejectartifact(cfg);
         fcp1_output.noisy_trl{ss,1}      = [muscle_artifact; jump_artifact];
-        fcp1_output.Nremove_trls{ss,1}   = length(cfg.trlold)-length(cfg.trl);
+        fcp1_output.Nremove_trls{ss,1}   = length(cfg.trlold)-length(cfg.trial);
     end
 
    % save cleaned data progress
@@ -169,8 +171,9 @@ for ss = 1:length(subj_match.ds) % for each participant
         true);
 
 %%% BAD CHANNEL DETECTION -------------------------------------------------
-    fprintf('Detecting bad channels ...\n')
-    
+    right_now = clock;
+    fprintf('%d:%d:%02.f       Detecting bad channels...\n', right_now(4:6))
+   
     cfg             = [];
     cfg.dataset     = [paths.rawdata '/' subj_match.ds{ss}];
     cfg.bchthr      = 60; % threshold; 75-85 quantile
@@ -201,7 +204,11 @@ disp('Saving...');
 save_to_json(fcp1_output, [paths.conf_dir '/fcp1_output.json'], true);
 disp('Done FCP_1.');
 
-
+%% turn off diary
+right_now = clock;
+fprintf('%d:%d:%02.f       Done running **%s**.\n', ...
+    right_now(4:6), mfilename)
+diary off
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
