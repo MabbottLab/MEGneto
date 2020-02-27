@@ -55,7 +55,7 @@ elseif strcmp(config.connectivity.method,'plv')
 elseif strcmp(config.connectivity.method,'wpli')
     connfn     = @(H1,H2) abs(mean(abs(imag(H1)-imag(H2)).*(sign(angle(H1)-angle(H2))),1))/mean(abs(imag(H1)-imag(H2)));
 elseif strcmp(config.connectivity.method,'wpli_deb')
-    connfn     = @(H1,H2) (nansum(imag(H1-H2),1).^2-nansum((imag(H1-H2)).^2,1))/nansum(abs(imag(H1-H2)),1).^2-nansum((imag(H1-H2)).^2,1);
+    connfn     = @(H1,H2) (nanmean(imag(H1-H2),1).^2-nanmean((imag(H1-H2)).^2,1))/nanmean(abs(imag(H1-H2)),1).^2-nanmean((imag(H1-H2)).^2,1);
 end
 
 %%% OTHER USEFUL FUNCTIONS ------------------------------------------------
