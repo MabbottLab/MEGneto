@@ -93,44 +93,18 @@ for ss = 1:length(subj_match.ds) % for each participant
     % FT_REDEFINETRIAL allows you to adjust the time axis of your data, i.e. to change from stimulus-locked to response-locked.
     cfg 			= [];
     cfg.dataset     = [paths.rawdata '/' subj_match.ds{ss}]; 
-    cfg.length		= 2; %epoch sections of 2s
-    cfg.overlap 	= 0.5;
-    cfg             = ft_definetrial(cfg);
+    cfg.continuous  = 'yes';   
+    data           =ft_preprocessing(cfg);
     
-    % This step removes  2) few segments of data at the end of the recording (which only contails 0s) 
-    % 1) DC-component (later if fcp_2)
-    cfg.trial 		= 1:(numel(cfg.trial)-6);
+    cfg = [];
+    cfg.length = config.epoching.period;     
+    cfg.overlap = 0.5; 
+    data_epoched          = ft_redefinetrial(cfg, data);
+ 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-    cfg_orig                    = cfg; % keep the original epoched data
-    fcp1_output.numtrls{ss,1}   = length(cfg_orig.trial); % record num trials
-
-%%% HEAD MOTION CORRECTION ------------------------------------------------
-    right_now = clock;
-    fprintf('%d:%d:%02.f       Looking for excessive head motion...\n', right_now(4:6))    
-
-    try
-        [~, ~, cfg, grad] = HeadMotionTool('Fieldtrip', cfg, ...
-            'RejectThreshold', config.epoching.headMotion.thr, 'RejectTrials', true, 'CorrectInitial', true, ...
-            'SavePictureFile', [paths.(subj_match.pid{ss}) '/' fcp1_output.fig_headmotion],...
-            'GUI', false);
-    catch
-        warning('HeadMotionTool error!\n');
-    end
     
-    % record number of trials removed due to head motion
-    fcp1_output.HMremove_trls{ss,1} = length(cfg_orig.trial)-length(cfg.trial);
-    % throw a warning if there are more than 90% of trials removed
-    if fcp1_output.HMremove_trls{ss,1} > length(cfg_orig.trial)*0.9
-        warning('\n\n \t\t Check head motion!!! \n\n')
-        continue
-    end
-    
-    save_to_json(cfg,...                % save the HM-removed data
-        [paths.(subj_match.pid{ss}) '/' fcp1_output.trial_cfgHM],...
-        true);
-
+    fcp1_output.numtrls{ss,1}   = length(data_epoched.trial); % record num trials
 
 %%% ARTIFACT DETECTION ----------------------------------------------------
     right_now = clock;
@@ -139,6 +113,7 @@ for ss = 1:length(subj_match.ds) % for each participant
     if config.cleaningOptions.artifact.detection == 1
         
         %%% Muscle Artifacts %%%
+	cfg				 = [];
         cfg.artfctdef.muscle.bpfilter    = config.cleaningOptions.artifact.muscle.bpfilter;
         cfg.artfctdef.muscle.bpfreq      = config.cleaningOptions.artifact.muscle.bpfreq;
         cfg.artfctdef.muscle.bpfiltord   = config.cleaningOptions.artifact.muscle.bpfiltord;
@@ -149,19 +124,58 @@ for ss = 1:length(subj_match.ds) % for each participant
         cfg.artfctdef.muscle.trlpadding  = config.cleaningOptions.artifact.muscle.trlpadding; 
         cfg.artfctdef.muscle.fltpadding  = config.cleaningOptions.artifact.muscle.fltpadding;
         cfg.artfctdef.muscle.artpadding  = config.cleaningOptions.artifact.muscle.artpadding;
-        [cfg, muscle_artifact]           = ft_artifact_muscle(cfg);
+        [cfg, muscle_artifact]           =  ft_artifact_muscle(cfg, data_epoched);
         
         %%%% Jump Artifacts %%%
         cfg.artfctdef.jump.cutoff        = config.cleaningOptions.artifact.jump.cutoff;
-        [cfg, jump_artifact]             = ft_artifact_jump(cfg);
+        [cfg, jump_artifact]             = ft_artifact_jump(cfg, data_epoched);
         
 %%% ARTIFACT REJECTION ----------------------------------------------------
-        cfg.artfctdef.reject             = 'complete'; % remove complete trials
-        cfg                              = ft_rejectartifact(cfg);
+        cfg.artfctdef.reject             = 'complete'; % remove complete trial
+	data_clean                       = ft_rejectartifact(cfg, data_epoched)
         fcp1_output.noisy_trl{ss,1}      = [muscle_artifact; jump_artifact];
         fcp1_output.Nremove_trls{ss,1}   = length(cfg.trlold)-length(cfg.trial);
+   
+   	fcp1_output.Nremove_trls{ss,1}   = length(data_clean.cfg.trlold)-length(data_clean.trial);
+	
+%%% HEAD MOTION CORRECTION ------------------------------------------------
+        right_now = clock;
+        fprintf('%d:%d:%02.f       Looking for excessive head motion...\n', right_now(4:6))      
+    
+        % find all HM values (in cm) in our segments and keep only the non-zero HM
+        % values; this is with MEG turned off, but still recording
+        zeroTime = find(data.trial{1,1}(4,:)==0,1,'first');
+        trl = data_clean.cfg.trl; 
+        [row,~] =  find(trl > zeroTime);
+        trl = trl(1:row(1),:);
+    	
+	cfg = [];
+        cfg.dataset = [paths.rawdata '/' subj_match.ds{ss}];	
+        cfg.channel                 = {'HLC0011','HLC0012','HLC0013', ...
+        'HLC0021','HLC0022','HLC0023', ...
+        'HLC0031','HLC0032','HLC0033'};
+        cfg.trl = trl;
+	
+   	try
+            [~, ~, cfg, grad] = HeadMotionTool('Fieldtrip', cfg, ...
+            'RejectThreshold', config.epoching.headMotion.thr, 'RejectTrials', true, 'CorrectInitial', true, ...
+            'SavePictureFile', [paths.(subj_match.pid{ss}) '/' fcp1_output.fig_headmotion],...
+            'GUI', false);
+        catch
+            warning('HeadMotionTool error!\n');
+        end
+    
+        HM.trl = cfg.trl;
+     	% record number of trials removed due to head motion
+        fcp1_output.HMremove_trls{ss,1} = length(trl)-length(HM.trl);
+        % throw a warning if there are more than 90% of trials removed
+        if fcp1_output.HMremove_trls{ss,1} > length(trl)*0.9
+            warning('\n\n \t\t Check head motion!!! \n\n')
+            continue
+        end
     end
-
+   
+   
    % save cleaned data progress
     save_to_json(cfg,... 
         [paths.(subj_match.pid{ss}) '/' fcp1_output.trial_cfg],...
