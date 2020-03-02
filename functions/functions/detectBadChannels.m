@@ -4,11 +4,11 @@ thr = cfg.bchthr;
 sections = cfg.sections;
 dataset = cfg.dataset;
 
-if strcmp(task, 'Rest')
-    sample_epochs = cfg.epochs;
-else
-    disp('Non-Rest');
-end
+%if strcmp(task, 'Rest')
+%    sample_epochs = cfg.epochs;
+%else
+%    disp('Non-Rest');
+%end
 %import raw data
 cfg.dataset                 = cfg.dataset; %
 cfg.channel                 = {'MEG'};
@@ -37,9 +37,9 @@ sensor_level2 = ft_preprocessing(cfg);
 
 if ~isempty(a)
     sensor_level2.trial{1,1}(:,a:end)=[]; % remove end of recording
-    if strcmp(task, 'Rest')
-        sensor_level2.trial{1,1}(logical(repmat(sample_epochs(1:a-1),[size(sensor_level2.trial{1,1},1) 1]))) = NaN ; % set bad samples (artifact) to NaN
-    end
+%    if strcmp(task, 'Rest')
+%        sensor_level2.trial{1,1}(logical(repmat(sample_epochs(1:a-1),[size(sensor_level2.trial{1,1},1) 1]))) = NaN ; % set bad samples (artifact) to NaN
+%    end
 end
 
 % Break trial up into sections 
