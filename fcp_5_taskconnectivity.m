@@ -52,10 +52,10 @@ if strcmp(config.connectivity.method,'pli')
     connfn     = @(H1,H2) abs(mean(sign(angle(H1)-angle(H2)), 1));
 elseif strcmp(config.connectivity.method,'plv')
     connfn     = @(H1,H2) abs(mean(exp(1i .* (angle(H1)-angle(H2))), 1));
-elseif strcmp(config.connectivity.method,'wpli')
-    connfn     = @(H1,H2) abs(mean(abs(imag(H1)-imag(H2)).*(sign(angle(H1)-angle(H2))),1))/mean(abs(imag(H1)-imag(H2)));
-elseif strcmp(config.connectivity.method,'wpli_deb')
-    connfn     = @(H1,H2) (nanmean(imag(H1-H2),1).^2-nanmean((imag(H1-H2)).^2,1))/nanmean(abs(imag(H1-H2)),1).^2-nanmean((imag(H1-H2)).^2,1);
+% elseif strcmp(config.connectivity.method,'wpli')
+%     connfn     = @(H1,H2) abs(mean(abs(imag(H1)-imag(H2)).*(sign(angle(H1)-angle(H2))),1))/mean(abs(imag(H1)-imag(H2)));
+% elseif strcmp(config.connectivity.method,'wpli_deb')
+%     connfn     = @(H1,H2) (nanmean(imag(H1-H2),1).^2-nanmean((imag(H1-H2)).^2,1))/nanmean(abs(imag(H1-H2)),1).^2-nanmean((imag(H1-H2)).^2,1);
 end
 
 %%% OTHER USEFUL FUNCTIONS ------------------------------------------------
@@ -124,6 +124,7 @@ fprintf('Max filter length: %d samples = %.4f sec.\n', maxn, maxn/srate);
 
 % setup band names and master adjacency matrix
 band_names = ["theta", "alpha", "beta", "lowgamma", "highgamma"];
+methods = ["coh", "wpli", "wpli_deb"];
 all_adjmat = nan(90, 90, length(subj_match.ds), length(config.connectivity.filt_freqs));
 
 %for cc = 1:length(p.condition)
@@ -145,6 +146,11 @@ all_adjmat = nan(90, 90, length(subj_match.ds), length(config.connectivity.filt_
 %%% INITIALIZE PARTICIPANT ADJACENCY MATRIX -------------------------------
 %   Dimensions = [sources] x [sources] x [trials] x [freq. band]
         adjmat = nan(num_sources, num_sources, num_trials,length(config.connectivity.filt_freqs)); % in resting state
+        data = [];
+        time_info = config.task.trialdef.parameters.tEpoch;
+        for src = 1:num_sources
+            data.label{src} = sprintf('AAL%d', src);
+        end
 
 %%% RUN CONNECTIVITY ANALYSIS ---------------------------------------------
     %%% FOR EACH FREQUENCY BAND
@@ -158,41 +164,54 @@ all_adjmat = nan(90, 90, length(subj_match.ds), length(config.connectivity.filt_
           %%% FOR EACH TRIAL
           for tt = 1:num_trials
             fprintf('Processing trial %d...\n', tt);
+            data.time{tt} = time_info(1):(1/srate):time_info(2);
             %%% FOR EACH AAL NODE/SOURCE
             for kk = 1:num_sources
               % mean center or z-score the timeseries before filtering
               ts = prefilter(catmatrix(:,tt,kk));          
               % filter data, calculate hilbert transform, get instantaneous phase
-              if ~strcmp(config.connectivity.method,'coh')
+              if ~any(contains(methods, config.connectivity.method))
                   if (max(length(fir_coef{fq})-1,length(1)-1)*3) < length(ts)          
                     H_data(:,tt,kk) = hilbert(filtfilt(fir_coef{fq}, 1, ts));
                   else
                     H_data(:,tt,kk) = hilbert(filter(fir_coef{fq}, 1, ts));
                   end
               else
-                H_data(:,tt,kk) = filtfilt(fir_coef{fq}, 1, ts);
+                  data.trial{tt}(kk,:) = filtfilt(fir_coef{fq}, 1, ts);
               end
             end
           end
 
 %%% CALCULATE CONNECTIVITY ------------------------------------------------
           fprintf('Onto the connectivity calculations!\n')
-          for aa = 1:num_sources
-            for bb = aa+1:num_sources
-                if ~strcmp(config.connectivity.method, 'coh')
-                    p_adjmat(aa,bb,:) = connfn(H_data(:,:,aa), H_data(:,:,bb));
-                    p_adjmat(bb,aa,:) = p_adjmat(aa,bb,:);
-                else
-                    p_adjmat(aa,bb,:) = calculate_coherence(H_data(:,:,aa), H_data(:,:,bb), ...
-                        config.filteringParameters.sampleRate, ...
-                        sum(abs(config.task.trialdef.parameters.tEpoch)), ...
-                        config.connectivity.filt_freqs(fq,:));
-                    p_adjmat(bb,aa,:) = p_adjmat(aa,bb,:);
+          if ~any(contains(methods, config.connectivity.method))
+              for aa = 1:num_sources
+                for bb = aa+1:num_sources                
+                        p_adjmat(aa,bb,:) = connfn(H_data(:,:,aa), H_data(:,:,bb));
+                        p_adjmat(bb,aa,:) = p_adjmat(aa,bb,:);
                 end
+              end
+          else
+            cfg = [];
+            cfg.method = 'mtmfft';
+            cfg.output = 'powandcsd';
+            cfg.channel = 'all';
+            cfg.trials = 'all';
+            cfg.keeptrials = 'yes';
+            cfg.taper = 'hanning';
+            cfg.foilim = config.connectivity.filt_freqs(fq,:);
+            freq = ft_freqanalysis(cfg,data);
+            out = mean(ft_connectivity_wpli(freq.crsspctrm, 'dojack', 0, 'debias', contains(config.connectivity.method,'deb')),2);
+            for src = 1:90
+                p_adjmat(src+1:end,src,1) = out(1:(90-src));
+                p_adjmat(src,src+1:end,1) = p_adjmat(src+1:end,src);
+                out(1:(90-src)) = [];
             end
           end
+              
           fprintf('Done this band. ')
 %%% COPY TEMP MATRIX INTO SUBJECT-MATRIX ----------------------------------
+          
           adjmat(:,:,:,fq) = p_adjmat;
         end % repeat for each frequency band
 
@@ -201,7 +220,7 @@ all_adjmat = nan(90, 90, length(subj_match.ds), length(config.connectivity.filt_
         save([ssSubjPath(ss) '/fcp_5_adjmat_' config.connectivity.method '.mat'],'adjmat','-mat','-v7.3')
 
 %%% CALCULATE AND RECORD AVG ACROSS TRIALS FOR THIS PARTICIPANT
-        all_adjmat(:,:,ss,:) = squeeze(mean(adjmat, 3));
+        all_adjmat(:,:,ss,:) = squeeze(nanmean(adjmat, 3));
     end
     
 %%% SAVE MASTER ADJACENCY MATRIX WITH ALL PARTICIPANTS
