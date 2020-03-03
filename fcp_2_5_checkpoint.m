@@ -149,8 +149,9 @@ for ss = rangeOFsubj
 
     % save a JSON copy of the components
     right_now = clock;
-    save_to_json(bad_comp, fprintf('%s/ICA_badcomp_%d%d%d_%d%d.json', ...
-        ssSubjPath{ss}, right_now(1:5)));
+    %save_to_json(bad_comp, fprintf('%s/ICA_badcomp_%d%d%d_%d%d.json', ...
+    %    ssSubjPath{ss}, right_now(1:5)));
+    save_to_json(bad_comp, sprintf('%s/ICA_badcomp_%d%d%d_%d%d.json',paths.(subj_match.pid{ss}), right_now(1:5)), true)    
 end
 
 %%% RECORD KEEPING --------------------------------------------------------
