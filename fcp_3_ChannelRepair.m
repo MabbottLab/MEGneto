@@ -90,7 +90,7 @@ for ss = rangeOFsubj
         % run repair
         cfg             = [];
         cfg.method      = 'weighted';        %'average', 'spline' or 'slap' (default = 'weighted')
-        cfg.badchannel  = loadjson([paths.(subj_match.pid{ss}) '/badChannels.json']); 
+        cfg.badchannel  = loadjson([paths.(subj_match.pid{ss}) '/badChannels.json'])'; 
         cfg.neighbours  = neighbours; %neighbourhood structure, see also FT_PREPARE_NEIGHBOURS
         cfg.senstype    = 'meg';
         data            = ft_channelrepair(cfg, data);
