@@ -9,22 +9,21 @@ spath = '/mnt/sda/juanita/MEGneto/analysis/Right/analysis';
 
 % load pli matrix files for each participant in CONTROL 
 % grouPLI{} = LIST
-[LIST, ISDIR] = glob([spath,'/ST*/fcp_5_adjmat_wpli_deb.mat']);
+[LIST, ISDIR] = glob([spath,'/control/ST*/fcp_5_adjmat_wpli_deb.mat']);
 % [LIST, ISDIR] = glob([spath,'/control/ST*/fcp_5_adjmat_wpli_deb.mat']); % here we are using debiased wPLI
 LIST(~ISDIR);
-groupPLI{1} = LIST;
-% group1PLI = LIST; % group1PLI = controls
+groupPLI{1} = LIST; % group 1 = controls
 
 %load pli matrix files for each participant in SURGERY ONLY
 % [LIST, ISDIR] = glob([spath,'/surg/ST*/fcp_5_adjmat_wpli_deb.mat']);
-[LIST, ISDIR] = glob([spath,'/ST*/fcp_5_adjmat_wpli_deb.mat']);
+[LIST, ISDIR] = glob([spath,'/surgery/ST*/fcp_5_adjmat_wpli_deb.mat']);
 LIST(~ISDIR);
-groupPLI{2} = LIST; % group2PLI = surgery only
+groupPLI{2} = LIST; % group 2 = surgery only
 
 %load pli matrix files for each participant in RAD/CHEMO 
 [LIST, ISDIR] = glob([spath,'/rad/ST*/fcp_5_adjmat_wpli_deb.mat']);
 LIST(~ISDIR);
-groupPLI{3} = LIST; % group3PLI = surgery + rad and/or chemo
+groupPLI{3} = LIST; % group 3 = surgery + rad and/or chemo
 
 
 %% initialize subjects in conditions - load PLI adj. matrix
@@ -60,12 +59,16 @@ end
 %% make design matrix for NBS
 % modified from Julie Sato's NBS script (written by Simeon Wong)
 
-numSubj = 1:length(groupPLI{ss});
+numSubj1 = 1:length(groupPLI{1}{ss});
+numSubj2 = 1:length(groupPLI{2}{ss});
+numSubj3 = 1:length(groupPLI{3}{ss});
 
 design_matrix = zeros(size(nbs_datamat,3),3);
-design_matrix(1:length(numSubj),1) = 1;
-design_matrix(11:end,1) = 0; % change index based on where second group begins
-design_matrix(11:end,2) = 1; 
+design_matrix(1:length(numSubj1),1) = 1;
+% design_matrix(numSubj2:end,1) = 0;
+design_matrix(numSubj1:numSubj2,2) = 1; 
+design_matrix(numSubj3:end,3) = 1; 
+% design_matrix(11:end,2) = 1; 
 
 % design_matrix = zeros(size(nbs_datamat,3),2);
 % design_matrix(1:length(numSubj),1) = 0;

@@ -217,7 +217,7 @@ all_adjmat = nan(90, 90, length(subj_match.ds), length(config.connectivity.filt_
 
 %%% SAVE PARTICIPANT'S ADJACENCY MATRIX -----------------------------------
         fprintf('Saving the mat file...\n');
-        save([ssSubjPath(ss) '/fcp_5_adjmat_' config.connectivity.method '.mat'],'adjmat','-mat','-v7.3')
+        save(['/mnt/sda/juanita/MEGneto/', ssSubjPath(ss) '/fcp_5_adjmat_' config.connectivity.method '.mat'],'adjmat','-mat','-v7.3')
 
 %%% CALCULATE AND RECORD AVG ACROSS TRIALS FOR THIS PARTICIPANT
         all_adjmat(:,:,ss,:) = squeeze(nanmean(adjmat, 3));

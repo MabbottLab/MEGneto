@@ -25,7 +25,7 @@ function make_NBS_ready(paths, group_names, conn, contrasts)
 
 %% SETUP
 
-spath = paths.analyses; % path to analysis folder
+spath = paths.anout; % path to analysis folder
 numGroups = length(group_names); % how many groups?
 
 groupPLI = cell(1,numGroups); % initialize
