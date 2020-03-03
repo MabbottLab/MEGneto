@@ -1,4 +1,4 @@
-function make_NBS_ready(paths, group_names, conn, contrasts)
+function make_NBS_ready(paths, group_names, conn)
 
 % To make data matrix and design matrix for NBS exercise 
 % modified from NBS_sam by Sonya - May 9, 2018
@@ -63,7 +63,7 @@ end
 design_matrix = [];
 for gg = 1:numGroups
     this_gp = zeros(1,numGroups);
-    this_gp(gg) = contrasts(gg);
+    this_gp(gg) = 1;
     design_matrix = vertcat(design_matrix, repmat(this_gp, length(groupPLI{gg}), 1));
 end
 
