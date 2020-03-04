@@ -206,13 +206,10 @@ all_adjmat = nan(90, 90, length(subj_match.ds), length(config.connectivity.filt_
             cfg             = [];
             cfg.method      = config.connectivity.method;
             conn            = ft_connectivityanalysis(cfg, freq);
-            out             = mean(conn.(sprintf('%sspctrm', cfg.method)), 2);
-
-            for src = 1:90
-                p_adjmat(src+1:end,src,1)   = out(1:(90-src));
-                p_adjmat(src,src+1:end,1)   = p_adjmat(src+1:end,src);
-                out(1:(90-src))             = [];
-            end
+            
+            % RESHAPE INTO SOURCE X SOURCE ADJ MAT AND STORE
+            conn            = ft_checkdata(conn, 'cmbrepresentation', 'full');
+            p_adjmat(:,:,1) = squeeze(mean(conn.(sprintf('%sspctrm', cfg.method)), 3));            
           end
               
           fprintf('Done this band. ')
