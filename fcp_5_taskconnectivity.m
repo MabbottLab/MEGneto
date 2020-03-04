@@ -1,12 +1,14 @@
 function fcp_5_taskconnectivity(paths)
 
-% FCP_5_TASKCONNECTIVITY estimates functional connectivity using phase-
-% locking metrics (PLV, PLI) *or amplitude coupling* (to be added). 
-% 
-% NOTES:
-%   - Will use the fcp_4 subject CSV to pull included participants.  
-%   @JT: change AAL region number to automatic detection
-%   @JT: add multi-condition handling
+% FCP_5_TASKCONNECTIVITY estimates functional connectivity. 
+% Currently supports the following connectivity metrics: 
+%       - 'plv' (phase locking value)
+%       - 'pli' (phase lag index)
+%       - 'wpli' (weighted phase lag index)
+%       - 'wpli_debiased' (as above, but debiased)
+%       - 'coh' (coherence)
+% The strings listed above should be indicated in the config JSON file
+% exactly as presented. 
 %
 % INPUTS:
 %   paths               =   struct defining paths to data, participant
@@ -47,49 +49,11 @@ step        = 'fcp5';
 subj_match  = ds_pid_match(paths,step);
 ssSubjPath  = @(x) paths.(subj_match.pid{x});
 
-%%% CONNECTIVITY FUNCTIONS ------------------------------------------------
-if strcmp(config.connectivity.method,'pli')
-    connfn     = @(H1,H2) abs(mean(sign(angle(H1)-angle(H2)), 1));
-% elseif strcmp(config.connectivity.method,'plv')
-%     connfn     = @(H1,H2) abs(mean(exp(1i .* (angle(H1)-angle(H2))), 1));
-% elseif strcmp(config.connectivity.method,'wpli')
-%     connfn     = @(H1,H2) abs(mean(abs(imag(H1)-imag(H2)).*(sign(angle(H1)-angle(H2))),1))/mean(abs(imag(H1)-imag(H2)));
-% elseif strcmp(config.connectivity.method,'wpli_deb')
-%     connfn     = @(H1,H2) (nanmean(imag(H1-H2),1).^2-nanmean((imag(H1-H2)).^2,1))/nanmean(abs(imag(H1-H2)),1).^2-nanmean((imag(H1-H2)).^2,1);
-end
-
 %%% OTHER USEFUL FUNCTIONS ------------------------------------------------
 % Z-score
     prefilter = @(ts) zscore(ts);
 % filter function
     filterfn = @(b,a,ts) filtfilt(b,a,ts);
-
-%% CHECK DATA
-% fileerror = false;
-
-% %TO DO - change previous with following at some point  - SB
-% % for cc = 1:length(p.condition)
-%   for ss = 1:length(subj_match.ds)
-%     %vspath = p.paths.vs(char(p.subj.ID{ss}),
-%     %p.beamformer.bf.method,p.condition{cc});  to change later
-%     vspath = [ssSubjPath(ss) '/AAL_beamforming_results'];
-%     if ~exist(vspath, 'file')
-%       fileerror = true;
-%       disp([vspath ' doesn''t exist!']);
-%     else
-%       vsdata = whos('-file', vspath, 'catmatrix', 'srate');
-%       
-%       if length(vsdata) < 2
-%         fileerror = true;
-%         disp([vspath ' is corrupted!']);
-%       end
-%     end
-%   end
-% % end
-
-% if fileerror
-%   error('Some source files seem to have issues!');
-% end
 
 %% MAKE FILTERS
 
@@ -143,9 +107,9 @@ all_adjmat = nan(90, 90, length(subj_match.ds), length(config.connectivity.filt_
         num_sources = size(catmatrix, 3);
 
 %%% INITIALIZE PARTICIPANT ADJACENCY MATRIX -------------------------------
-%   Dimensions = [sources] x [sources] x [trials] x [freq. band]
-        adjmat = nan(num_sources, num_sources, num_trials,length(config.connectivity.filt_freqs)); % in resting state
-        data = [];
+%   Dimensions = [sources] x [sources] x [freq. band]
+        adjmat  = nan(num_sources, num_sources, length(config.connectivity.filt_freqs)); 
+        data    = [];
         time_info = config.task.trialdef.parameters.tEpoch;
         for src = 1:num_sources
             data.label{src} = sprintf('AAL%d', src);
@@ -155,10 +119,6 @@ all_adjmat = nan(90, 90, length(subj_match.ds), length(config.connectivity.filt_
     %%% FOR EACH FREQUENCY BAND
         for fq = 1:length(config.connectivity.filt_freqs) 
           fprintf('Analyzing the %s band!\n', band_names(fq)); 
-
-          % initialize the temp adjmat
-          p_adjmat = nan(num_sources, num_sources, num_trials); % same as RestingSate     
-          H_data = complex(zeros(num_samples, num_trials, num_sources)); 
           
           %%% FOR EACH TRIAL
           for tt = 1:num_trials
@@ -169,28 +129,16 @@ all_adjmat = nan(90, 90, length(subj_match.ds), length(config.connectivity.filt_
               % mean center or z-score the timeseries before filtering
               ts = prefilter(catmatrix(:,tt,kk));          
               % filter data, calculate hilbert transform, get instantaneous phase
-              if strcmp(config.connectivity.method, 'pli')
-                  if (max(length(fir_coef{fq})-1,length(1)-1)*3) < length(ts)          
-                    H_data(:,tt,kk) = hilbert(filtfilt(fir_coef{fq}, 1, ts));
-                  else
-                    H_data(:,tt,kk) = hilbert(filter(fir_coef{fq}, 1, ts));
-                  end
-              else
-                  data.trial{tt}(kk,:) = filtfilt(fir_coef{fq}, 1, ts);
-              end
+                if (max(length(fir_coef{fq})-1,length(1)-1)*3) < length(ts)          
+                    data.trial{tt}(kk,:) = filtfilt(fir_coef{fq}, 1, ts);
+                else
+                    data.trial{tt}(kk,:) = filter(fir_coef{fq}, 1, ts);
+                end
             end
           end
 
 %%% CALCULATE CONNECTIVITY ------------------------------------------------
-          fprintf('Onto the connectivity calculations!\n')
-          if strcmp(config.connectivity.method, 'pli')
-              for aa = 1:num_sources
-                for bb = aa+1:num_sources                
-                        p_adjmat(aa,bb,:) = connfn(H_data(:,:,aa), H_data(:,:,bb));
-                        p_adjmat(bb,aa,:) = p_adjmat(aa,bb,:);
-                end
-              end
-          else
+            fprintf('Onto the connectivity calculations!\n')
             cfg             = [];
             cfg.method      = 'mtmfft';
             cfg.output      = 'powandcsd';
@@ -203,27 +151,33 @@ all_adjmat = nan(90, 90, length(subj_match.ds), length(config.connectivity.filt_
             freq            = ft_freqanalysis(cfg, data);
 
             % COMPUTE METRIC
-            cfg             = [];
-            cfg.method      = config.connectivity.method;
-            conn            = ft_connectivityanalysis(cfg, freq);
+            if strcmp(config.connectivity.method, 'pli')
+                % need to trick fieldtrip if we're using PLI, as they don't
+                % have it implemented in their ft_connectivityanalysis
+                conn.labelcmb      = freq.labelcmb;
+                conn.dimord        = 'chancmb_freq';
+                conn.freq          = freq.freq;
+                conn.cfg           = freq.cfg;
+                conn.plispctrm     = squeeze(abs(mean(sign(freq.crsspctrm), 1)));
+            else
+                cfg             = [];
+                cfg.method      = config.connectivity.method;
+                conn            = ft_connectivityanalysis(cfg, freq);
+            end
             
             % RESHAPE INTO SOURCE X SOURCE ADJ MAT AND STORE
             conn            = ft_checkdata(conn, 'cmbrepresentation', 'full');
-            p_adjmat(:,:,1) = squeeze(mean(conn.(sprintf('%sspctrm', cfg.method)), 3));            
-          end
-              
-          fprintf('Done this band. ')
-%%% COPY TEMP MATRIX INTO SUBJECT-MATRIX ----------------------------------
+            adjmat(:,:,fq) = squeeze(mean(conn.(sprintf('%sspctrm', config.connectivity.method)), 3));            
           
-          adjmat(:,:,:,fq) = p_adjmat;
+            fprintf('Done this band. ')
         end % repeat for each frequency band
 
 %%% SAVE PARTICIPANT'S ADJACENCY MATRIX -----------------------------------
         fprintf('Saving the mat file...\n');
-        save(['/mnt/sda/juanita/MEGneto/', ssSubjPath(ss) '/fcp_5_adjmat_' config.connectivity.method '.mat'],'adjmat','-mat','-v7.3')
+        save([ssSubjPath(ss) '/fcp_5_adjmat_' config.connectivity.method '.mat'],'adjmat','-mat','-v7.3')
 
 %%% CALCULATE AND RECORD AVG ACROSS TRIALS FOR THIS PARTICIPANT
-        all_adjmat(:,:,ss,:) = squeeze(nanmean(adjmat, 3));
+        all_adjmat(:,:,ss,:) = adjmat;
     end
     
 %%% SAVE MASTER ADJACENCY MATRIX WITH ALL PARTICIPANTS
@@ -234,3 +188,5 @@ right_now = clock;
 fprintf('%d:%d:%02.f ============== Finished Processing ====================\n', ...
     right_now(4:6))
 diary off
+
+end
