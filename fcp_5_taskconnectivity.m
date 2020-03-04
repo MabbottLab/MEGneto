@@ -50,8 +50,8 @@ ssSubjPath  = @(x) paths.(subj_match.pid{x});
 %%% CONNECTIVITY FUNCTIONS ------------------------------------------------
 if strcmp(config.connectivity.method,'pli')
     connfn     = @(H1,H2) abs(mean(sign(angle(H1)-angle(H2)), 1));
-elseif strcmp(config.connectivity.method,'plv')
-    connfn     = @(H1,H2) abs(mean(exp(1i .* (angle(H1)-angle(H2))), 1));
+% elseif strcmp(config.connectivity.method,'plv')
+%     connfn     = @(H1,H2) abs(mean(exp(1i .* (angle(H1)-angle(H2))), 1));
 % elseif strcmp(config.connectivity.method,'wpli')
 %     connfn     = @(H1,H2) abs(mean(abs(imag(H1)-imag(H2)).*(sign(angle(H1)-angle(H2))),1))/mean(abs(imag(H1)-imag(H2)));
 % elseif strcmp(config.connectivity.method,'wpli_deb')
@@ -124,7 +124,6 @@ fprintf('Max filter length: %d samples = %.4f sec.\n', maxn, maxn/srate);
 
 % setup band names and master adjacency matrix
 band_names = ["theta", "alpha", "beta", "lowgamma", "highgamma"];
-methods = ["coh", "wpli", "wpli_deb"];
 all_adjmat = nan(90, 90, length(subj_match.ds), length(config.connectivity.filt_freqs));
 
 %for cc = 1:length(p.condition)
@@ -170,7 +169,7 @@ all_adjmat = nan(90, 90, length(subj_match.ds), length(config.connectivity.filt_
               % mean center or z-score the timeseries before filtering
               ts = prefilter(catmatrix(:,tt,kk));          
               % filter data, calculate hilbert transform, get instantaneous phase
-              if ~any(contains(methods, config.connectivity.method))
+              if strcmp(config.connectivity.method, 'pli')
                   if (max(length(fir_coef{fq})-1,length(1)-1)*3) < length(ts)          
                     H_data(:,tt,kk) = hilbert(filtfilt(fir_coef{fq}, 1, ts));
                   else
@@ -184,7 +183,7 @@ all_adjmat = nan(90, 90, length(subj_match.ds), length(config.connectivity.filt_
 
 %%% CALCULATE CONNECTIVITY ------------------------------------------------
           fprintf('Onto the connectivity calculations!\n')
-          if ~any(contains(methods, config.connectivity.method))
+          if strcmp(config.connectivity.method, 'pli')
               for aa = 1:num_sources
                 for bb = aa+1:num_sources                
                         p_adjmat(aa,bb,:) = connfn(H_data(:,:,aa), H_data(:,:,bb));
@@ -192,20 +191,27 @@ all_adjmat = nan(90, 90, length(subj_match.ds), length(config.connectivity.filt_
                 end
               end
           else
-            cfg = [];
-            cfg.method = 'mtmfft';
-            cfg.output = 'powandcsd';
-            cfg.channel = 'all';
-            cfg.trials = 'all';
-            cfg.keeptrials = 'yes';
-            cfg.taper = 'hanning';
-            cfg.foilim = config.connectivity.filt_freqs(fq,:);
-            freq = ft_freqanalysis(cfg,data);
-            out = mean(ft_connectivity_wpli(freq.crsspctrm, 'dojack', 0, 'debias', contains(config.connectivity.method,'deb')),2);
+            cfg             = [];
+            cfg.method      = 'mtmfft';
+            cfg.output      = 'powandcsd';
+            cfg.channel     = 'all';
+            cfg.trials      = 'all';
+            cfg.keeptrials  = 'yes';
+            cfg.taper       = 'hanning';
+            cfg.foilim      = config.connectivity.filt_freqs(fq,:);
+            % GET THE CROSS SPECTRUM
+            freq            = ft_freqanalysis(cfg, data);
+
+            % COMPUTE METRIC
+            cfg             = [];
+            cfg.method      = config.connectivity.method;
+            conn            = ft_connectivityanalysis(cfg, freq);
+            out             = mean(conn.(sprintf('%sspctrm', cfg.method)), 2);
+
             for src = 1:90
-                p_adjmat(src+1:end,src,1) = out(1:(90-src));
-                p_adjmat(src,src+1:end,1) = p_adjmat(src+1:end,src);
-                out(1:(90-src)) = [];
+                p_adjmat(src+1:end,src,1)   = out(1:(90-src));
+                p_adjmat(src,src+1:end,1)   = p_adjmat(src+1:end,src);
+                out(1:(90-src))             = [];
             end
           end
               
