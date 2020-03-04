@@ -1,19 +1,24 @@
-function [trl,eventslist]= searchTaskTrialFun(cfg)
-% Defines trials with t = 0 at a stimulus onset marker, based on a motor
-% response. Defines trial search window as from one stim onset marker to
-% the next or EOF otherwise.
-% Ming Scott's code
-% Adapted from
-% Sonya Bells's code (taskTrialFun)
-% Based on Simeon Wong's code (includesBasedTrialFun)
-%%Required Inputs %%%
-% cfg.dataset             - path to CTF dataset
-% cfg.trialdef.t0marker   - defines the t = 0 of each trial (i.e. presentation trigger)
-% cfg.trialdef.parameters.t0shift    - time in seconds to offset t0marker (presentation delay)
-% cfg.trialdef.details.trigger    - name of trigger
-% cfg.trialdef.details.include    - what other trigger to include
-% cfg.trialdef.details.exclude    - what other trigger to exclude
-% cfg.traildef.tEpoch     - time window  eg. [-1.5 1.5]
+function [trl, eventslist] = searchTaskTrialFun(cfg)
+
+% SEARCHTASKTRIALFUN defines trial by designated markers.
+%
+% INPUTS:
+%   cfg.dataset             - path to CTF dataset
+%   cfg.trialdef.t0marker   - defines the t = 0 of each trial (i.e. presentation trigger)
+%   cfg.trialdef.parameters.t0shift    - time in seconds to offset t0marker (presentation delay)
+%   cfg.trialdef.details.trigger    - name of trigger
+%   cfg.trialdef.details.include    - what other trigger to include
+%   cfg.trialdef.details.exclude    - what other trigger to exclude
+%   cfg.traildef.tEpoch     - time window  eg. [-1.5 1.5]
+%
+% OUTPUTS:
+%   trl
+%   eventslist
+
+% Last updated by: Julie Tseng, 2020-03-04
+%   This file is part of MEGneto, see https://github.com/SonyaBells/MEGneto
+%   for the documentation and details.
+
 %%
 % check inputs
 switch class(cfg.trialdef.details)
@@ -87,20 +92,20 @@ end
 
 % This line checks if any of the markers designated for trial inclusion are
 % present within each trial.
-contains = cellfun(@(x) cellfun(@(y) ...
+is_present = cellfun(@(x) cellfun(@(y) ...
         strcmp(x,y),...
         unfiltered_trials.event,'UniformOutput',false),... x
         cfg.trialdef.markers.(cfg.trialdef.details.include{:}),'UniformOutput',false); % y
-contains = contains{1}; % for now, we're just handling one class of triggers
+is_present = is_present{1}; % for now, we're just handling one class of triggers
 % Finds the first instance of a marker designated for inclusion in each
 % trial, else returns and empty string
-contains = cellfun(@(x) find(x,1),contains,'UniformOutput',false);
+is_present = cellfun(@(x) find(x,1),is_present,'UniformOutput',false);
 % Replaces the empty strings with zeros
-contains(cellfun(@isempty,contains)) = {0};
-contains_clean = cell2mat(contains);
+is_present(cellfun(@isempty,is_present)) = {0};
+contains_clean = cell2mat(is_present);
 contains_clean = contains_clean(contains_clean > 0);
 % Converts to a numerical vector, where nonzero integer values are truthy
-filtered_trial_list = cell2mat(contains);
+filtered_trial_list = cell2mat(is_present);
 
 %% assemble trl matrix
 trl = [];
