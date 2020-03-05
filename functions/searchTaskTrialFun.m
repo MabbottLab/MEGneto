@@ -92,20 +92,20 @@ end
 
 % This line checks if any of the markers designated for trial inclusion are
 % present within each trial.
-is_present = cellfun(@(x) cellfun(@(y) ...
+marker_present = cellfun(@(x) cellfun(@(y) ...
         strcmp(x,y),...
         unfiltered_trials.event,'UniformOutput',false),... x
         cfg.trialdef.markers.(cfg.trialdef.details.include{:}),'UniformOutput',false); % y
-is_present = is_present{1}; % for now, we're just handling one class of triggers
-% Finds the first instance of a marker designated for inclusion in each
-% trial, else returns and empty string
-is_present = cellfun(@(x) find(x,1),is_present,'UniformOutput',false);
-% Replaces the empty strings with zeros
-is_present(cellfun(@isempty,is_present)) = {0};
-contains_clean = cell2mat(is_present);
-contains_clean = contains_clean(contains_clean > 0);
-% Converts to a numerical vector, where nonzero integer values are truthy
-filtered_trial_list = cell2mat(is_present);
+    
+for i = 1:size(marker_present,2)
+    this_present = marker_present{i};
+    this_present = cellfun(@(x) find(x,1),this_present,'UniformOutput',false);
+    this_present(cellfun(@isempty,this_present)) = {0};
+    is_present(:,i) = cell2mat(this_present);
+end
+is_present = sum(is_present,2);
+filtered_trial_list = is_present;
+is_present = is_present(is_present > 0);
 
 %% assemble trl matrix
 trl = [];
@@ -143,7 +143,7 @@ for tt = 1:height(cfg.trialdef.details)
             % get latencies
             for mm = 1:length(includes)
                 % trl_tmp(rr,4+mm) = selected_trials.eventTiming{rr}{strcmpi(selected_trials.event{rr}, includes{mm})};
-                    trl_tmp(rr,4+mm) = selected_trials.eventTiming{rr}{contains_clean(rr)} + timeToSamp(cfg.trialdef.parameters.t0shift);
+                    trl_tmp(rr,4+mm) = selected_trials.eventTiming{rr}{is_present(rr)} + timeToSamp(cfg.trialdef.parameters.t0shift);
             end
             
             % convert to milliseconds wrt t=0
