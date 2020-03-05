@@ -159,18 +159,20 @@ if ~cfg.trialdef.details.countOnly % if you don't want only counts
         for mm = 1:length(includes)
             % trl_tmp(rr,4+mm) = selected_trials.eventTiming{rr}{strcmpi(selected_trials.event{rr}, includes{mm})};
             % place in COL 5 = (sample where designated marker occurred) + (t0shift in samples)
-            trl_tmp(rr,4+mm) = selected_trials.eventTiming{rr}{is_present(rr)} + timeToSamp(cfg.trialdef.parameters.t0shift);
+            trl_tmp(rr,4+mm) = selected_trials.eventTiming{rr}{marker_present(rr)} + timeToSamp(cfg.trialdef.parameters.t0shift);
         end
 
         % convert to milliseconds wrt t=0
         trl_tmp(rr,5:end) = sampToTime(trl_tmp(rr,5:end) - selected_trials.t0sample(rr));
     end
-    trl_tmp = trl_tmp(trl_tmp(:,1) >= (1+timeToSamp(0.1)+timeToSamp(0.5)) & trl_tmp(:,2) <= hdr.nSamples, :);
+    
+    % throw out if they are too close to the beginning or end
+    trl_tmp = trl_tmp(trl_tmp(:,1) >= (1+timeToSamp(0.6)) & trl_tmp(:,2) <= hdr.nSamples, :);
     trl = [trl; trl_tmp];
 end
-trl_counts(tt) = height(selected_trials);
+trl_counts(tt) = height(selected_trials); 
     
-
+%% MAKE SOME STATEMENTS ABOUT PROGRESS/CONCLUSIONS
 fprintf('======================================\n');
 fprintf('============ TRIAL COUNTS ============\n');
 fprintf('======================================\n');
@@ -181,10 +183,8 @@ end
 fprintf('--------------------------------------\n');
 fprintf('%d\t- TOTAL\n', height(unfiltered_trials));
 fprintf('--------------------------------------\n');
-% fprintf('Average ISI is %.4f sec', sampToTime(mean(diff(unfiltered_trials.t0sample(any(filtered_trial_keeponly,2))))));
 
 fprintf('\n\n');
-
 
 % sort trl matrix
 trl = sortrows(trl);
