@@ -23,15 +23,20 @@ function make_NBS_ready(paths, group_names, conn)
 % This is because WPLI and debiased WPLI must avg across trials for the
 % final connectivity estimate. 
 
-%% SETUP
+%% SETUP PARTICIPANT LISTS
 
+numGroups = length(group_names); % get number of groups
 spath = paths.anout; % path to analysis folder
-numGroups = length(group_names); % how many groups?
 
-groupPLI = cell(1,numGroups); % initialize
-for gg = 1:numGroups % for each group, grab the participants list and save in cell array
-    [LIST, ISDIR] = glob(sprintf('%s/%s/ST*/fcp_5_adjmat_%s.mat', spath, group_names(gg), conn));
-    groupPLI{gg} = LIST(~ISDIR);
+% load info on which participants belong to which groups
+groups = readtable([paths.conf_dir '/ParticipantCategories.xlsx']);
+groups = groups(:,1:numGroups);
+
+groupPLI = cell(1,numGroups); % for each group
+for gg = 1:numGroups 
+    this_ppt_list = rmmissing(groups.(group_names(gg))); % isolate ppt list for this group
+    groupPLI{gg} = cellfun(@(x) sprintf('%s/%s/fcp_5_adjmat_%s.mat', spath, x, conn), ...
+                            this_ppt_list, 'UniformOutput', false); % generate filepaths to those folders
 end
 
 %% initialize subjects in conditions - load PLI adj. matrix
