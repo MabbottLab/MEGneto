@@ -168,7 +168,7 @@ all_adjmat = nan(90, 90, length(subj_match.ds), length(config.connectivity.filt_
             % RESHAPE INTO SOURCE X SOURCE ADJ MAT AND STORE
             conn            = ft_checkdata(conn, 'cmbrepresentation', 'full');
             if ~strcmp(config.connectivity.method, 'mean') % default to max across band
-                adjmat(:,:,fq) = squeeze(max(conn.(sprintf('%sspctrm', config.connectivity.method)), 3));
+                adjmat(:,:,fq) = squeeze(max(conn.(sprintf('%sspctrm', config.connectivity.method)),[], 3));
             else % otherwise, use mean
                 adjmat(:,:,fq) = squeeze(mean(conn.(sprintf('%sspctrm', config.connectivity.method)), 3));
             end
