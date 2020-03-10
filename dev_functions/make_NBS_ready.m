@@ -46,13 +46,15 @@ for gg = 1:numGroups
     fprintf(['\t---- Group ',num2str(gg),' ----\n']);
         for ss = 1:length(groupPLI{gg})
             this_adjmat = load(groupPLI{gg}{ss}); % load the struct
-            nbs_datamat = cat(3, nbs_datamat, this_adjmat.adjmat(:,:,1,:)); % throw in the participant's conn
+            this_adjmat = this_adjmat.adjmat;
+            nbs_datamat = cat(4, nbs_datamat, this_adjmat); % throw in the participant's conn
         end
 end
 
 %% Save matrix by frequency band 
 
 freq ={'theta','alpha','beta','Lgamma','Hgamma'};
+nbs_datamat = permute(nbs_datamat, [1 2 4 3]);
 num_freqs = size(nbs_datamat,4); % just in case not every freq is there
 
 for ff = 1:num_freqs % range freq save
