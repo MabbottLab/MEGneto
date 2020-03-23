@@ -2,12 +2,6 @@
 
 % Use the following to set up path names and run each step of the pipeline.
 
-%% if you need to re-load paths
-addpath(genpath('/mnt/sda/juanita/MEGneto'))
-addpath('/mnt/sda/juanita/fieldtrip')
-ft_defaults
-paths = loadjson('mnt/sda/juanita/MEGneto/analysis/left/config/paths.json');
-
 %%  fcp_0: setup
 %   This step involves defining paths to *.ds and *.mri data, as well as
 %   output file/folder structure. 
@@ -32,9 +26,9 @@ paths = loadjson('mnt/sda/juanita/MEGneto/analysis/left/config/paths.json');
 %                       - 
 %                   - config
 % startRecordPerformance
-analysis_name = 'left';
+analysis_name = 'Right';
 project_path = '/mnt/sda/juanita/MEGneto';
-rawdata_path = '/mnt/sda/juanita/datasets/left';
+rawdata_path = '/mnt/sda/juanita/datasets/right';
 mri_path = '/mnt/sda/juanita/MRIs';
 paths = megne2setup(project_path, analysis_name, rawdata_path, mri_path, false);
 % stopRecordAndDisplay
@@ -43,6 +37,10 @@ paths = megne2setup(project_path, analysis_name, rawdata_path, mri_path, false);
 %  To be populated with more information
 MEG_ds = struct2table(dir(paths.rawdata));
 writecell(MEG_ds.name(3:(height(MEG_ds))), paths.('subj_fcp1'));
+<<<<<<< HEAD
+
+=======
+>>>>>>> f8ccd90d55d82d3970d91e1f15f13c7eb998f6cc
 fcp_1_TaskEpoching(paths)
 
 %% fcp_2: ICA
@@ -56,17 +54,26 @@ fcp_2_5_checkpoint(paths)
 %  To be populated with more information
 fcp_3_ChannelRepair(paths, included_fcp2)
 
+%%% Import Surfuces from Freesurfer --------------------------
+%%% Setup ----------------------------------------------------
+%setup paths etc
+
+%sub = 'OIRM02c';
+pathsS.basepath = '/data2/DATA_DKI/OIRM_CHASE/meg_freesurfer/'
+pathsS.ftpath   = '/home/sonya/matlab/fieldtrip-master'; % this is the path to FieldTrip 
+
+%before running the step below Freesurfer needs to me run and 
+% HCP_pipeline (modeifed python script script_ft_postfreesurfer.py) which 
+% creates surfaces needed for FieldTrip
+fcp_importFreesurferSurfs(pathsS, paths)
+
+
+
+
 %% fcp_4: beamforming
 % writecell(MEG_ds.name(3:(height(MEG_ds))), paths.('subj_fcp4'));
-fcp_4_beamforming(paths)
+%fcp_4_beamforming(paths)
 
 %% fcp_5: connectivity
-fcp_5_taskconnectivity(paths);
-
-%% prepare for NBS
-
-group_names = ["RAD", "SURG", "TDC"];
-conn = 'wpli_deb';
-contrasts = [1 1 1];
-make_NBS_ready(paths, group_names, conn, contrasts)
+%fcp_5_taskconnectivity(paths);
 

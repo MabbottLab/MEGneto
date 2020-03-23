@@ -35,6 +35,7 @@ function paths = megne2setup(project_path, analysis_name, rawdata_path, mri_path
 %% SET UP LOGGING FILE
 
 right_now = clock;
+mkdir([project_path '/analysis/' analysis_name '/config/'])
 log_filename = [project_path '/analysis/' analysis_name '/config/log_' ...
     sprintf('%d%d%d', right_now(1:3))];
 diary(log_filename)

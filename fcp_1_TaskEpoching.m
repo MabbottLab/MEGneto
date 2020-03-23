@@ -44,7 +44,7 @@ right_now = clock;
 log_filename = [paths.conf_dir '/log_' sprintf('%d%d%d', right_now(1:3))];
 diary(log_filename)
 
-fprintf('%d:%d:%02.f       Now running **%s**.\n', ...
+fprintf('\n\n%d:%d:%02.f       Now running **%s**.\n', ...
     right_now(4:6), mfilename)
 
 %% SETUP: LOAD CONFIG, PARTICIPANTS, CHECK FOR FULL DATASET, OUTPUTS

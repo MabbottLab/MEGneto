@@ -34,7 +34,7 @@ function fcp_2_5_checkpoint(paths)
 right_now = clock;
 log_filename = [paths.conf_dir '/log_' sprintf('%d%d%d', right_now(1:3))];
 diary(log_filename)
-fprintf('%d:%d:%02.f       Now running **%s**.\n', ...
+fprintf('\n\n%d:%d:%02.f       Now running **%s**.\n', ...
     right_now(4:6), mfilename)
 
 % load config JSON with analysis parameters
@@ -141,10 +141,16 @@ for ss = rangeOFsubj
         % save cleaned data
         save([ssSubjPath(ss) '/' fcp2_output.preprocessedData_cfg],'data','-v7.3');
         close all
+    else % skip = 1, aka no bad components, re-save 
+        data            = data_noisecorr;
+        save([ssSubjPath(ss) '/' fcp2_output.preprocessedData_cfg],'data','-v7.3');
+        close all
     end
 
     % save a JSON copy of the components
-    save_to_json(bad_comp, [ssSubjPath(ss) '/ICA_badcomp.json'])
+    right_now = clock;
+    save_to_json(bad_comp, sprintf('%s/ICA_badcomp_%d%d%d_%d%d.json', ...
+        ssSubjPath(ss), right_now(1:5)));
 end
 
 %%% RECORD KEEPING --------------------------------------------------------
@@ -156,9 +162,16 @@ if config.cleaningOptions.artifact.icaClean == 1
 end
 
 % save fcp_2_5 output
-disp('Saving...');
+disp('Saving fcp_2_5 output...');
 save_to_json(fcp2_output, [paths.anout_grp '/fcp2_5_output.json'])
-disp('Done.')
+disp('Done.\n')
+
+%% turn off logging
+
+right_now = clock;
+fprintf('%d:%d:%02.f       Done running **%s**.\n', ...
+    right_now(4:6), mfilename)
+diary off
 
 end
 

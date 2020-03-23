@@ -3,7 +3,7 @@ function save_to_json(data, filepath, overwrite)
 %turns tables to structs for saving for Megne2
 % save_to_json(data, filepath, overwrite)
 if nargin < 3
-    overwrite = false;
+    overwrite = true;
 end
 if isa(data,'table')
     data = table2struct(data);
