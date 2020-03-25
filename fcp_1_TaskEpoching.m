@@ -215,7 +215,7 @@ for i=1:length(bad_subj)
 end
 
 % save all output
-save_to_json(fcp1_output, [paths.conf_dir '/fcp1_output.json'], true);
+save_to_json(fcp1_output, [paths.anout_grp '/fcp1_output.json'], true);
 
 %% turn off diary
 right_now = clock;
