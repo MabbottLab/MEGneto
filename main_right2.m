@@ -2,16 +2,16 @@
 
 % Use the following to set up path names and run each step of the pipeline.
 
-%% if you need to re-load paths
-addpath(genpath('/mnt/sda/juanita/MEGneto'))%% if you need to re-load paths
-addpath(genpath('/mnt/sda/juanita/MEGneto'))
-addpath('/mnt/sda/juanita/fieldtrip')
-ft_defaults
-paths = loadjson('mnt/sda/juanita/MEGneto/analysis/left/config/paths.json');
-names = fieldnames(paths);
-for i = 1:100
-    paths.(char(names{i})) = ['/mnt/sda/juanita/MEGneto/' paths.(char(names{i}))];
-end
+% %% if you need to re-load paths
+% addpath(genpath('/mnt/sda/juanita/MEGneto'))%% if you need to re-load paths
+% addpath(genpath('/mnt/sda/juanita/MEGneto'))
+% addpath('/mnt/sda/juanita/fieldtrip')
+% ft_defaults
+% paths = loadjson('mnt/sda/juanita/MEGneto/analysis/left/config/paths.json');
+% names = fieldnames(paths);
+% for i = 1:100
+%     paths.(char(names{i})) = ['/mnt/sda/juanita/MEGneto/' paths.(char(names{i}))];
+% end
 
 %%  fcp_0: setup
 %   This step involves defining paths to *.ds and *.mri data, as well as
@@ -37,17 +37,17 @@ end
 %                       - 
 %                   - config
 % startRecordPerformance
-analysis_name = 'left';
+analysis_name = 'right_2';
 project_path = '/mnt/sda/juanita/MEGneto';
-rawdata_path = '/mnt/sda/juanita/datasets/left';
+rawdata_path = '/mnt/sda/juanita/datasets/right';
 mri_path = '/mnt/sda/juanita/MRIs';
 paths = megne2setup(project_path, analysis_name, rawdata_path, mri_path, false);
 % stopRecordAndDisplay
 
 %% fcp_1: task epoching, jump/muscle artifact detection, bad channel detection
 %  To be populated with more information
-MEG_ds = struct2table(dir(paths.rawdata));
-writecell(MEG_ds.name(3:(height(MEG_ds))), paths.('subj_fcp1'));
+% MEG_ds = struct2table(dir(paths.rawdata));
+% writecell(MEG_ds.name(3:(height(MEG_ds))), paths.('subj_fcp1'));
 fcp_1_TaskEpoching(paths)
 
 %% fcp_2: ICA

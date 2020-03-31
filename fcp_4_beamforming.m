@@ -3,7 +3,7 @@ function fcp_4_beamforming(paths)
 % FCP_4_BEAMFORMING carries out beamforming and source projection on
 % cleaned data. 
 % 
-% NOTES:
+% NOTES:1
 %   - Ensure that subj_fcp4.csv is populated with the subject IDs of
 %   participants you want to include after checking over initial results. 
 %   - Caution: unit conversion is sensitive in this step b/w cm and mm. 
@@ -246,18 +246,34 @@ for ss = rangeOFsubj
     cfg.keepfilter      = config.beamforming.options.keepfilter;
     source_t_avg        = ft_sourceanalysis(cfg, tlock);
     
-    %%% project all trials through common spatial filter
-    cfg                 = [];
-    cfg.grid             = grid; % source model
-    cfg.grid.filter      = source_t_avg.avg.filter;
-    cfg.grid.leadfield   = leadfield.leadfield;
-    cfg.grad             = data.grad; % sensor position (gradiometer)
-    cfg.headmodel        = hdm;
-    cfg.method           = config.beamforming.method;
-    cfg.keeptrials       = 'yes';
-    % cfg.keepfilter       = config.beamforming.options.keepfilter;
-    cfg.rawtrial         = config.beamforming.options.rawtrial;
-    source_t_trials      = ft_sourceanalysis(cfg, tlock);
+    start_idx = 1:100:length(tlock.trialinfo);
+    end_idx = start_idx + 99;
+    end_idx(end) = length(tlock.trialinfo);
+    
+    for part = 1:(ceil(length(tlock.trialinfo)/100))
+        %%% project all trials through common spatial filter
+        cfg                 = [];
+        cfg.grid             = grid; % source model
+        cfg.grid.filter      = source_t_avg.avg.filter;
+        cfg.grid.leadfield   = leadfield.leadfield;
+        cfg.grad             = data.grad; % sensor position (gradiometer)
+        cfg.headmodel        = hdm;
+        cfg.method           = config.beamforming.method;
+        cfg.keeptrials       = 'yes';
+        cfg.rawtrial         = config.beamforming.options.rawtrial;
+        
+        cfg2                 = [];
+        cfg2.trials          = (start_idx(part):end_idx(part));
+        
+        source_t_trials      = ft_sourceanalysis(cfg, ft_selectdata(cfg2, tlock));
+        
+        %%% project virtual sources to strongest (dominant) orientation
+        %%% (taking the largest eigenvector of the sources timeseries)
+        cfg                  = [];
+        cfg.projectmom       = config.beamforming.timeDomain.projectmom;
+        cfg.keeptrials       = 'yes';
+        projection{part}     = ft_sourcedescriptives(cfg, source_t_trials);
+    end
     
     %%% project virtual sources to strongest (dominant) orientation
     %%% (taking the largest eigenvector of the sources timeseries)

@@ -61,7 +61,7 @@ function make_BNV_ready(paths, brainnet)
 brainnet.ouput_dir      = [paths.anout '/' brainnet.file_name '/'];
 
 % load nbs results file
-load(char(glob([paths.anout '/' brainnet.file_name '/*' brainnet.fb_interest '_intensity*'])))
+load(char(glob([paths.anout '/' brainnet.file_name '/*' brainnet.fb_interest '_' brainnet.nbs_type '*'])))
 
 % load the NBS data matrix
 load(char(glob([paths.anout '/' brainnet.file_name '/*' brainnet.fb_interest '_Hz.mat'])))
