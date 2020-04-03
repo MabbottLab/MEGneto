@@ -1,12 +1,33 @@
-# MEGneto 3.0
- 
-Pipeline on MATLAB with FieldTrip to process MEG data and run functional connectivity analyses. Developed @ SickKids, Toronto, Canada. 
+# MEGneto 3.0 
 
-See the PDF 'workflow' to get an overview of the pipeline.
+This functional connectivity pipeline (fcp) is built on MATLAB using the FieldTrip toolbox to analyze MEG data. Developed @ SickKids Research Institute, Toronto, Canada. See the PDF 'workflow' to get an overview of the pipeline.
 
-## Modules
+- [System Requirements](#system-requirements)
+- [Installation Guide](#installation-guide)
+- [How to Use](#how-to-use)
+- [Credits](#credits)
+- [License](#license)
+- [On Downsampling](#on-downsampling)
 
-Important: this repo and FieldTrip top-level folder should be visible upfront.
+## System Requirements
+
+This pipeline was originally developed on MATLAB R2019a in a Linux environment. The FieldTrip toolbox (also required) contains compatibility functions should you need older or newer versions of certain key functions. 
+
+Note that, depending on available RAM on your system, the pipeline may crash during beamforming (fcp_3) if your MEG data is not adequately downsampled. (See the [On Downsampling](#on-downsampling) section for more on how to handle this.)
+
+## Installation Guide
+
+Download the repo or clone it on your machine in a sensible place. 
+
+## How to Use
+
+Before you run the pipeline, this repo must be fully visible in the path, as well as the top-level FieldTrip folder. You can do this by running the following lines:
+
+```addpath(genpath('/path/to/MEGneto'))
+addpath('/path/to/FieldTrip') % note the lack of genpath here
+ft_defaults; % allow fieldtrip to run setup```
+
+*DOCUMENTATION UNDER CONSTRUCTION - NEEDS A BIG UPDATE, I'M WORKING ON IT OKAY?? - JT, 2020-04-03*
 
 ### 0. Setup
 
@@ -157,7 +178,7 @@ Run PLI or PLV connectivity analyses to examine functional connectivity between 
 #### Nice-to-haves
 - Re-implement data check to ensure all participants have properly processed inputs
 
-## Historical contributors
+## Credits
 
 **This list is incomplete!**
 
@@ -165,3 +186,11 @@ Run PLI or PLV connectivity analyses to examine functional connectivity between 
 - November 2016: Sonya Bells
 - June 2019: Ming Scott
 - October 2019: Julie Tseng 
+
+## On Downsampling
+
+You may run out of RAM during the beamforming step if your MEG data is not adequately downsampled. MEG data is typically gathered at 1200Hz or 600Hz. However, based on the [Nyquist-Shannon sampling theorem](https://en.wikipedia.org/wiki/Nyquist%E2%80%93Shannon_sampling_theorem), you can downsample to 2x the max frequency you want to recover. But what does that mean in practice?
+
+Assume that the max frequency you want to analyze is 100Hz (e.g., the upper limit of the high gamma frequency band). Then, the Nyquist-Shannon theorem suggests that your data needs to be sampled at 100 x 2 = 200Hz to recover information properly from that 100Hz frequency. 
+
+Based on this, you may choose to downsample your data from 1200Hz to 300Hz. For a 4-second epoch (e.g., -2s to +2s around a marker of interest), this means going from 4800 timepoints to 1200 timepoints for each of the *151* channels. That's 724,800 points to 181,200 - almost 600k less timepoints to crunch with no information loss. Way easier on the machine. 
