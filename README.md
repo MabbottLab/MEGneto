@@ -25,7 +25,8 @@ Before you run the pipeline, this repo must be fully visible in the path, as wel
 
 ```addpath(genpath('/path/to/MEGneto'))
 addpath('/path/to/FieldTrip') % note the lack of genpath here
-ft_defaults; % allow fieldtrip to run setup```
+ft_defaults; % allow fieldtrip to run setup
+```
 
 *DOCUMENTATION UNDER CONSTRUCTION - NEEDS A BIG UPDATE, I'M WORKING ON IT OKAY?? - JT, 2020-04-03*
 
