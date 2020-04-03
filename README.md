@@ -23,7 +23,8 @@ Download the repo or clone it on your machine in a sensible place.
 
 Before you run the pipeline, this repo must be fully visible in the path, as well as the top-level FieldTrip folder. You can do this by running the following lines:
 
-```addpath(genpath('/path/to/MEGneto'))
+```
+addpath(genpath('/path/to/MEGneto'))
 addpath('/path/to/FieldTrip') % note the lack of genpath here
 ft_defaults; % allow fieldtrip to run setup
 ```
