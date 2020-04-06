@@ -37,11 +37,6 @@ ft_defaults; % allow fieldtrip to run setup
 
 Note that the functions associated with the steps laid out below are found in the top-level MEGneto folder. Any related functions listed below are found in subfolders of the repo (e.g., the `functions` folder). Anything under development is, accordingly, under `dev_functions`. 
 
-*DOCUMENTATION UNDER CONSTRUCTION - NEEDS A BIG UPDATE, I'M WORKING ON IT OKAY?? - JT, 2020-04-03*
-
-*I'm reducing the amount of detail here to provide a higher level skeleton rather than play-by-play.*
-*Especially since the code is now much more thoroughly documented. -JT, 2020-04-06*
-
 ### Initial Setup
 
 `MEGNE2SETUP.m` will create a subfolder to `PROJECT_PATH` or the current working directory (if `PROJECT_PATH` is not provided) called ANALYSIS_NAME, create config and analysis subfolders within, and create unfilled `participants.txt` and `config.json` files in the config directory. If you already have a config file with your preferred parameters, replace the unfilled config file with that one. You should have a rawdata folder in your project directory with all the `*.ds` files, and a subfolder to rawdata called `MRIs` which contains all the MRIs in the form `[PID].mri`.
