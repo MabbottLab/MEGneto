@@ -58,7 +58,7 @@ Notes:
 
 See also: `DS_PID_MATCH`, `WRITE_MATCH_IF_NOT_EMPTY`, `PLOTTRIGGERS`, `HEADMOTIONTOOL`, `DETECTBADCHANNELS`, `SEARCHTASKTRIALFUN`, `DETECTBADCHANNELS`
 
-### 2.  Preprocessing
+### Preprocessing
 
 `FCP_2_PREPROCESSINGICA.m` will prepare epoched data for ICA preprocessing by downsampling and filtering with 3rd order gradients, then carry out the ICA omitting signal from bad channels. The pipeline will downsample to whatever frequency you've specified in the config JSON.  
 
