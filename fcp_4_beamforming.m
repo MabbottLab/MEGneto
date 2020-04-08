@@ -3,7 +3,7 @@ function fcp_4_beamforming(paths)
 % FCP_4_BEAMFORMING carries out beamforming and source projection on
 % cleaned data. 
 % 
-% NOTES:1
+% NOTES:
 %   - Ensure that subj_fcp4.csv is populated with the subject IDs of
 %   participants you want to include after checking over initial results. 
 %   - Caution: unit conversion is sensitive in this step b/w cm and mm. 
@@ -286,18 +286,22 @@ for ss = rangeOFsubj
 
     % setup for AAL interpolation - get coordinates
     sourcemodel.pos = template_grid.pos; 
-
+    
     % load atlas
     fullPath        = which('ft_preprocessing.m');
     [pathstr,~,~]   = fileparts(fullPath);
-    atlas           = ft_read_atlas([pathstr, '/template/atlas/aal/ROI_MNI_V4.nii']);
+    if strcmp(config.beamforming.atlas, 'aal')
+        atlas           = ft_read_atlas([pathstr, '/template/atlas/aal/ROI_MNI_V4.nii']);
+    elseif strcmp(config.beamforming.atlas, 'brainnetome')
+        atlas           = ft_read_atlas([pathstr, 'template/atlas/brainnetome/BNA_MPM_thr25_1.25mm.nii']);
+    end
     atlas           = ft_convert_units(atlas, 'cm');
 
     % source interpolate
     cfg              = [];
     cfg.interpmethod = 'nearest';
     cfg.parameter    = 'tissue';
-    source_aal       = ft_sourceinterpolate(cfg,atlas,sourcemodel);
+    source_atlas       = ft_sourceinterpolate(cfg,atlas,sourcemodel);
 
     % actual interpolation
     vector_virtual_sources      = [];   % overall AAL region timeseries across trial
@@ -311,16 +315,16 @@ for ss = rangeOFsubj
     for t = 1:projection.df
         vector_virtual_sources_trial = [];
         ori_avg_trial                = [];
-        ori_116                      = [];
-        %%% AND FOR EACH AAL REGION ---------------------------------------
-        for i = 1:90
+        ori                          = [];
+        %%% AND FOR EACH NODE ---------------------------------------------
+        for i = 1:size(atlas.tissuelabel,2)
             source_timeseries        = [];
             ori_region               = [];
             
             % identify source coords that fall within AAL region
-            aal_node                 = find(source_aal.tissue==i); 
-            sources_innode           = projection.trial(t).mom(aal_node); 
-            ori_innode               = projection.trial(t).ori(aal_node); 
+            node                     = find(source_atlas.tissue==i); 
+            sources_innode           = projection.trial(t).mom(node); 
+            ori_innode               = projection.trial(t).ori(node); 
 
             % isolate source timeseries in region
             for j = 1:length(sources_innode)    %%% FOR EACH SOURCE W/IN THE AAL REGION
@@ -346,9 +350,9 @@ for ss = rangeOFsubj
             end
             
             % orientation of eigenvectors of each source (divided into AAL regions)
-            ori_region_padded = zeros(ceil(0.03*nnz(source_aal.tissue)),3); 
+            ori_region_padded = zeros(ceil(0.03*nnz(source_atlas.tissue)),3); 
             ori_region_padded(1:size(ori_region,1),:) = ori_region;
-            ori_116 = cat(3,ori_116,ori_region_padded); 
+            ori = cat(3,ori,ori_region_padded); 
         end
         
         %%% CONCATENATE ACROSS TRIALS -------------------------------------
