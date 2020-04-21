@@ -80,11 +80,11 @@ uniquetypes = unique({eventslist.type});
 eventslistnum = cellfun(@(str) find(strcmp(uniquetypes, str),1), {eventslist.type});
 
 % identify all the t=0 stimulus markers, and search for other markers within the search interval
-t0markernum   = find(strcmpi(uniquetypes, cfg.trialdef.markers.t0marker),1);
+t0markernum   = find(ismember(uniquetypes, cfg.trialdef.markers.t0marker));
 
 % setup unfiiltered trials table for all trials
 unfiltered_trials               = table(); % instantiate table
-unfiltered_trials.t0sample      = [eventslist(eventslistnum == t0markernum).sample]'; % get the sample of each t0marker
+unfiltered_trials.t0sample      = [eventslist(ismember(eventslistnum, t0markernum)).sample]'; % get the sample of each t0marker
 
 % prepare event and event timing columns
 unfiltered_trials.event         = cell(height(unfiltered_trials),1); 
@@ -98,7 +98,7 @@ for rr = 1:height(unfiltered_trials)
     % get the time interval for this trial
     sStart      = unfiltered_trials.t0sample(rr)-1; % from one sample prior to the t0marker
     if rr < height(unfiltered_trials) % if we are not at the last trial
-        sEnd    = unfiltered_trials.t0sample(rr+1); % set sEnd to be the starting sample of the next trial
+        sEnd    = unfiltered_trials.t0sample(rr+1)-1; % set sEnd to be the sample before the next trial
     else
         sEnd    = eventslist(end).sample; % otherwise, set it to be the last sample
     end 
@@ -114,12 +114,10 @@ end
 
 % marker_present keeps track of the sample at which the designated marker
 % occurs for each trial. 
-marker_present = cellfun(@(x) contains(x,cfg.trialdef.markers.Correct), ...             % return logical vector per trial of time interval
+marker_present = cellfun(@(x) any(ismember(x,cfg.trialdef.markers.Correct)), ...             % return logical vector per trial of time interval
                         unfiltered_trials.event, 'UniformOutput', false);
-marker_present = cellfun(@(x) find(x,1), marker_present, 'UniformOutput', false);       % find the 1 if it exists and determine the sample
-marker_present(cellfun(@isempty,marker_present)) = {0};                                 % handle empties
 marker_present = cell2mat(marker_present);       % make it into a matrix
-deleteRows = marker_present == 0;
+deleteRows = marker_present == 0; % get rows of incorrect trials
 marker_present = marker_present(marker_present > 0);  
 
 %% ASSEMBLE TRL MATRIX
