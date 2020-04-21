@@ -102,8 +102,8 @@ for ss = 1:length(subj_match.ds) % for each participant
         warning('Not enough markers found - check marker file!')
         continue
     else % otherwise, display how many markers were found
-        fprintf('\n %d markers were found for %s \n ',...
-            numt0marker,config.task.trialdef.markers.t0marker)
+        fprintf('\n %d markers were found for your specified t0markers\n ',...
+            numt0marker)
     end
     
 %%% EPOCHING --------------------------------------------------------------
