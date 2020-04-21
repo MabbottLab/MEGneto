@@ -18,8 +18,7 @@ uniquetypes = unique({eventslist.type});
 % assign index to events (instead of just string)
 eventslistnum = cellfun(@(str) find(strcmp(uniquetypes, str),1), {eventslist.type});
 
-numt0marker = length(find( cellfun( @(X)isequal(X,t0marker),{eventslist.type})));
-% length(find( cellfun( @(X)isequal(X,'RightCorrect'),{eventslist.type})))
+numt0marker = sum(ismember({eventslist.type}, t0marker));
 
 %% Plot
 
