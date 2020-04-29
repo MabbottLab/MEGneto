@@ -69,15 +69,15 @@ template.coordsys = config.beamforming.template.coordsys;
     % needed to describe boundaries that define which dipole locations are 
     % 'inside' the brain.
 cfg          = [];
-template_seg = ft_volumesegment(cfg, template); % unit: mm
+template_seg = ft_volumesegment(cfg, template); 
+template_seg = ft_convert_units(template_seg, 'cm');
 
 %%% PREPARE HEAD MODEL WITH SEGMENTED TEMPLATE BRAIN ----------------------
 cfg                 = [];
 cfg.method          = config.beamforming.headmodel.method; 
-template_headmodel  = ft_prepare_headmodel(cfg, template_seg); % unit: mm
+template_headmodel  = ft_prepare_headmodel(cfg, template_seg); 
 template_headmodel  = ft_convert_units(template_headmodel, ...
                         config.beamforming.headmodel.units); 
-
 %%% CONSTRUCT DIPOLE GRID IN TEMPLATE BRAIN COORDINATES -------------------               
 cfg                 = [];
 cfg.resolution      = config.beamforming.template.grid.resolution;
@@ -184,7 +184,7 @@ for ss = rangeOFsubj
     cfg.grid.template  = template_grid;
     cfg.grid.nonlinear = config.beamforming.subj.grid.nonlinear;
     cfg.mri            = mri;
-    cfg.grid.unit      = config.beamforming.subj.grid.unit; %mm
+    cfg.grid.unit      = config.beamforming.subj.grid.unit; 
     grid               = ft_prepare_sourcemodel(cfg);
 %    coords             = sourcemodel.pos;
 
@@ -290,10 +290,10 @@ for ss = rangeOFsubj
     % load atlas
     fullPath        = which('ft_preprocessing.m');
     [pathstr,~,~]   = fileparts(fullPath);
-    if strcmp(config.beamforming.atlas, 'aal')
+    if contains(config.beamforming.atlas.filepath, 'aal')
         atlas           = ft_read_atlas([pathstr, '/template/atlas/aal/ROI_MNI_V4.nii']);
-    elseif strcmp(config.beamforming.atlas, 'brainnetome')
-        atlas           = ft_read_atlas([pathstr, 'template/atlas/brainnetome/BNA_MPM_thr25_1.25mm.nii']);
+    elseif contains(config.beamforming.atlas.filepath, 'brainnetome')
+        atlas           = ft_read_atlas([pathstr, '/template/atlas/brainnetome/BNA_MPM_thr25_1.25mm.nii']);
     end
     atlas           = ft_convert_units(atlas, 'cm');
 
@@ -383,4 +383,9 @@ end
 right_now = clock;
 fprintf('%d:%d:%02.f       Done running **%s**.\n', ...
     right_now(4:6), mfilename)
+
+%% send email to user
+
+unix('echo "Done running beamforming!" | mail -s "MEGneto Update" elizabeth.cox@sickkids.ca');
+
 diary off
