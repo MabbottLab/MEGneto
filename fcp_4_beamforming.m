@@ -87,33 +87,33 @@ cfg.headmodel       = template_headmodel;
 template_grid       = ft_prepare_sourcemodel(cfg);
 
 %%% VISUALIZATION: DISPLAY HEAD MODEL -------------------------------------
-%   figure
-%   hold on
-%   ft_plot_vol(template_headmodel, 'facecolor', 'cortex', 'edgecolor', 'none');alpha 0.5; camlight;
-%   ft_plot_mesh(template_grid.pos(template_grid.inside,:));
+%       figure
+%       hold on
+%       ft_plot_vol(template_headmodel, 'facecolor', 'cortex', 'edgecolor', 'none');alpha 0.5; camlight;
+%       ft_plot_mesh(template_grid.pos(template_grid.inside,:));
 % 
 % % VISUALIZATION: ALIGNMENT ----------------------------------------------
 
 % %% load atlas and create a binary mask
 %   atlas = ft_read_atlas([ftpath '/' config.beamforming.atlas.filepath]);
 %   atlas = ft_convert_units(atlas, config.beamforming.headmodel.units);% assure that atlas and template_grid are expressed in the %same units
-% 
-% %% get internal tissue labels
+% % 
+% %%% get internal tissue labels
 %   cfg         = [];
 %   cfg.atlas   = atlas;
 %   cfg.roi     = atlas.tissuelabel;
 %   cfg.inputcoord = config.beamforming.atlas.inputcoord;
 %   mask        = ft_volumelookup(cfg,template_grid);
-% 
-% %% create temporary mask according to the atlas entries
+% % 
+% % %% create temporary mask according to the atlas entries
 %   tmp           = repmat(template_grid.inside,1,1);
 %   tmp(tmp==1)   = 0;
 %   tmp(mask)     = 1;
 % 
-% %% define inside locations according to the atlas based mask
+% %%% define inside locations according to the atlas based mask
 %   template_grid.inside = tmp;
 % 
-% %% plot the atlas based grid
+% %%% plot the atlas based grid
 %   figure;
 %   ft_plot_mesh(template_grid.pos(template_grid.inside,:));
 
@@ -170,6 +170,7 @@ for ss = rangeOFsubj
 %     cfg.slicesdim       = config.beamforming.checkMRIvolumes.slicesdim;
 %     cfg.nslices         = config.beamforming.checkMRIvolumes.nslices;
 %     cfg.anaparameter    = 0.5;
+%     cfg.funparameter    = 'brain';
 %     cfg.title           = ['Segmentation: ', subj_match.pid{ss}];
 %     ft_sourceplot(cfg, seg);
 %  
@@ -179,13 +180,13 @@ for ss = rangeOFsubj
 %     print(hf, [ssSubjPath(ss) '/segmented_mri_alignment'], '-dpng', '-r600');
     
 %%% PREPARE SUBJECT-SPECIFIC HEAD MODEL WITH TEMPLATE HEAD MODEL ----------
-    cfg                = [];
-    cfg.grid.warpmni   = config.beamforming.subj.grid.warpmni;
-    cfg.grid.template  = template_grid;
-    cfg.grid.nonlinear = config.beamforming.subj.grid.nonlinear;
-    cfg.mri            = mri;
-    cfg.grid.unit      = config.beamforming.subj.grid.unit; 
-    grid               = ft_prepare_sourcemodel(cfg);
+    cfg                 = [];
+    cfg.template        = template_grid;
+    cfg.warpmni         = config.beamforming.subj.grid.warpmni;
+    cfg.nonlinear  = config.beamforming.subj.grid.nonlinear;
+    cfg.mri             = mri;
+    cfg.unit       = config.beamforming.subj.grid.unit; 
+    grid                = ft_prepare_sourcemodel(cfg);
 %    coords             = sourcemodel.pos;
 
 %%% VISUALIZATION: TISSUE PROBABILITY MAPS --------------------------------
@@ -198,12 +199,12 @@ for ss = rangeOFsubj
 %     figure
 %     hold on;
 %     ft_plot_vol(hdm,'edgecolor','none','facecolor', 'cortex'); % plot head model
-%     alpha 0.4; % opacity of headmodel
+%     alpha 0.9; % opacity of headmodel
 %     ft_plot_mesh(grid.pos(grid.inside,:)); % plot source model
 %     ft_plot_sens(data.grad,'style','ob'); % plot MEG channels (sensors)
 %     hold off;
 %     view(45,10);
-% 
+
 %     hf = gcf;
 %     hf.Position(1:2) = [10 10];
 %     hf.Position(3:4) = (800 / hf.Position(4)) .* hf.Position(3:4);
@@ -288,12 +289,14 @@ for ss = rangeOFsubj
     sourcemodel.pos = template_grid.pos; 
     
     % load atlas
-    fullPath        = which('ft_preprocessing.m');
-    [pathstr,~,~]   = fileparts(fullPath);
+    fullPath                = which('ft_preprocessing.m');
+    [pathstr,~,~]           = fileparts(fullPath);
     if contains(config.beamforming.atlas.filepath, 'aal')
-        atlas           = ft_read_atlas([pathstr, '/template/atlas/aal/ROI_MNI_V4.nii']);
+        atlas               = ft_read_atlas([pathstr, '/template/atlas/aal/ROI_MNI_V4.nii']);
+        atlas.tissuelabel   = atlas.tissuelabel(1:90); % we only want non-cerebellar regions
+        atlas.tissue(atlas.tissue > 90) = 0;
     elseif contains(config.beamforming.atlas.filepath, 'brainnetome')
-        atlas           = ft_read_atlas([pathstr, '/template/atlas/brainnetome/BNA_MPM_thr25_1.25mm.nii']);
+        atlas               = ft_read_atlas([pathstr, '/template/atlas/brainnetome/BNA_MPM_thr25_1.25mm.nii']);
     end
     atlas           = ft_convert_units(atlas, 'cm');
 
@@ -304,8 +307,9 @@ for ss = rangeOFsubj
     source_atlas       = ft_sourceinterpolate(cfg,atlas,sourcemodel);
 
     % actual interpolation
-    vector_virtual_sources      = [];   % overall AAL region timeseries across trial
-    ori_avg                     = [];   % orientation average
+    catmatrix      = NaN(length(projection.time), ...
+                         length(projection.trial), ...
+                         length(source_atlas.tissuelabel));   % overall AAL region timeseries across trial
 
     %%% FOR EACH TRIAL ----------------------------------------------------
     right_now = clock;
@@ -313,55 +317,25 @@ for ss = rangeOFsubj
         right_now(4:6))
     
     for t = 1:projection.df
-        vector_virtual_sources_trial = [];
-        ori_avg_trial                = [];
-        ori                          = [];
         %%% AND FOR EACH NODE ---------------------------------------------
         for i = 1:size(atlas.tissuelabel,2)
-            source_timeseries        = [];
-            ori_region               = [];
-            
             % identify source coords that fall within AAL region
             node                     = find(source_atlas.tissue==i); 
-            sources_innode           = projection.trial(t).mom(node); 
-            ori_innode               = projection.trial(t).ori(node); 
-
-            % isolate source timeseries in region
-            for j = 1:length(sources_innode)    %%% FOR EACH SOURCE W/IN THE AAL REGION
-                source_timeseries   = cat(1, source_timeseries, sources_innode{j}); 
-                ori_region          = cat(1, ori_region, ori_innode{1,j});
-            end
+            source_timeseries        = cell2mat(projection.trial(t).mom(node)); % get the timeseries; num_nodes x time
+            ori_region               = cell2mat(projection.trial(t).ori(node)'); % orientations; num_nodes x time
             
-            % IF MORE THAN 1 SOURCE POINT W/IN NODE
-            if length(sources_innode) > 1
-                vector_virtual_sources_trial = ...
-                    cat(1, vector_virtual_sources_trial, mean(source_timeseries));
-                ori_avg_trial                = ...
-                    cat(1,ori_avg_trial,mean(ori_region));      
+            % IF NODE EXISTS
+            if size(source_timeseries, 1) >= 1
+                catmatrix(:,t,i) = mean(source_timeseries,1); % take avg across source points
+                ori_avg(:,t,i) = mean(ori_region,1);
             % IF NO SOURCE POINTS W/IN NODE
-            elseif isempty(sources_innode)
-                warning('NO NODE %d\n',i);
-            % IF ONLY 1 SOURCE POINT W/IN NODE
             else
-                vector_virtual_sources_trial = ...
-                    cat(1,vector_virtual_sources_trial,source_timeseries);
-                ori_avg_trial                = ...
-                    cat(1,ori_avg_trial,ori_region);
+                warning('NO NODE %d\n',i);
             end
-            
-            % orientation of eigenvectors of each source (divided into AAL regions)
-            ori_region_padded = zeros(ceil(0.03*nnz(source_atlas.tissue)),3); 
-            ori_region_padded(1:size(ori_region,1),:) = ori_region;
-            ori = cat(3,ori,ori_region_padded); 
         end
-        
-        %%% CONCATENATE ACROSS TRIALS -------------------------------------
-        vector_virtual_sources = cat(3,vector_virtual_sources,vector_virtual_sources_trial);
-        ori_avg                = cat(3,ori_avg,ori_avg_trial); 
     end
     
 %%% FINAL PARTICIPANT OUTPUT VARIABLES ------------------------------------
-    catmatrix = permute(vector_virtual_sources,[2 3 1]); % reorder dimensions for next processing steps
     srate     = data.fsample;                            % keep track of sampling rate
     coords    = projection.pos;                          % coordinates
 
@@ -369,9 +343,9 @@ for ss = rangeOFsubj
     save([ssSubjPath(ss) '/AAL_beamforming_results'],'catmatrix','srate','coords','-mat','-v7.3')
 
 %%% OPTIMIZING RUN SPACE --------------------------------------------------
-    clear coords catmatrix srate vector_virtual_sources vector_virtual_sources_trial source_timeseries ...
-        sources_innode ori_avg ori_avg_trial ori_116 atlas sourcemodel source_t_trials projection seg mri data grid hdm ...
-        source_t_avg tlock leadfield aal_node ori_region ori_innode ori_region_padded
+    clear coords catmatrix srate source_timeseries ...
+        atlas sourcemodel source_t_trials projection seg mri data grid hdm ...
+        source_t_avg tlock leadfield aal_node
     
     right_now = clock;
     fprintf('%d:%d:%02.f       Done subject %s!\n', ...
@@ -386,6 +360,9 @@ fprintf('%d:%d:%02.f       Done running **%s**.\n', ...
 
 %% send email to user
 
-unix('echo "Done running beamforming!" | mail -s "MEGneto Update" elizabeth.cox@sickkids.ca');
+msg = strcat('echo "Done running beamforming!" | mail -s "MEGneto Update"'," ", string(config.contact));
+for m = msg
+    unix(m);
+end
 
 diary off
