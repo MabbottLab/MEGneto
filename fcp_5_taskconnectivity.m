@@ -88,7 +88,9 @@ fprintf('Max filter length: %d samples = %.4f sec.\n', maxn, maxn/srate);
 
 % setup band names and master adjacency matrix
 band_names = ["theta", "alpha", "beta", "lowgamma", "highgamma"];
-all_adjmat = nan(90, 90, length(subj_match.ds), length(config.connectivity.filt_freqs));
+all_adjmat = nan(size(catmatrix,3), size(catmatrix,3), ... % num_nodes x num_nodes x ...
+                length(subj_match.ds), ...                 % num_subjects x ... 
+                length(config.connectivity.filt_freqs));   % num_freq_bands
 
 %for cc = 1:length(p.condition)
   % fprintf('Running condition %s... \n', p.condition{cc});
@@ -192,5 +194,11 @@ right_now = clock;
 fprintf('%d:%d:%02.f ============== Finished Processing ====================\n', ...
     right_now(4:6))
 diary off
+
+msg = strcat('echo "Done running connectivity!" | mail -s "MEGneto Update"'," ", string(config.contact));
+for m = msg
+    unix(m);
+end
+
 
 end
