@@ -195,10 +195,7 @@ fprintf('%d:%d:%02.f ============== Finished Processing ====================\n',
     right_now(4:6))
 diary off
 
-msg = strcat('echo "Done running connectivity!" | mail -s "MEGneto Update"'," ", string(config.contact));
-for m = msg
-    unix(m);
-end
-
+%% let the users know
+sendEmail("connectivity", string(config.contact));
 
 end

@@ -183,9 +183,9 @@ for ss = rangeOFsubj
     cfg                 = [];
     cfg.template        = template_grid;
     cfg.warpmni         = config.beamforming.subj.grid.warpmni;
-    cfg.nonlinear  = config.beamforming.subj.grid.nonlinear;
+    cfg.nonlinear       = config.beamforming.subj.grid.nonlinear;
     cfg.mri             = mri;
-    cfg.unit       = config.beamforming.subj.grid.unit; 
+    cfg.unit            = config.beamforming.subj.grid.unit; 
     grid                = ft_prepare_sourcemodel(cfg);
 %    coords             = sourcemodel.pos;
 
@@ -359,10 +359,6 @@ fprintf('%d:%d:%02.f       Done running **%s**.\n', ...
     right_now(4:6), mfilename)
 
 %% send email to user
-
-msg = strcat('echo "Done running beamforming!" | mail -s "MEGneto Update"'," ", string(config.contact));
-for m = msg
-    unix(m);
-end
+sendEmail("beamforming", string(config.contact));
 
 diary off

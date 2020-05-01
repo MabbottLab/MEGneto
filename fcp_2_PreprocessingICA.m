@@ -240,4 +240,8 @@ fprintf('%d:%d:%02.f       Done running **%s**.\n', ...
     right_now(4:6), mfilename)
 diary off
 
+%% let the users know
+sendEmail("ICA", string(config.contact));
+
+
 end
