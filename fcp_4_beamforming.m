@@ -291,12 +291,10 @@ for ss = rangeOFsubj
     % load atlas
     fullPath                = which('ft_preprocessing.m');
     [pathstr,~,~]           = fileparts(fullPath);
+    atlas                   = ft_read_atlas([pathstr config.beamforming.atlas.filepath]);
     if contains(config.beamforming.atlas.filepath, 'aal')
-        atlas               = ft_read_atlas([pathstr, '/template/atlas/aal/ROI_MNI_V4.nii']);
         atlas.tissuelabel   = atlas.tissuelabel(1:90); % we only want non-cerebellar regions
         atlas.tissue(atlas.tissue > 90) = 0;
-    elseif contains(config.beamforming.atlas.filepath, 'brainnetome')
-        atlas               = ft_read_atlas([pathstr, '/template/atlas/brainnetome/BNA_MPM_thr25_1.25mm.nii']);
     end
     atlas           = ft_convert_units(atlas, 'cm');
 
