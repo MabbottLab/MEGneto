@@ -9,6 +9,11 @@ function fcp_4_beamforming(paths)
 %   - Caution: unit conversion is sensitive in this step b/w cm and mm. 
 %   - Assumes that anatomical MRI is already aligned with MEG data. If not
 %   aligned, use ft_volumerealign function. 
+%   - Available atlases:
+%       1. AAL 116 atlas (all areas <=90 to exclude cerebellum)
+%       2. Brainnetome atlas
+%       3. Yeo atlas (7 network or 17 network)
+%
 %
 % INPUTS:
 %   paths               =   struct defining paths to data, participant
@@ -316,7 +321,7 @@ for ss = rangeOFsubj
     
     for t = 1:projection.df
         %%% AND FOR EACH NODE ---------------------------------------------
-        for i = 1:size(atlas.tissuelabel,2)
+        for i = 1:max(size(atlas.tissuelabel))
             % identify source coords that fall within AAL region
             node                     = find(source_atlas.tissue==i); 
             source_timeseries        = cell2mat(projection.trial(t).mom(node)); % get the timeseries; num_nodes x time
@@ -324,8 +329,8 @@ for ss = rangeOFsubj
             
             % IF NODE EXISTS
             if size(source_timeseries, 1) >= 1
-                catmatrix(:,t,i) = mean(source_timeseries,1); % take avg across source points
-                ori_avg(:,t,i) = mean(ori_region,1);
+                catmatrix(:,t,i) = nanmean(source_timeseries,1); % take avg across source points
+                ori_avg(:,t,i) = nanmean(ori_region,1);
             % IF NO SOURCE POINTS W/IN NODE
             else
                 warning('NO NODE %d\n',i);
