@@ -64,7 +64,7 @@ if length(unique(subj_match.pid)) ~= length(subj_match.pid)
 end
 
 % load output from previous step
-fcp1_output     = load_config(paths, 'fcp1_output');
+fcp1_output     = loadjson([paths.anout_grp '/fcp1_output.json']);
 
 % initialize output files
     % data
