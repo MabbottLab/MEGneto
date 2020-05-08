@@ -14,6 +14,7 @@ This functional connectivity pipeline (fcp) is built on MATLAB using the FieldTr
    7. [Functional Connectivity](#functional-connectivity)
 - [Credits](#credits)
 - [On Downsampling](#on-downsampling)
+- [Supplementary Reading Material](#supplementary-reading-material)
 
 ## System Requirements
 
@@ -109,6 +110,7 @@ See also: `ft_freqanalysis.m`, `ft_connectivityanalysis.m`, `ft_checkdata.m`
 
 **This list is incomplete!**
 
+- Pre-2016: Marc Lalancette
 - March 2016: Simeon Wong, Anne Keller
 - November 2016: Sonya Bells
 - June 2019: Ming Scott
@@ -121,3 +123,17 @@ You may run out of RAM during the beamforming step if your MEG data is not adequ
 Assume that the max frequency you want to analyze is 100Hz (e.g., the upper limit of the high gamma frequency band). Then, the Nyquist-Shannon theorem suggests that your data needs to be sampled at 100 x 2 = 200Hz to recover information properly from that 100Hz frequency. 
 
 Based on this, you may choose to downsample your data from 1200Hz to 300Hz. For a 4-second epoch (e.g., -2s to +2s around a marker of interest), this means going from 4800 timepoints to 1200 timepoints for each of the *151* channels. That's 724,800 points to 181,200 - almost 600k less timepoints to crunch with no information loss. Way easier on the machine. 
+
+## Supplementary Reading Material
+
+We've compiled here pertinent papers to read on the topic of MEG processing and functional connectivity metrics:
+
+### On MEG preprocessing
+TBD
+
+### MEG papers from the Mabbott Lab
+- Gauvreau, S., Lefebvre, J., Bells, S., Laughlin, S., Bouffet, E., & Mabbott, D. J. (2019). Disrupted network connectivity in pediatric brain tumor survivors is a signature of injury. Journal of Comparative Neurology, 527(17), 2896-2909.
+
+### On functional connectivity metrics
+- Vinck, M., Oostenveld, R., Van Wingerden, M., Battaglia, F., & Pennartz, C. M. (2011). An improved index of phase-synchronization for electrophysiological data in the presence of volume-conduction, noise and sample-size bias. Neuroimage, 55(4), 1548-1565.
+- Colclough, G. L., Woolrich, M. W., Tewarie, P. K., Brookes, M. J., Quinn, A. J., & Smith, S. M. (2016). How reliable are MEG resting-state connectivity metrics?. Neuroimage, 138, 284-293.
