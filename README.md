@@ -79,7 +79,16 @@ See also: `ft_prepare_neighbours`, `ft_channelrepair`
 
 ### Beamforming
 
-`FCP_4_BEAMFORMING.m` maps functional data onto the source model and interpolates to AAL atlas regions (currently excluding cerebellar regions). Here, be careful about conversions between mm and cm units in MEG and MRI data. 
+`FCP_4_BEAMFORMING.m` maps functional data onto the source model and interpolates to an atlas. Here, be careful about conversions between mm and cm units in MEG and MRI data. 
+
+The following source reconstruction algorithms are currently recommended/supported:
+- Exact low resolution electromagnetic tomography (eLORETA) source reconstruction (recommended)
+- Linear constrained minimum variance (LCMV) beamformer 
+
+The following atlases are currently supported:
+- AAL 116 region atlas, but truncated to just regions 1-90 to exclude cerebellar regions
+- Yeo 7-network parcellation into visual, somatomotor, dorsal and ventral attention, default, limbic, frontoparietal
+- Yeo 17-network parcellation
 
 See also: 
 - `ft_read_mri` to import T1 template from spm8
@@ -128,8 +137,8 @@ Based on this, you may choose to downsample your data from 1200Hz to 300Hz. For 
 
 We've compiled here pertinent papers to read on the topic of MEG processing and functional connectivity metrics:
 
-### On MEG preprocessing
-TBD
+### On MEG beamforming/source reconstruction
+- Tait, L., Ozkan, A., Szul, M. J., & Zhang, J. (2020). Cortical source imaging of resting-state MEG with a high resolution atlas: An evaluation of methods. bioRxiv.
 
 ### MEG papers from the Mabbott Lab
 - Gauvreau, S., Lefebvre, J., Bells, S., Laughlin, S., Bouffet, E., & Mabbott, D. J. (2019). Disrupted network connectivity in pediatric brain tumor survivors is a signature of injury. Journal of Comparative Neurology, 527(17), 2896-2909.
