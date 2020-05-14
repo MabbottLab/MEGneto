@@ -89,6 +89,7 @@ The following atlases are currently supported:
 - AAL 116 region atlas, but truncated to just regions 1-90 to exclude cerebellar regions
 - Yeo 7-network parcellation into visual, somatomotor, dorsal and ventral attention, default, limbic, frontoparietal
 - Yeo 17-network parcellation
+- Brainnetome parcellation (although the number of regions here greatly outranks the rank of the sensors)
 
 See also: 
 - `ft_read_mri` to import T1 template from spm8
@@ -139,6 +140,11 @@ We've compiled here pertinent papers to read on the topic of MEG processing and 
 
 ### On MEG beamforming/source reconstruction
 - Tait, L., Ozkan, A., Szul, M. J., & Zhang, J. (2020). Cortical source imaging of resting-state MEG with a high resolution atlas: An evaluation of methods. bioRxiv.
+
+### On atlases
+- Rolls, E. T., Huang, C. C., Lin, C. P., Feng, J., & Joliot, M. (2020). Automated anatomical labelling atlas 3. NeuroImage, 206, 116189.
+- Thomas Yeo, B. T., Krienen, F. M., Sepulcre, J., Sabuncu, M. R., Lashkari, D., Hollinshead, M., ... & Fischl, B. (2011). The organization of the human cerebral cortex estimated by intrinsic functional connectivity. Journal of neurophysiology, 106(3), 1125-1165.
+- Fan, L., Li, H., Zhuo, J., Zhang, Y., Wang, J., Chen, L., ... & Fox, P. T. (2016). The human brainnetome atlas: a new brain atlas based on connectional architecture. Cerebral cortex, 26(8), 3508-3526.
 
 ### MEG papers from the Mabbott Lab
 - Gauvreau, S., Lefebvre, J., Bells, S., Laughlin, S., Bouffet, E., & Mabbott, D. J. (2019). Disrupted network connectivity in pediatric brain tumor survivors is a signature of injury. Journal of Comparative Neurology, 527(17), 2896-2909.
