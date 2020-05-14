@@ -1,44 +1,7 @@
 function fcp_1_RestingStateEpoching(paths)
 
-% fcp_1_RestingStateEpoching will epoch MEG data into 2s trials, 
-%  detect and reject muscle/jump artifacts, and 
-% 
-% NOTES:
-%   - Ensure that subj_fcp1.csv is populated with the subject IDs of
-%   included participants. 
-%   - Desired parameters should be defined in the JSON config file.
-%   User should double-check that the JSON config file is populated
-%   appropriately, especially if a template JSON was copied over. 
-%
-% INPUTS:
-%   paths               =   struct defining paths to data, participant
-%                           folders, analysis folders, config files, etc. 
-%
-% OUTPUTS:
-%   fcp1_output         = struct with locations of output files
-%     .fig_headmotion   = 'headmotion.png': image of head motion graph
-%     .trial_cfg        = 'ft_meg_trl_cfg.json': fieldtrip cfg structure
-%                          with the 'trl' parameter set to selected trials
-%     .trial_cfgHM      = 'ft_meg_trl_cfgHM.json': head motion removed
-%     .trial_grad_cfg   = 'ft_meg_grad_cfg.json': HM and 3rd order grad
-%                          applied
-%     .group_rmBadChan  = 'group_rmBadChan.json': lists of bad channs
-%     .numtrls          = number of trials across participants
-%     .HMremove_trls    = number of trials removed due to head motion
-%     .noisy_trl        = muscle and jump artifact trial timestamps
-%     .Nremove_trls     = total number of noisy trials removed
-%     .bad_chann        = string array; bad channels detected for each 
-%                         participant
-%
-% See also: DS_PID_MATCH, WRITE_MATCH_IF_NOT_EMPTY, PLOTTRIGGERS, 
-%           HEADMOTIONTOOL, DETECTBADCHANNELS
-
-% Last updated by: Sonya Bells, 2020-02-13
-%   This file is part of MEGneto, see https://github.com/SonyaBells/MEGneto
-%   for the documentation and details.
 
 %% SET UP LOGGING FILE
-
 right_now = clock;
 log_filename = [paths.conf_dir '/log_' sprintf('%d%d%d', right_now(1:3))];
 diary(log_filename)
@@ -47,8 +10,6 @@ fprintf('\n\n%d:%d:%02.f       Now running **%s**.\n', ...
     right_now(4:6), mfilename)
 
 %% SETUP: LOAD CONFIG, PARTICIPANTS, CHECK FOR FULL DATASET, OUTPUTS
-
-%% Epoching
 % load config JSON with analysis parameters
 config      = load_config(paths, paths.name);
 config      = config.config;
@@ -69,29 +30,36 @@ if length(unique(subj_match.pid)) ~= length(subj_match.pid)
 end
 
 % initialize output files
-    % images
-        fcp1_output.fig_headmotion  = 'headmotion.png';
-        %fcp1_output.trigger_figure  = 'triggerfigure.png';
-    % data at various stages of cleaning
-        fcp1_output.trial_cfg       = 'ft_meg_trl_cfg.json';
-        fcp1_output.trial_cfgHM     = 'ft_meg_trl_cfgHM.json';
-        fcp1_output.grad_cfg        = 'ft_meg_grad_cfg.json';
-    % record keeping
-        fcp1_output.subj_epochInfo  = 'subj_epoching_info.mat';
-        fcp1_output.group_rmBadChan = 'group_rmBadChan.json';
+% images
+fcp1_output.fig_headmotion  = 'headmotion.png';
+% data at various stages of cleaning
+fcp1_output.trial_cfg       = 'ft_meg_trl_cfg.json';
+% fcp1_output.trial_cfgHM     = 'ft_meg_trl_cfgHM.json';
+fcp1_output.grad_cfg        = 'ft_meg_grad_cfg.json';
+% record keeping
+fcp1_output.subj_epochInfo  = 'subj_epoching_info.mat';
+fcp1_output.group_rmBadChan = 'group_rmBadChan.json';
 
-%% EPOCHING - looping through participants
+%%% Preprocessing - Epoching -------------------------------------
 
 for ss = 1:length(subj_match.ds) % for each participant
     
     fprintf('\n\n==================================\n...DS_FILE: %s\nSUBJECT: %s\n', ...
         subj_match.ds{ss}, subj_match.pid{ss});
 
-	%%% EPOCHING Resting State-----------------------------------------------
+    
+%     cfg           = [];
+%     cfg.dataset     = [paths.rawdata '/' subj_match.ds{ss}]; 
+%     cfg.savemat     = 'no';
+%     cfg.linefreq  = 60;
+%     cfg.plotunit  = 300;
+%     ft_qualitycheck(cfg)
+%     
+%%% EPOCHING Resting State-----------------------------------------------
     fprintf('Epoching into Segments...\n')
-
+    
     % FT_REDEFINETRIAL allows you to adjust the time axis of your data, i.e. to change from stimulus-locked to response-locked.
-    cfg 			= [];
+    cfg             = [];
     cfg.dataset     = [paths.rawdata '/' subj_match.ds{ss}]; 
     cfg.continuous  = 'yes';   
     data           =ft_preprocessing(cfg);
@@ -100,20 +68,15 @@ for ss = 1:length(subj_match.ds) % for each participant
     cfg.length = config.epoching.period;     
     cfg.overlap = 0.5; 
     data_epoched          = ft_redefinetrial(cfg, data);
- 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
+     
+%     data_orig                    = data_epoched; % keep the original epoched data
     fcp1_output.numtrls{ss,1}   = length(data_epoched.trial); % record num trials
-
-%%% ARTIFACT DETECTION ----------------------------------------------------
-    right_now = clock;
-    fprintf('%d:%d:%02.f       Detecting muscle and jump artifacts...\n', right_now(4:6))
+ %%% ARTIFACT DETECTION ----------------------------------------------------
 
     if config.cleaningOptions.artifact.detection == 1
         
         %%% Muscle Artifacts %%%
-	cfg				 = [];
+        cfg =[];
         cfg.artfctdef.muscle.bpfilter    = config.cleaningOptions.artifact.muscle.bpfilter;
         cfg.artfctdef.muscle.bpfreq      = config.cleaningOptions.artifact.muscle.bpfreq;
         cfg.artfctdef.muscle.bpfiltord   = config.cleaningOptions.artifact.muscle.bpfiltord;
@@ -124,65 +87,90 @@ for ss = 1:length(subj_match.ds) % for each participant
         cfg.artfctdef.muscle.trlpadding  = config.cleaningOptions.artifact.muscle.trlpadding; 
         cfg.artfctdef.muscle.fltpadding  = config.cleaningOptions.artifact.muscle.fltpadding;
         cfg.artfctdef.muscle.artpadding  = config.cleaningOptions.artifact.muscle.artpadding;
-        [cfg, muscle_artifact]           =  ft_artifact_muscle(cfg, data_epoched);
+        [cfg, muscle_artifact]           = ft_artifact_muscle(cfg, data_epoched);
         
         %%%% Jump Artifacts %%%
         cfg.artfctdef.jump.cutoff        = config.cleaningOptions.artifact.jump.cutoff;
         [cfg, jump_artifact]             = ft_artifact_jump(cfg, data_epoched);
         
 %%% ARTIFACT REJECTION ----------------------------------------------------
-        cfg.artfctdef.reject             = 'complete'; % remove complete trial
-	data_clean                       = ft_rejectartifact(cfg, data_epoched)
+        cfg.artfctdef.reject             = 'complete'; % remove complete trials
+        data_clean                              = ft_rejectartifact(cfg, data_epoched);
+        
         fcp1_output.noisy_trl{ss,1}      = [muscle_artifact; jump_artifact];
-        fcp1_output.Nremove_trls{ss,1}   = length(cfg.trlold)-length(cfg.trial);
-   
-   	fcp1_output.Nremove_trls{ss,1}   = length(data_clean.cfg.trlold)-length(data_clean.trial);
-	
-%%% HEAD MOTION CORRECTION ------------------------------------------------
-        right_now = clock;
-        fprintf('%d:%d:%02.f       Looking for excessive head motion...\n', right_now(4:6))      
+        fcp1_output.Nremove_trls{ss,1}   = length(data_clean.cfg.trlold)-length(data_clean.trial);
+  
     
+ %%% HEAD MOTION CORRECTION ------------------------------------------------
+%screws up trl in resting state...
+%         right_now = clock;
+%         fprintf('%d:%d:%02.f       Looking for excessive head motion...\n', right_now(4:6))      
+%     
+%         cfg = [];
+%         cfg.dataset = [paths.rawdata '/' subj_match.ds{ss}];  
+%         cfg.channel                 = {'HLC0011','HLC0012','HLC0013', ...
+%         'HLC0021','HLC0022','HLC0023', ...
+%         'HLC0031','HLC0032','HLC0033'};
+%         cfg.trl = trl;
+        %trl Nx3 (N = number of trials, col(1) = start of trial, end of
+        %trial, offset                    
+%         zeroTime = find(data.trial{1,1}(4,:)==0,1,'first');
+%         trlend = floor(zeroTime/length(data_epoched.trial{1})*config.epoching.period);
+%         
+%         starttime = cell2mat(cellfun(@(a) a(:,1), data_epoched.time,'un',0));
+%         endtime = cell2mat(cellfun(@(a) a(:,end), data_epoched.time,'un',0));
+%         
+%         trl = [starttime(2:trlend)',ceil(endtime(2:trlend))',zeros(length(endtime(2:trlend)),1)];
+%         cfg.trl = trl;
+%         try          
+            %% 
+%         [location, maxdistance, cfg, grad] = HeadMotionTool('Fieldtrip', cfg, ...
+%             'RejectThreshold', config.epoching.headMotion.thr, 'RejectTrials', true, 'CorrectInitial', true, ...
+%             'SavePictureFile', [paths.(subj_match.pid{ss}) '/' fcp1_output.fig_headmotion],...
+%             'GUI', false);
+%         
+%         
+%         catch
+%             warning('HeadMotionTool error!\n');
+%         end    
+        % record number of trials removed due to head motion        
+        % throw a warning if there are more than 90% of trials removed
+%         if fcp1_output.HMremove_trls{ss,1} > length(data_cleantrl)*0.9
+%             warning('\n\n \t\t Check head motion!!! \n\n')
+%             continue
+%         end
+
+        fcp1_output.HMremove_trls{ss,1} = length(data_epoched.trial)-length(data_clean.trial);
+
         % find all HM values (in cm) in our segments and keep only the non-zero HM
         % values; this is with MEG turned off, but still recording
-        zeroTime = find(data.trial{1,1}(4,:)==0,1,'first');
-        trl = data_clean.cfg.trl; 
-        [row,~] =  find(trl > zeroTime);
-        trl = trl(1:row(1),:);
-    	
-	cfg = [];
-        cfg.dataset = [paths.rawdata '/' subj_match.ds{ss}];	
-        cfg.channel                 = {'HLC0011','HLC0012','HLC0013', ...
-        'HLC0021','HLC0022','HLC0023', ...
-        'HLC0031','HLC0032','HLC0033'};
-        cfg.trl = trl;
-	
-   	try
-            [~, ~, cfg, grad] = HeadMotionTool('Fieldtrip', cfg, ...
-            'RejectThreshold', config.epoching.headMotion.thr, 'RejectTrials', true, 'CorrectInitial', true, ...
-            'SavePictureFile', [paths.(subj_match.pid{ss}) '/' fcp1_output.fig_headmotion],...
-            'GUI', false);
-        catch
-            warning('HeadMotionTool error!\n');
-        end
-    
-        HM.trl = cfg.trl;
-     	% record number of trials removed due to head motion
-        fcp1_output.HMremove_trls{ss,1} = length(trl)-length(HM.trl);
-        % throw a warning if there are more than 90% of trials removed
-        if fcp1_output.HMremove_trls{ss,1} > length(trl)*0.9
-            warning('\n\n \t\t Check head motion!!! \n\n')
-            continue
-        end
+        
+        
+                zeroTime = find(data.trial{1,1}(4,:)==0,1,'first');
+                trlend = floor(zeroTime/length(data_epoched.trial{1})*config.epoching.period);
+        
+   
+                cfg     = [];
+                cfg.trials = 1:trlend;
+                cfg.demean = 'yes' ;%from fcp_1
+                data       = ft_preprocessing(cfg, data_clean);
+                % save cleaned data progress
+                save(fullfile(paths.(subj_match.pid{ss}),'/data_clean'), 'data');
+    else
+        
+                zeroTime = find(data.trial{1,1}(4,:)==0,1,'first');
+                trlend = floor(zeroTime/length(data_epoched.trial{1})*config.epoching.period);
+        
+   
+                cfg     = [];
+                cfg.trials = 1:trlend;
+                cfg.demean = 'yes' ;%from fcp_1
+                data       = ft_preprocessing(cfg, data_epoched);
+                save(fullfile(paths.(subj_match.pid{ss}),'/data_clean'), 'data');
     end
-   
-   
-   % save cleaned data progress
-    save_to_json(cfg,... 
-        [paths.(subj_match.pid{ss}) '/' fcp1_output.trial_cfg],...
-        true);
-    save_to_json(grad,...
-        [paths.(subj_match.pid{ss}) '/' fcp1_output.grad_cfg],...
-        true);
+    
+
+
 
 %%% BAD CHANNEL DETECTION -------------------------------------------------
     right_now = clock;
@@ -204,6 +192,13 @@ for ss = 1:length(subj_match.ds) % for each participant
     fprintf('\nDone subject %s! \n',subj_match.pid{ss})
     close all    
 end % repeat for next participant
+
+
+
+
+
+
+
 
 %%% FLAG PARTICIPANTS WITH MANY BAD CHANNELS ------------------------------
 
@@ -229,6 +224,9 @@ diary off
 
 
 end
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
