@@ -324,7 +324,7 @@ for ss = rangeOFsubj
         for i = 1:max(size(atlas.tissuelabel))
             % identify source coords that fall within AAL region
             node                     = find(source_atlas.tissue==i); 
-            source_timeseries        = cell2mat(projection.trial(t).mom(node)); % get the timeseries; num_nodes x time
+            source_timeseries        = cell2mat(projection.trial(t).mom(node)'); % get the timeseries; num_nodes x time
             ori_region               = cell2mat(projection.trial(t).ori(node)'); % orientations; num_nodes x time
             
             % IF NODE EXISTS
