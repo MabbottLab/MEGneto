@@ -42,21 +42,19 @@
             "CTFlayout"  : "CTF151.lay"
         },
         "task" : {
-            "isRest" : 1,
-                }
-            }
+            "isRest" : 1
         },
-	"beamforming" : {
-		"headmodel" : {
-			"method" : "singleshell",
-			"units" : "cm"
-		},
-		"template" : {
-			"grid" : {
-				"resolution" : 1,
-				"tight" : "yes",
-				"inwardshift" : -0.8
-			},
+    	"beamforming" : {
+            "headmodel" : {
+                "method" : "singleshell",
+                "units" : "cm"
+            },
+            "template" : {
+                "grid" : {
+                    "resolution" : 1,
+                    "tight" : "yes",
+                    "inwardshift" : -0.8
+                },
 			"coordsys" : "spm"
 		},
 		"atlas" : {
