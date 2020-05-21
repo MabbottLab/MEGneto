@@ -168,7 +168,7 @@ end
 
 % remove participants
 pid_fcp1    = readtable(paths.subj_fcp1_match); % get fcp_1 ppts
-pid_fcp1    = pid_fcp1.Var1; % in a struct format for comparison
+pid_fcp1    = pid_fcp1.pid; % in a struct format for comparison
 pid_fcp2    = subj_match.pid; % get fcp_2 ppts
 match_func  = cellfun(@(x) ismember(x, pid_fcp2), pid_fcp1, 'UniformOutput', 0);
 included    = find(cell2mat(match_func)); % get indices of included
