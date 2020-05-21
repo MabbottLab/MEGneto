@@ -28,7 +28,8 @@ function fcp_2_PreprocessingICA(paths)
 %
 % See also: 
 
-% Last updated by: Julie Tseng, 2020-01-08
+% Last updated by: Sonya Bells
+% Julie Tseng, 2020-01-08
 %   This file is part of MEGneto, see https://github.com/SonyaBells/MEGneto
 %   for the documentation and details.
 
@@ -88,64 +89,62 @@ for ss = rangeOFsubj %1:rangeOFsubj
         fprintf('%d:%d:%02.f       Starting preprocessing...\n', right_now(4:6))
 
     %%% LOAD DATA -------------------------------------------------------------
-        % load trial definition
+    % if RESTING STATE       
+    if config.task.isRest == false 
+        load([ssSubjPath(ss) '/data_clean.mat'],'-mat','data');
+        dataFiltered = data;
+    % if TASK else
+    else     
         if exist([ssSubjPath(ss) '/' fcp1_output.trial_cfg], 'file')
-            % if RESTING STATE
-            if config.task.isRest == false 
-                samples = loadjson([ssSubjPath(ss) '/' fcp1_output.trial_cfg]);
-                cfg     = [];
-                cfg.trial = samples.trl;
-                cfg.demean = 'yes' %from fcp_1
-                disp('Epoched file found!');
-                disp([ssSubjPath(ss) '/' fcp1_output.trial_cfg]);
-            % if TASK
-            else 
-                % data where only excessive head motion removed
-                if config.cleaningOptions.artifact.rmNoisyTrls == 0
-                    samples = loadjson([ssSubjPath '/' fcp1_output.trial_cfgHM]);
-                    cfg     = [];
-                    cfg.trl = samples.trl;
-                    disp('Epoched file found!');
-                    disp([ssSubjPath(ss) '/' fcp1_output.trial_cfgHM]);
+             % load trial definition
+             % data where only excessive head motion removed
+             if config.cleaningOptions.artifact.rmNoisyTrls == 0
+                 samples = loadjson([ssSubjPath '/' fcp1_output.trial_cfgHM]);
+                 cfg     = [];
+                 cfg.trl = samples.trl;
+                 disp('Epoched file found!');
+                 disp([ssSubjPath(ss) '/' fcp1_output.trial_cfgHM]);
                 % data where artifacts were also rejected
-                elseif config.cleaningOptions.artifact.rmNoisyTrls == 1
+             elseif config.cleaningOptions.artifact.rmNoisyTrls == 1
                     samples = loadjson([ssSubjPath(ss) '/' fcp1_output.trial_cfg]);
                     cfg     = [];
                     cfg.trl = samples.trl;
                     disp('Epoched file found!');
                     disp([ssSubjPath(ss) '/' fcp1_output.trial_cfg]);
-                end
-            end
+             end
+             % load data
+             cfg.dataset = [paths.rawdata '/' subj_match.ds{ss}];
+
+             %%% FILTER DATA -----------------------------------------------------------
+             right_now = clock;
+             fprintf('%d:%d:%02.f       Filtering data...\n', right_now(4:6))
+
+             cfg.channel     = config.filteringParameters.channel;
+             cfg.dftfilter   = config.filteringParameters.dftfilter;
+             cfg.dftfreq     = config.filteringParameters.dftfreq;
+             cfg.bpfilter    = config.filteringParameters.bpfilter;
+             cfg.bpfreq      = config.filteringParameters.bpfreq;
+             cfg.bpfiltord   = config.filteringParameters.bpfiltord;
+             cfg.continuous  = 'yes';
+             dataFiltered = ft_preprocessing(cfg);
+             if exist([ssSubjPath(ss) '/' fcp1_output.grad_cfg] , 'file')
+                 right_now = clock;
+                 fprintf('%d:%d:%02.f       Loading gradiometer config from file...\n', right_now(4:6))
+
+                 dataFiltered.grad       = loadjson([ssSubjPath(ss) '/' fcp1_output.grad_cfg]);
+                 dataFiltered.hdr.grad   = dataFiltered.grad;
+             else
+                 warning('No modified gradiometer definitions found!');
+             end
+      
         else
             error('Epoched mat %s was not found', [ssSubjPath(ss) '/' fcp1_output.trial_cfg]);
         end
+    end
 
-        % load data
-        cfg.dataset = [paths.rawdata '/' subj_match.ds{ss}];
-
-    %%% FILTER DATA -----------------------------------------------------------
-        right_now = clock;
-        fprintf('%d:%d:%02.f       Filtering data...\n', right_now(4:6))
-
-        cfg.channel     = config.filteringParameters.channel;
-        cfg.dftfilter   = config.filteringParameters.dftfilter;
-        cfg.dftfreq     = config.filteringParameters.dftfreq;
-        cfg.bpfilter    = config.filteringParameters.bpfilter;
-        cfg.bpfreq      = config.filteringParameters.bpfreq;
-        cfg.bpfiltord   = config.filteringParameters.bpfiltord;
-        cfg.continuous  = 'yes';
-        dataFiltered = ft_preprocessing(cfg);
 
     %%% ACCOUNTING FOR GRADIOMETERS -------------------------------------------
-        if exist([ssSubjPath(ss) '/' fcp1_output.grad_cfg] , 'file')
-            right_now = clock;
-            fprintf('%d:%d:%02.f       Loading gradiometer config from file...\n', right_now(4:6))
 
-            dataFiltered.grad       = loadjson([ssSubjPath(ss) '/' fcp1_output.grad_cfg]);
-            dataFiltered.hdr.grad   = dataFiltered.grad;
-        else
-            warning('No modified gradiometer definitions found!');
-        end
 
         % synthetic 3rd order grads - for noise reduction in CTF no ref channels stored
         cfg             = [];
