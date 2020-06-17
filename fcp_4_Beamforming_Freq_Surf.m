@@ -62,83 +62,11 @@ rangeOFsubj = 1:length(subj_match.ds);
 for ss = rangeOFsubj
     %%% FOR EACH PARTICIPANT --------------------------------------------------
     fprintf('\nWorking on subject %s! \n', subj_match.pid{ss});
-
-
-    mripath = fullfile(surf_path,subj_match.pid{ss});
-    datapath = fullfile(mripath,'freesurfer/workbench');
-    freesurferpath = fullfile(mripath,'freesurfer/mri');
-
-    %%% LOAD ctf mri image - fiducials marked ---------------------------------
-    mri = ft_read_mri([paths.rawmri '/' subj_match.pid{ss} '_T1_V2.mri'])
-  
-    % check for fiducials
-    if any(mri.hdr.fiducial.mri.nas) == 0 || any(mri.hdr.fiducial.mri.lpa) == 0  || any(mri.hdr.fiducial.mri.rpa) == 0
-        error('No fiducials found for subject %s!', subj_match.pid{ss});
-    end
-
-    %%% LOAD FreeSurfer T1 ----------------------------------------------------
-    t1 = ft_read_mri([freesurferpath,'/norm.mgz']);
-    t1 = ft_determine_coordsys(t1,'interactive', 'no');
-    %rasa
-
-    %%% Register FreeSurfer T1 -> CTR MRI (sensor space) -----------------------
-    cfg                     = [];
-    cfg.method        = 'spm';
-    cfg.spmversion  = 'spm12';
-    cfg.coordsys      = 'ctf';
-    cfg.viewresult    = 'yes';
-    %ft_volumerealign(cfg, mri, target)
-    mri_t12ctf = ft_volumerealign(cfg, t1, mri);
-
-    %save transform
-    transform_t12ctf = mri_t12ctf.transform; 
-    save(fullfile(mripath,sprintf('%s_transform_t12ctf_n',subj_match.pid{ss})), 'transform_t12ctf');
-
-
-    %save registered volume
-    %%
-    cfg          = [];
-    cfg.filename = fullfile(mripath,sprintf('%s_t12ctf_n', subj_match.pid{ss}));
-    cfg.filetype = 'nifti';
-    cfg.parameter = 'anatomy';
-    ft_volumewrite(cfg, mri_t12ctf);
-
-    transform_surf2mri = mri_t12ctf.transform/mri_t12ctf.transformorig;
-
-    %%% Load in FreeSurfer surfaces -----------------------
-    filename = fullfile(datapath,[subj_match.pid{ss},'.L.midthickness.8k_fs_LR.surf.gii']);
-    sourcemodel_8korig = ft_read_headshape({filename, strrep(filename, '.L.', '.R.')});
-
-    sourcemodel_8k = ft_transform_geometry(transform_surf2mri, sourcemodel_8korig);
-    sourcemodel_8k.inside = sourcemodel_8k.atlasroi>0;
-    sourcemodel_8k = rmfield(sourcemodel_8k, 'atlasroi');
-    
-    %%% Create Headmodel -------------------------------
-
-    %load template_grid (can create your own template grid)
-    % NOTE: the path to the template file is user-specific
-    a = load(fullfile(pathsS.ftpath, 'template/sourcemodel/standard_sourcemodel3d10mm'));
-    template_grid = a.sourcemodel;
-    % %clear sourcemodel;
-
-    %%
-    % segment the anatomical CTF MRI
-    cfg        = [];
-    cfg.output = 'brain';
-    seg        = ft_volumesegment(cfg, mri);
-
-    %%
-    % construct the volume conductor model (i.e. head model) for each subject   
-    % this is optional, and for the purpose of this tutorial only required for
-    % plotting, later on
-    cfg        = [];
-    cfg.method = 'singleshell'; %config.beamforming.headmodel.method;
-    headmodel  = ft_prepare_headmodel(cfg, seg);
-
-    %%% Save Headmodel and surface 8k -------------------------------
-    save(fullfile(mripath,sprintf('%s_sourcemodel_8k',subj_match.pid{ss})), 'sourcemodel_8k');
-    save(fullfile(mripath,sprintf('%s_hdm',subj_match.pid{ss})), 'headmodel');
-
+ 
+    %%% Load Headmodel and surface 8k -------------------------------
+    load(fullfile(ssSubjPath(ss),sprintf('/%s_sourcemodel_4k.mat',subj_match.pid{ss})),'-mat', 'sourcemodel_4k');
+    load(fullfile(ssSubjPath(ss),sprintf('/%s_hdm.mat',subj_match.pid{ss})), '-mat','headmodel');
+ 
      %%% LOAD MEG DATA ---------------------------------------------------------
     load([ssSubjPath(ss) '/ft_meg_fullyProcessed.mat'],'-mat','data');
 
@@ -149,7 +77,7 @@ for ss = rangeOFsubj
         ft_plot_mesh(ft_convert_units(sourcemodel_8k, 'mm'),'vertexcolor',sourcemodel_8k.sulc);
         ft_plot_sens(data.grad);
         view([0 -90 0])
-
+    sourcemodel_4k = ft_convert_units(sourcemodel_4k, 'cm');
     %%% Compute the leadfield ----------------------------------------------------
     cfg             = [];
     cfg.grid        = sourcemodel_8k;
@@ -192,8 +120,11 @@ for ss = rangeOFsubj
     source = ft_sourceanalysis(cfg, freq)
 
 
-    % save results
-    save([ssSubjPath(ss) '/ft_meg_source'],'source','-v7.3')
-    save([ssSubjPath(ss) '/ft_meg_freq'],'freq','-v7.3')
+    % save results - Need to modify
+    save(fullfile(ssSubjPath(ss),sprintf('/%s_meg_sourcemodel_4k_%s',subj_match.pid{ss},'gamma1')), 'source');
+    save(fullfile(ssSubjPath(ss),sprintf('/%s_meg_freq_%s',subj_match.pid{ss},'gamma1')), 'freq');
+
+    %save([ssSubjPath(ss) '/ft_meg_source'],'source','-v7.3')
+    %save([ssSubjPath(ss) '/ft_meg_freq'],'freq','-v7.3')
 
 end
