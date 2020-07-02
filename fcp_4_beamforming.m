@@ -91,7 +91,7 @@ template_grid       = ft_prepare_sourcemodel(cfg);
 %   hold on
 %   ft_plot_vol(template_headmodel, 'facecolor', 'cortex', 'edgecolor', 'none');alpha 0.5; camlight;
 %   ft_plot_mesh(template_grid.pos(template_grid.inside,:));
-% 
+
 % % VISUALIZATION: ALIGNMENT ----------------------------------------------
 
 % %% load atlas and create a binary mask
@@ -189,12 +189,12 @@ for ss = rangeOFsubj
 %    coords             = sourcemodel.pos;
 
 %%% VISUALIZATION: TISSUE PROBABILITY MAPS --------------------------------
-%%% make a figure of the single subject headmodel, and grid positions
+% %% make a figure of the single subject headmodel, and grid positions
 %     figure; hold on;
 %     ft_plot_vol(hdm, 'edgecolor', 'none', 'facealpha', 0.4);
 %     ft_plot_mesh(grid.pos(grid.inside,:));
-
-%%% check alignment of source model and head model and save as image
+% 
+% %% check alignment of source model and head model and save as image
 %     figure
 %     hold on;
 %     ft_plot_vol(hdm,'edgecolor','none','facecolor', 'cortex'); % plot head model
