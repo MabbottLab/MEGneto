@@ -60,13 +60,18 @@ for ss = 1:length(subj_match.ds)
             data.trial{tt}(kk,:) = catmatrix(:,tt,kk);
         end
     end
+    
+    %%% Get baseline power from -1.5s to -1s
+    
+    
+    %%% Timewindow analysis
     fprintf('Onto the timewindow analysis!\n')
     cfg             = [];
     cfg.output      = 'pow';
     cfg.channel     = 'all';
     cfg.trials      = 'all';
     cfg.taper       = 'hanning';
-    cfg.foi         = [1:100];        
+    cfg.foi         = [2:2:100];        
     cfg.method = 'mtmconvol';
     cfg.t_ftimwin = 4 ./cfg.foi;
     cfg.toi         = -1.5:0.05:1.5;    
@@ -76,10 +81,16 @@ for ss = 1:length(subj_match.ds)
         pow_spctrm = NaN(length(subj_match.ds), num_sources, length(cfg.foi), length(cfg.toi));
     end
     
+    %%% baseline correct
+    cfg                 = [];
+    cfg.baseline        = [-1.5 -1];
+    cfg.baselinetype    = 'relative';
+    freq                = ft_freqbaseline(cfg, freq);
+
     pow_spctrm(ss,:,:,:) = freq.powspctrm;
 end 
 
-save([paths.anout_grp '/fcp_5_powspctrm.mat'],'pow_spctrm','-mat','-v7.3')
+save([paths.anout_grp '/fcp_5_powspctrm_blcorrected.mat'],'pow_spctrm','-mat','-v7.3')
 
 
 end
