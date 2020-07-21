@@ -142,7 +142,8 @@ elseif type.viz == 4
 
     for region = 1:90
         peak_power = zeros(height(subj_match), length(timewindows));
-        peak_power(sub2ind([52,61], [1:52]', squeeze(all_max_tw(:,region, type.freq_band)))) = 1;
+        peak_power(sub2ind([size(subj_match,1),length(timewindows)], [1:size(subj_match,1)]', ...
+            squeeze(all_max_tw(:,region, type.freq_band)))) = 1;
         peak_power(:,31) = 0.5;
         imagesc(peak_power)
         ax = gca;
