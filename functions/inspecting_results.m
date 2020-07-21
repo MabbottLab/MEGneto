@@ -71,26 +71,31 @@ elseif type.viz == 2 % plot
     end
         
     for seed = type.seeds
-        for p = 1:size(this_spctrm,1)
-            plot(squeeze(this_spctrm(p,seed,:)))
-            ax = gca;
-            ax.XTick = 11:10:61;
-            ax.XTickLabel = timewindows(11:10:61);
-            xlabel('Timewindows')
-            ylabel('Relative power')
-            if size(this_spctrm,1) == 1
-                title(sprintf('%s power over time in %s, grouping: %s', ...
-                    type.freq_name, atlas.textdata{seed,2}, type.ppts), ...
-                    'Interpreter', 'none')
-            elseif size(this_spctrm,1) == 2
-                title(sprintf('%s power over time in %s, grouping: %s', ...
-                    type.freq_name, atlas.textdata{seed,2}, groups.Properties.VariableNames{p}), ...
-                    'Interpreter', 'none')
-            else
-                title(sprintf('%s power over time in %s, Participant %s', ...
-                    type.freq_name, atlas.textdata{seed,2}, subj_match.pid{p}), ...
-                    'Interpreter', 'none')
+        if size(this_spctrm,1) == 1 || size(this_spctrm,1) > 2
+            for p = 1:size(this_spctrm,1)
+                plot(squeeze(this_spctrm(p,seed,:)))
+                ax = gca;
+                ax.XTick = 11:10:61;
+                ax.XTickLabel = timewindows(11:10:61);
+                xlabel('Timewindows')
+                ylabel('Relative power')
+                if size(this_spctrm,1) == 1
+                    title(sprintf('%s power over time in %s, grouping: %s', ...
+                        type.freq_name, atlas.textdata{seed,2}, type.ppts), ...
+                        'Interpreter', 'none')
+                else
+                    title(sprintf('%s power over time in %s, Participant %s', ...
+                        type.freq_name, atlas.textdata{seed,2}, subj_match.pid{p}), ...
+                        'Interpreter', 'none')
+                end
+                pause;
             end
+        elseif size(this_spctrm,1) == 2
+            plot(timewindows, squeeze(this_spctrm(:,seed,:)))
+            title(sprintf('%s power over time in %s', ...
+                type.freq_name, atlas.textdata{seed,2}), ...
+                'Interpreter', 'none')
+            legend("Patients", "Controls")
             pause;
         end
     end
