@@ -1,4 +1,4 @@
-function [p, observeddifference] = permutationTest(sample1, sample2, permutations, varargin)
+function [p_pos, p_neg, observeddifference, randomdifferences] = permutationTest(sample1, sample2, permutations, varargin)
 
 % parsing input
 p = inputParser;
@@ -17,29 +17,28 @@ parse(p, sample1, sample2, permutations, varargin{:})
 sample1 = rmmissing(p.Results.sample1);
 sample2 = rmmissing(p.Results.sample2);
 permutations = p.Results.permutations;
-sidedness = p.Results.sidedness;
-exact = p.Results.exact;
-plotresult = p.Results.plotresult;
-showprogress = p.Results.showprogress;
 
 allobservations = [sample1, sample2];
 num_variables = size(allobservations,1);
 num_participants = size(allobservations,2);
 [~, ~, ~, stats_observed] = ttest2(sample1', sample2');
-observeddifference = abs(stats_observed.tstat);
+observeddifference = stats_observed.tstat;
 
 % running test
 randomdifferences = zeros(1, permutations);
-for n = 1:permutations
+parfor n = 1:permutations
     permutation = cell2mat(arrayfun(@randperm, ones(size(allobservations,1),1)*(size(allobservations,2)), 'UniformOutput', false));
-    linear_indices = sub2ind(size(permutation), repmat([1:num_participants]', num_variables, 1), permutation(:));
+    linear_indices = sub2ind(size(permutation), repmat([1:num_variables]', num_participants, 1), permutation(:));
     randSample = reshape(allobservations(linear_indices), size(allobservations));
     
     % saving differences between the two samples
-    [~, ~, ~, stats] = ttest2(randSample(:,1:size(sample1,2))', randSample(:,1:size(sample2,2))');
-    randomdifferences(n) = max(abs(stats.tstat));
+    [~, ~, ~, stats] = ttest2(randSample(:,1:size(sample1,2))', randSample(:,(size(sample1,2)+1):num_participants)');
+    [~,extreme] = max(abs(stats.tstat));
+    randomdifferences(n) = stats.tstat(extreme);
 end
 
-p = arrayfun(@(x) sum(randomdifferences > x)/5000, observeddifference);
+p_pos = arrayfun(@(x) (sum(randomdifferences > x)+1)/(permutations+1), observeddifference);
+p_neg = arrayfun(@(x) (sum(randomdifferences < x)+1)/(permutations+1), observeddifference);
+
 
 end
