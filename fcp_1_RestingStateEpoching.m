@@ -75,7 +75,7 @@ for ss = 1:length(subj_match.ds) % for each participant
     cfg                      = [];
     cfg.continuous           = 'yes';
     cfg.dataset              = [paths.rawdata '/' subj_match.ds{ss}]; 
-    cfg.trialfun             = config.taskFunc; % rest_trialfun.m
+    cfg.trialfun             = config.task.taskFunc; % rest_trialfun.m
     cfg.trialdef.triallength = config.epoching.period;
     cfg.trialdef.overlap     = 0.5; % proportion overlap
     cfg.trialdef.endbound    = last_sample;
@@ -160,7 +160,7 @@ for ss = 1:length(subj_match.ds) % for each participant
         cfg.trials              = setdiff(1:fcp1_output.numtrls{ss,1}, unique([rejected_artfct_trls; rejected_HM_trls]))';
         cfg.demean              = 'yes';
         data                    = ft_preprocessing(cfg, data_RAW_EPOCHED);
-        
+        data.trl                = data_epoched.trl(cfg.trials,:);
         
 %%% SAVE CLEANED, EPOCHED DATA (need to decide which format) --------------
         % save as *.mat

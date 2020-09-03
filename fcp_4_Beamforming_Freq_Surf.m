@@ -1,4 +1,4 @@
-function fcp_4_Beamforming_Freq_Surf(paths, surf_path, )
+function fcp_4_Beamforming_Freq_Surf(paths, surf_path)
 
 % fcp_4_Beamforming_Freq_Surf does the following:
 % 1) registers CTF mri files with already processed
@@ -70,21 +70,23 @@ for ss = rangeOFsubj
      %%% LOAD MEG DATA ---------------------------------------------------------
     load([ssSubjPath(ss) '/ft_meg_fullyProcessed.mat'],'-mat','data');
 
-    %% VISUALIZATION: Headmodel and Surfaces --------------------------------
-    figure;
-        % make the headmodel surface transparent
-        ft_plot_headmodel(headmodel, 'edgecolor', 'none'); alpha 0.9
-        ft_plot_mesh(ft_convert_units(sourcemodel_8k, 'mm'),'vertexcolor',sourcemodel_8k.sulc);
-        ft_plot_sens(data.grad);
-        view([0 -90 0])
+%     %% VISUALIZATION: Headmodel and Surfaces --------------------------------
+%     figure;
+%         % make the headmodel surface transparent
+%         ft_plot_headmodel(headmodel, 'edgecolor', 'none'); alpha 0.9
+%         ft_plot_mesh(ft_convert_units(sourcemodel_4k, 'cm'),'vertexcolor',sourcemodel_4k.sulc);
+%         ft_plot_sens(data.grad);
+%         view([0 -90 0])
+
+    %% Prepare for beamforming
+    
     sourcemodel_4k = ft_convert_units(sourcemodel_4k, 'cm');
     %%% Compute the leadfield ----------------------------------------------------
     cfg             = [];
-    cfg.grid        = sourcemodel_8k;
+    cfg.grid        = sourcemodel_4k;
     cfg.headmodel   = headmodel;
-    cfg.channel     = {'MEG'};
+    % cfg.channel     = {'MEG'};
     lf              = ft_prepare_leadfield(cfg, data);
-
 
     %%% Spectral analysis ---------------------------------------------------------
     % Compute sensor level Fourier spectra, to be used for cross-spectral density computation
@@ -95,13 +97,15 @@ for ss = rangeOFsubj
     cfg.tapsmofrq   = config.beamforming.freqDomain.tapsmofrq; %1;
     cfg.foi         = config.beamforming.freqDomain.foi; %10
     cfg.keeptrials  = config.beamforming.options.keeptrials; %'yes'
-    %wpli only
-    % cfg.t_ftimwin = ones(length(cfg.foi),1).*0.5; %length of time window in seconds = 0.5s
-    % cfg.toi     = 0:0.05:1.5; %the times of which the analysis windows should be centered (in seconds) from 0 to 6.99s in steps of 0.05
     
-    freq           = ft_freqanalysis(cfg,data)
-
-
+    % check whether conn method is wPLI
+    if contains(config.connectivity.method, "wPLI")
+        cfg.t_ftimwin = ones(length(cfg.foi),1).*0.5; %length of time window in seconds = 0.5s
+        cfg.toi       = 0:0.05:1.5; %the times of which the analysis windows should be centered (in seconds) from 0 to 6.99s in steps of 0.05
+    end
+    
+    % actual frequency analysis
+    freq           = ft_freqanalysis(cfg, data);
 
     %%% Forward Model ---------------------------------------------------------
     % Use a cortical sheeet based source model, in which individual dipole locations 
@@ -110,15 +114,14 @@ for ss = rangeOFsubj
     % Source reconstructrion    
     cfg                 = [];
     cfg.frequency       = freq.freq;
-    cfg.method           = config.beamforming.method; % eloreta or pcc (coh)
+    cfg.method          = config.beamforming.method; % eloreta or pcc (coh)
     cfg.grid            = lf;
     cfg.headmodel       = headmodel;
     cfg.keeptrials      = 'yes';
-    cfg.lambda      = '10%';
-    cfg.projectnoise = 'yes';
-    cfg.fixedori    ='yes';  
-    source = ft_sourceanalysis(cfg, freq)
-
+    cfg.lambda          = '10%';
+    cfg.projectnoise    = 'yes';
+    cfg.fixedori        = 'yes';  
+    source              = ft_sourceanalysis(cfg, freq);
 
     % save results - Need to modify
     save(fullfile(ssSubjPath(ss),sprintf('/%s_meg_sourcemodel_4k_%s',subj_match.pid{ss},'gamma1')), 'source');

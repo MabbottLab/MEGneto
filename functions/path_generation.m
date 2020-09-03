@@ -64,12 +64,11 @@ else % otherwise, define the rest of the paths struct
     % individual MRI data paths
     paths = struct2table(paths);
     
-    all_participants = glob([paths.rawmri '/*.hdr']); % DELETE THIS LINE AFTER TESTING
-    % all_participants = glob([paths.rawmri '/*.mri']);
+    all_participants = glob([paths.rawmri '/*.mri']);
     pids = cell(length(all_participants),1);
     for ii = 1:length(all_participants)        
-        pids{ii} = all_participants{ii}(length(paths.rawmri)+2:end-8); %need to fix for different naming conventions
-        all_participants{ii} = [paths.anout '/' all_participants{ii}(length(paths.rawmri)+2:end-8)];
+        pids{ii} = all_participants{ii}(length(paths.rawmri)+2:end-10); %need to fix for different naming conventions
+        all_participants{ii} = [paths.anout '/' all_participants{ii}(length(paths.rawmri)+2:end-10)];
         
 %         pids{ii} = all_participants{ii}(length(paths.rawmri)+2:end-10); %need to fix for different naming conventions
 %         all_participants{ii} = [paths.anout '/' all_participants{ii}(length(paths.rawmri)+2:end-10)];

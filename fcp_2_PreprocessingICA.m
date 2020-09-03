@@ -126,7 +126,7 @@ for ss = rangeOFsubj %1:rangeOFsubj
              cfg.bpfreq      = config.filteringParameters.bpfreq;
              cfg.bpfiltord   = config.filteringParameters.bpfiltord;
              cfg.continuous  = 'yes';
-             dataFiltered = ft_preprocessing(cfg);
+             dataFiltered    = ft_preprocessing(cfg);
              if exist([ssSubjPath(ss) '/' fcp1_output.grad_cfg] , 'file')
                  right_now = clock;
                  fprintf('%d:%d:%02.f       Loading gradiometer config from file...\n', right_now(4:6))
@@ -167,7 +167,7 @@ for ss = rangeOFsubj %1:rangeOFsubj
 end
 
 % remove participants
-pid_fcp1    = readtable(paths.subj_fcp1_match); % get fcp_1 ppts
+pid_fcp1    = readtable(paths.subj_fcp1_match, 'Delimiter', ','); % get fcp_1 ppts
 pid_fcp1    = pid_fcp1.pid; % in a struct format for comparison
 pid_fcp2    = subj_match.pid; % get fcp_2 ppts
 match_func  = cellfun(@(x) ismember(x, pid_fcp2), pid_fcp1, 'UniformOutput', 0);
