@@ -52,87 +52,115 @@ end
 
 %% PARTICIPANT MODELS
 
-rangeOFsubj = 1:length(subj_match.ds)
+rangeOFsubj = 1:length(subj_match.ds);
 
+%%% FOR EACH PARTICIPANT --------------------------------------------------
 for ss = rangeOFsubj
-     %%% FOR EACH PARTICIPANT --------------------------------------------------
     fprintf('\nWorking on subject %s! \n', subj_match.pid{ss});
  
-    %%% LOAD DATA ---------------------------------------------------------
-%     load(fullfile(ssSubjPath(ss),sprintf('/%s_meg_sourcemodel_8k_%s',subj_match.pid{ss},'alpha.mat')),'-mat','source');
-    load(fullfile(ssSubjPath(ss),sprintf('/%s_meg_sourcemodel_4k_%s',subj_match.pid{ss},'gamma1.mat')),'-mat','source');
-    load(fullfile(ssSubjPath(ss),sprintf('/%s_meg_freq_%s',subj_match.pid{ss},'gamma1.mat')),'-mat' ,'freq');
-%% compute connectivity
-% Compute connectivity matrix between all pairs of dipoles 
-% 1) compute imaginary part of the coherency, cfg.method = 'coh'; cfg.complex = 'absimag'
-% will return only the imaginary part of the coherence spectrum and effectivly suppress
-% spurious coherence driven by electromagnetic field spread (Nolte et al. (2004). Clinical Neurophysiology. 115. 2292-2307)
-% source -> contains single trial estimates of amplitude and phase at the source-level (pcc and fourier)
-cfg         = [];
-cfg.method  = 'coh';
-cfg.complex = 'absimag';
-source_conn = ft_connectivityanalysis(cfg, source);
+    % figure out which frequency band
+    switch config.beamforming.freqDomain.foi
+        case 5
+            freq_name = 'theta';
+        case 10
+            freq_name = 'alpha';
+        case 20
+            freq_name = 'beta';
+        case 30
+            freq_name = 'gamma';
+    end
 
-% figure; imagesc(source_conn.cohspctrm);
+    % load source file: contains single trial estimates of amplitude and phase at the source-level (pcc and fourier)
+    load(fullfile(ssSubjPath(ss),sprintf('/%s_meg_sourcemodel_4k_%s',subj_match.pid{ss},freq_name)),'-mat','source');
+    
+%% CONNECTIVITY
 
-%%% Parcellate  -------------------------------
-switch atlas_type
+%%% CONNECTIVITY BETWEEN PAIRWISE DIPOLES ---------------------------------
+    %  Obtains the imaginary part of the coherency. Note that 
+    %               cfg.method = 'coh'     OR 
+    %               cfg.complex = 'absimag'
+    %  will return only the imaginary part of the coherence spectrum and 
+    %  effectively suppress spurious coherence driven by electromagnetic field 
+    %  spread (Nolte et al. (2004). Clinical Neurophysiology. 115. 2292-2307)
+    cfg         = [];
+    cfg.method  = 'coh';
+    cfg.complex = 'absimag';
+    source_conn = ft_connectivityanalysis(cfg, source);
 
-    case 'mmp1'
-    % using multi-modal parcellation of human cerebral cortex (Glasser et al (2016). Nature. 536. 171)
-    %load atlas_MMP1.0_4k.
-        template    = '/home/megneto/data/sbells/atlas_MMP1.0_4k.mat';
-        load(template,'-mat', 'atlas');
-        atlas.pos = source_conn.pos;
+%%% QUICK VIZ: CONNECTIVITY MATRIX BETWEEN ALL SOURCES---------------------
+    %   figure; imagesc(source_conn.cohspctrm);
 
-    case 'a2009s'
-    %read participants atlas
-        mripath = fullfile(surf_path,subj_match.pid{ss});
-        datapath = fullfile(mripath,'freesurfer/');
-        file_annotation = fullfile(datapath,'/label/lh.aparc.a2009s.annot');
-        file_mesh = fullfile(datapath,'/surf/lh.pial');
-        atlas = ft_read_atlas({file_annotation, file_mesh},'format','freesurfer_a2009s');
-    otherwise 
-        ft_error('unsupported format "%s"', atlas_type);
+%%% INTERPOLATE TO PARCELLATION -------------------------------------------
 
-end
+    % load parcellation
+    switch atlas_type
 
-% this is when general atlas used
-cfg                 = [];
-cfg.parcellation    = 'parcellation';
-cfg.parameter       = 'cohspctrm';
-atlas.pos           = source_conn.pos;
-parc_conn           = ft_sourceparcellate(cfg, source_conn, atlas);
+        case 'mmp1' 
+        % using multi-modal parcellation of human cerebral cortex (Glasser et al (2016). Nature. 536. 171)
+        % load atlas_MMP1.0_4k.
+            template    = '/home/megneto/data/sbells/atlas_MMP1.0_4k.mat';
+            load(template,'-mat', 'atlas');
+            atlas.pos   = source_conn.pos;
 
-figure;imagesc(parc_conn.cohspctrm);
+        case 'a2009s'
+        % read participants atlas from FreeSurfer aparc segmentation
+            mripath         = fullfile(surf_path,subj_match.pid{ss});
+            datapath        = fullfile(mripath,'freesurfer/');
+            file_annotation = fullfile(datapath,'/label/lh.aparc.a2009s.annot');
+            file_mesh       = fullfile(datapath,'/surf/lh.pial');
+            atlas           = ft_read_atlas({file_annotation, file_mesh},'format','freesurfer_a2009s');
 
-%%% Network analysis  -------------------------------
-% It is not clear what the effect of the residual spatial leakage of activity is on the estimates of some of these measures
-% , so caution should be used interpreting graph metrics derived from connectivity matrices, particularly when 
-% comparing groups of experimental participants or experimental conditions
-% cfg.method = 'degrees' -> with threshold cfg.threshold = 0.1 -> results in an estimate of the 'node degree' 
-% amound of nodes with which a particular node has an estimated connectivity of 0.1 or higher
-% 
-cfg           = [];
-cfg.method    = 'degrees';
-cfg.parameter = 'cohspctrm';
-cfg.threshold = .1;
-% network_full = ft_networkanalysis(cfg,source_conn);
-network_parc = ft_networkanalysis(cfg,parc_conn);
+        otherwise 
+            ft_error('unsupported format "%s"', atlas_type);
 
-% save results
-save(fullfile(ssSubjPath(ss),sprintf('/%s_%s_parc',subj_match.pid{ss},'coh_gamma1_a2009s')), 'parc_conn');
-% save(fullfile(ssSubjPath(ss),sprintf('/%s_%s_%_parc',subj_match.pid{ss},'coh','degree')), 'network_parc');
+    end
 
-% visualize
-cfg               = [];
-cfg.method        = 'surface';
-cfg.funparameter  = 'degrees';
-cfg.funcolormap   = 'jet';
-% ft_sourceplot(cfg, network_full);
-% view([-150 30]);
-ft_sourceplot(cfg, network_parc);
-view([-150 30]);
+    % ACTUAL PARCELLATION
+    %   currently only set up for the general atlas, where the parcellation
+    %   already has the same number of dipoles as in the parcellation
+    cfg                 = [];
+    cfg.parcellation    = 'parcellation'; % struct field of the parcellation
+    cfg.parameter       = 'cohspctrm'; % which parameter to parcellate
+    parc_conn           = ft_sourceparcellate(cfg, source_conn, atlas);
+
+    % visualize new connectivity matrix
+    figure;imagesc(parc_conn.cohspctrm);
+
+%% Network analysis
+
+%  It is not clear what the effect of the residual spatial leakage of 
+%  activity is on the estimates of some of these measures, so caution should 
+%  be used interpreting graph metrics derived from connectivity matrices, 
+%  particularly when comparing groups of experimental participants or 
+%  experimental conditions.
+
+%  cfg.method = 'degrees' -> with threshold cfg.threshold = 0.1
+%      ---> results in an estimate of the 'node degree' of nodes with which 
+%           a particular node has an estimated connectivity of 0.1 or higher
+
+    cfg           = [];
+    cfg.method    = 'degrees';
+    cfg.parameter = 'cohspctrm';
+    cfg.threshold = 0.1;
+    network_parc = ft_networkanalysis(cfg,parc_conn);
+    save(fullfile(ssSubjPath(ss), ... % save the results
+         sprintf('/%s_%s_parc',subj_match.pid{ss},'coh_', freq_name, '_a2009s')), 'parc_conn');
+
+%%% OPTIONAL: COMPARE TO NETWORK ANALYSIS BASED ON FULL CONN MATRIX--------
+%   % later, if you want to compare network_parc to full version for
+%   % probing spatial leakage
+%   network_full = ft_networkanalysis(cfg, source_conn);
+%   save(fullfile(ssSubjPath(ss),sprintf('/%s_%s_%_parc',subj_match.pid{ss},'coh','degree')), 'network_parc');
+
+%%% VISUALIZATION ---------------------------------------------------------
+    cfg               = [];
+    cfg.method        = 'surface';
+    cfg.funparameter  = 'degrees';
+    cfg.funcolormap   = 'jet';
+    % ft_sourceplot(cfg, network_full);
+    % view([-150 30]);
+    ft_sourceplot(cfg, network_parc);
+    view([-150 30]);
 
 end
 
