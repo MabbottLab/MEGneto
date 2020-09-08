@@ -1,15 +1,41 @@
 function fcp_1_RestingStateEpoching(paths)
 
+% FCP_1_RESTINGSTATEEPOCHING will epoch MEG data into trials as specified
+% by time interval and sliding window size.
+% 
+% NOTES:
+%   - Ensure that subj_fcp1.csv is populated with the subject IDs of
+%   included participants. 
+%   - Desired parameters should be defined in the JSON config file.
+%   User should double-check that the JSON config file is populated
+%   appropriately, especially if a template JSON was copied over. 
+%
+% INPUTS:
+%   paths               =   struct defining paths to data, participant
+%                           folders, analysis folders, config files, etc. 
+%
+% OUTPUTS:
+%   fcp1_output         = struct with locations of output files
+%
+% See also: DS_PID_MATCH, WRITE_MATCH_IF_NOT_EMPTY, PLOTTRIGGERS, 
+%           HEADMOTIONTOOL, DETECTBADCHANNELS
+
+% Last updated by: Julie Tseng, 2020-09-08
+%   This file is part of MEGneto, see https://github.com/SonyaBells/MEGneto
+%   for the documentation and details.
+
 
 %% SET UP LOGGING FILE
-right_now = clock;
-log_filename = [paths.conf_dir '/log_' sprintf('%d%d%d', right_now(1:3))];
+
+right_now           = clock;
+log_filename        = [paths.conf_dir '/log_' sprintf('%d%d%d', right_now(1:3))];
 diary(log_filename)
 
 fprintf('\n\n%d:%d:%02.f       Now running **%s**.\n', ...
     right_now(4:6), mfilename)
 
 %% SETUP: LOAD CONFIG, PARTICIPANTS, CHECK FOR FULL DATASET, OUTPUTS
+
 % load config JSON with analysis parameters
 config      = load_config(paths, paths.name);
 config      = config.config;
@@ -30,32 +56,24 @@ if length(unique(subj_match.pid)) ~= length(subj_match.pid)
 end
 
 % initialize output files
-% images
-fcp1_output.fig_headmotion  = 'headmotion.png';
-% data at various stages of cleaning
-fcp1_output.trial_cfg       = 'ft_meg_trl_cfg.json';
-% fcp1_output.trial_cfgHM     = 'ft_meg_trl_cfgHM.json';
-fcp1_output.grad_cfg        = 'ft_meg_grad_cfg.json';
-% record keeping
-fcp1_output.subj_epochInfo  = 'subj_epoching_info.mat';
-fcp1_output.group_rmBadChan = 'group_rmBadChan.json';
+    % images
+        fcp1_output.fig_headmotion  = 'headmotion.png';
+    % data at various stages of cleaning
+        fcp1_output.trial_cfg       = 'ft_meg_trl_cfg.json';
+        % fcp1_output.trial_cfgHM     = 'ft_meg_trl_cfgHM.json';
+        fcp1_output.grad_cfg        = 'ft_meg_grad_cfg.json';
+    % record keeping
+        fcp1_output.subj_epochInfo  = 'subj_epoching_info.mat';
+        fcp1_output.group_rmBadChan = 'group_rmBadChan.json';
 
-%%% Preprocessing - Epoching -------------------------------------
+%% EPOCHING
 
 for ss = 1:length(subj_match.ds) % for each participant
     
     fprintf('\n\n==================================\n...DS_FILE: %s\nSUBJECT: %s\n', ...
         subj_match.ds{ss}, subj_match.pid{ss});
 
-    
-%     cfg           = [];
-%     cfg.dataset     = [paths.rawdata '/' subj_match.ds{ss}]; 
-%     cfg.savemat     = 'no';
-%     cfg.linefreq  = 60;
-%     cfg.plotunit  = 300;
-%     ft_qualitycheck(cfg)
-%     
-%%% EPOCHING Resting State-----------------------------------------------
+%%% EPOCHING --------------------------------------------------------------
     fprintf('Epoching into Segments...\n')
     
     % load raw data
@@ -77,14 +95,14 @@ for ss = 1:length(subj_match.ds) % for each participant
     cfg.dataset              = [paths.rawdata '/' subj_match.ds{ss}]; 
     cfg.trialfun             = config.task.taskFunc; % rest_trialfun.m
     cfg.trialdef.triallength = config.epoching.period;
-    cfg.trialdef.overlap     = 0.5; % proportion overlap
+    cfg.trialdef.overlap     = config.epoching.overlap; % proportion overlap
     cfg.trialdef.endbound    = last_sample;
     data_epoched             = ft_definetrial(cfg); 
     
     % prep data struct for artifact detection
     cfg                      = [];
     cfg.length               = config.epoching.period;
-    cfg.overlap              = 0.5;
+    cfg.overlap              = config.epoching.overlap;
     data_RAW_EPOCHED         = ft_redefinetrial(cfg, data);
      
     % record number of trials
@@ -206,6 +224,7 @@ save_to_json(fcp1_output, [paths.conf_dir '/fcp1_output.json'], true);
 disp('Done FCP_1.');
 
 %% turn off diary
+
 right_now = clock;
 fprintf('%d:%d:%02.f       Done running **%s**.\n', ...
     right_now(4:6), mfilename)
