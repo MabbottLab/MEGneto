@@ -1,0 +1,138 @@
+{
+    "config" : {
+        "epoching" : {
+            "period" : 30,
+            "totalTime" : 120,
+            "headMotion" : {
+                "thr" : 10
+            }
+        },
+        "cleaningOptions" : {
+            "artifact" : {
+                "detection" : 1,
+                "rejection" : "complete",
+                "muscle" : {
+                    "bpfilter"    : "yes",
+                    "bpfreq"      : [110, 140],
+                    "bpfiltord"   : 8,
+                    "bpfilttype"  : "but",
+                    "hilbert"     : "yes",
+                    "boxcar"      : 0.2,
+                    "cutoff"      : 30,
+                    "trlpadding"  : 0.5,
+                    "fltpadding"  : 0.1,
+                    "artpadding"  : 0.1
+                },
+                "jump" : {
+                    "cutoff" : 35
+                },
+                "icaClean" : 1,
+                "rmNoisyTrials" : 1
+            },
+            "rmBadChannels" : 1
+        },
+        "filteringParameters" : {
+            "channel"    : ["MEG", "MEGREF", "REFGRAD", "REFMAG"], 
+            "dftfilter"  : "yes",                 
+            "dftfreq"    : [60, 120],           
+            "bpfilter"   : "yes",                 
+            "bpfreq"     : [1, 150],
+            "bpfiltord"  : 5,                  
+            "sampleRate" : 300,               
+            "CTFlayout"  : "CTF151.lay"
+        },
+        "taskFunc": {
+            "function": "@searchTaskTrialFun",
+            "type": "anonymous",
+            "file": "",
+            "workspace": [
+                {
+                }
+            ],
+            "within_file_path": "__base_function"
+        },
+        "task" : {
+            "isRest" : 0,
+            "trialdef" : {
+                "details" : {
+                    "name" : ["Correct"],
+                    "includeOnce" : [""],
+                    "exclude" : [""], 
+                    "include" : ["Correct"],
+                    "countOnly" : false
+                },
+                "light" : {
+                	"avgStartThresh" : [-0.5, 0.96]
+                },
+                "parameters" : {
+                    "t0shift" : 0.023,
+                    "tEpoch" : [-2.0, 2.0 ]
+                },
+                "markers" : {
+                    "Correct" : ["LeftCorrect", "RightCorrect"],
+                    "Incorrect" : ["LeftIncorrect", "RightIncorrect"],
+                    "t0marker" : "OfflineLightOn",
+                    "newTrig" : ["Hit"]
+                }
+            }
+        },
+	"beamforming" : {
+		"headmodel" : {
+			"method" : "singleshell",
+			"units" : "cm"
+		},
+		"template" : {
+			"grid" : {
+				"resolution" : 1,
+				"tight" : "yes",
+				"inwardshift" : -0.8
+			},
+			"coordsys" : "spm"
+		},
+		"atlas" : {
+			"filepath" : "/template/atlas/aal/ROI_MNI_V4.nii",
+			"inputcoord" : "mni"
+		},
+		"checkMRIvolumes" : {
+			"method" : "slice",
+			"slicesdim" : 2,
+			"nslices" : 20,
+			"funparameter" : "pow"
+		},
+		"subj" : {
+			"grid" : {
+				"warpmni": "yes",
+				"nonlinear": "yes",
+				"unit": "cm"
+			}
+		},
+		"leadfield" : {
+			"reducerank" : "no",
+			"normalize" : "no" 
+		},
+		"timeDomain" : {
+			"covariance" : "yes",
+			"covariancewindow" : "all",
+			"vartrllength" : 2, 
+			"projectmom" : "yes"
+		},
+		"options" : {
+			"keeptrials" : "yes",
+			"keepfilter" : "yes",
+			"rawtrial" : "yes"		
+		},
+		"method" : "lcmv"
+	},
+	"connectivity" : {
+		"method" : "wpli_debiased",
+		"filt_freqs" : [
+				[4,7],
+				[8,12],
+				[13,29],
+				[30,59],
+				[60,100]
+				],
+		"collapse_band" : "max"
+		}
+	}    
+}
