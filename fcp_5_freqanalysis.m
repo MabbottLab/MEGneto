@@ -61,9 +61,6 @@ for ss = 1:length(subj_match.ds)
         end
     end
     
-    %%% Get baseline power from -1.5s to -1s
-    
-    
     %%% Timewindow analysis
     fprintf('Onto the timewindow analysis!\n')
     cfg             = [];

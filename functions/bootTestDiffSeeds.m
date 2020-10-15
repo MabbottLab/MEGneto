@@ -1,4 +1,4 @@
-function res = bootTestDiffSeeds(paths, seed_regions, freq_band, num_bootstraps)
+function [res, rand_diffs] = bootTestDiffSeeds(paths, seed_regions, freq_band, num_bootstraps)
 
 fprintf("FREQ. BAND: %s\n", freq_band)
 

@@ -81,7 +81,6 @@ end
         fcp1_output.group_rmBadChan = 'group_rmBadChan.json';
 
 %% EPOCHING
-
 for ss = 1:length(subj_match.ds) % for each participant
     
     fprintf('\n\n==================================\n...DS_FILE: %s\nSUBJECT: %s\n', ...
