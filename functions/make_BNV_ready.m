@@ -43,6 +43,7 @@ function make_BNV_ready(paths, brainnet)
 %                           - col 5 = sphere colour
 %                           - col 6 = region label
 
+
 % IMPORTANT: 
 %   CURRENTLY MAINLY WORKS FOR 'NBS'
 %   NOTE FOR PLS:
@@ -57,14 +58,19 @@ function make_BNV_ready(paths, brainnet)
     
 %% setup
 
-% output directory
-brainnet.ouput_dir      = [paths.anout '/' brainnet.file_name '/'];
+if strcmp(brainnet.netmetric, 'nbs')
+    % output directory
+    brainnet.ouput_dir      = [paths.anout '/' brainnet.file_name '/'];
+    
+    % load nbs results file
+    load(char(glob([paths.anout '/' brainnet.file_name '/*' brainnet.fb_interest '_' brainnet.nbs_type '*'])))
 
-% load nbs results file
-load(char(glob([paths.anout '/' brainnet.file_name '/*' brainnet.fb_interest '_' brainnet.nbs_type '*'])))
-
-% load the NBS data matrix
-load(char(glob([paths.anout '/' brainnet.file_name '/*' brainnet.fb_interest '_Hz.mat'])))
+    % load the NBS data matrix
+    load(char(glob([paths.anout '/' brainnet.file_name '/*' brainnet.fb_interest '_Hz.mat'])))
+    
+elseif strcmp(brainnet.netmetric, 'maxT')
+    load([paths.anout '/NBS_treatmenttype/NBS' brainnet.fb_interest '_Hz.mat']) % load data corresponding to freq band
+end
 
 % get difference between groups
 diff_groupadjmat = mean(data_matrix(:,:,brainnet.grp{1}),3) - ...
@@ -77,6 +83,14 @@ if strcmp(brainnet.netmetric,'pls')
     sig_nodes   = cat(3,thresholded_saliences > 0,thresholded_saliences < 0);
 elseif strcmp(brainnet.netmetric,'nbs')
     sig_nodes   = full(nbs.NBS.con_mat{1,1}+nbs.NBS.con_mat{1,1}');
+elseif strcmp(brainnet.netmetric,'maxT')
+    sig_nodes   = zeros(90,90);
+    for i = 1:length(brainnet.maxT_NOI)
+        if length(brainnet.maxT_NOI{i}) > 1
+            sig_nodes(brainnet.maxT_NOI{i}(1), brainnet.maxT_NOI{i}(2:end)) = 1;
+        end
+    end
+    sig_nodes = sig_nodes + sig_nodes';
 end
 
 % isolate only nodes we want to look at
@@ -95,6 +109,8 @@ if strcmp(brainnet.netmetric,'pls')
     dlmwrite([brainnet.ouput_dir brainnet.fb_interest '_neg.edge'],sig_nodes(:,:,2),'delimiter',' ','precision','%d');
 elseif strcmp(brainnet.netmetric,'nbs')
     dlmwrite([brainnet.ouput_dir brainnet.fb_interest '.edge'],sig_nodes(noi,noi),'delimiter',' ','precision','%d');
+elseif strcmp(brainnet.netmetric,'maxT')
+    dlmwrite([paths.anout '/NBS_treatmenttype/NBS' brainnet.fb_interest '_maxT.edge'],sig_nodes(noi,noi),'delimiter',' ','precision','%d');
 end
 
 %% NODE FILE
@@ -157,7 +173,7 @@ if strcmp(brainnet.netmetric,'pls')
         node_size(1,:)              = mask_pos; 
         node_size(2,:)              = mask_neg;
     end
-elseif strcmp(brainnet.netmetric,'nbs')
+elseif strcmp(brainnet.netmetric,'nbs') | strcmp(brainnet.netmetric, 'maxT')
     if brainnet.size_nodes == 1 % size of each node identical
         node_size                   = ones(1,size(sig_nodes(noi,noi),1));
     elseif brainnet.size_nodes == 2 % size based on group connectivity
@@ -197,6 +213,22 @@ elseif strcmp(brainnet.netmetric,'nbs')
     node_file                       = cat(2,num2cell(node_file),region_labels);
     % save .node file (convert from cell array to string array in order to save)
     fid                             = fopen([brainnet.ouput_dir brainnet.fb_interest '.node'],'wt');
+    for j = 1:size(node_file,1)
+        tmp_name                    = strsplit(region_labels{j,1},'_');
+        new_region_label            = strjoin(tmp_name,'.');
+        fprintf(fid,'%d\t%d\t%d\t%d\t%f\t%s\n',node_file{j,1},node_file{j,2},node_file{j,3},node_file{j,4},node_file{j,5},new_region_label);
+    end
+    fclose(fid);
+elseif strcmp(brainnet.netmetric, 'maxT')
+    % load sample nbs
+    load(['/mnt/sda/juanita/MEGneto/analysis/left/analysis/NBS_RAD_vs_TDC/RAD_vs_TDC_Lgamma_extent.mat'])
+    
+    region_labels                   = nbs.NBS.node_label(noi);
+    node_file                       = cat(2,nbs.NBS.node_coor(noi,:),node_colour');
+    node_file                       = cat(2,node_file,node_size); 
+    node_file                       = cat(2,num2cell(node_file),region_labels);
+    % save .node file (convert from cell array to string array in order to save)
+    fid                             = fopen([paths.anout '/NBS_treatmenttype/NBS' brainnet.fb_interest '_maxT.node'],'wt');
     for j = 1:size(node_file,1)
         tmp_name                    = strsplit(region_labels{j,1},'_');
         new_region_label            = strjoin(tmp_name,'.');

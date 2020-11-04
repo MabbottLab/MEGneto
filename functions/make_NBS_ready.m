@@ -65,7 +65,6 @@ for ff = 1:num_freqs % range freq save
 end
 
 %% make design matrix for NBS
-% modified from Julie Sato's NBS script (written by Simeon Wong)
 
 design_matrix = [];
 for gg = 1:numGroups
