@@ -10,16 +10,16 @@ analysis_name = 'your_analysis_name';	% folder where outputs will go
 project_path = 'your_project_folder'; % folder where analysis folder will go (i.e., ~/project_folder/analysis/analysis_name/[config, analysis])
 rawdata_path = 'meg_path'; % folder where raw MEG data is
 mri_path = 'mri_path'; % folder where MRI data is
-megneto_path = 'megneto_path';
-fieldtrip_path = 'fieldtrip_path
+megneto_path = 'megneto_path'; 
+fieldtrip_path = 'fieldtrip_path';
 
 % add MEGneto and FieldTrip toolboxes
 addpath(genpath(megneto_path))
 addpath(fieldtrip_path)
-ft_defaults % fieldtrip function to add correct sub-folders
+ft_defaults; % fieldtrip function to add correct sub-folders
 
 % re-load your paths variable (input to each fcp step)
-paths = loadjson(strcat(project_path, '/analysis/', analysis_name, '/config/paths.json');
+paths = loadjson(strcat(project_path, '/analysis/', analysis_name, '/config/paths.json'));
 
 %%  fcp_0: setup
 %   This step involves defining paths to *.ds and *.mri data, as well as
@@ -51,7 +51,10 @@ paths = megne2setup(project_path, analysis_name, rawdata_path, mri_path, overwri
 
 % uncomment the following two lines if you'd like to auto-populate subj_fcp1.csv
 % MEG_ds = struct2table(dir(paths.rawdata)); % finds all MEG filenames
-% writecell(MEG_ds.name(3:(height(MEG_ds))), paths.('subj_fcp1')); % writes them to file
+% fid = fopen(paths.subj_fcp1, 'w'); % open subj_fcp1.csv
+% MEG_ds = MEG_ds.name(3:(height(MEG_ds))).'; % isolate only PIDs
+% fprintf(fid, '%s\n', MEG_ds{:}); % write each PID to file
+% fclose(fid) % close the file
 
 fcp_1_TaskEpoching(paths) % run first step
 
