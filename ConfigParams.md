@@ -14,20 +14,13 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
 Where: fcp_1_TaskEpoching.
 <br>
 Meaning: Epoch the data into trials
-  <br>
+  <br><br>
   1. Period
-  - where:
-  - meaning:
-  <br>
+    - where:
+    - meaning:
+  <br><br>
   2. Total time
-  - where:
-  - meaning:
-  <br>
+  <br><br>
   3. Head Motion
-    where:
-    meaning: 
     <br>
     a. threshold
-      - where: 
-      - meaning:
-</details>
