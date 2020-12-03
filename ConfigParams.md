@@ -103,6 +103,98 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                 <br>
                 Meaning: Configuration for muscle specifies how we want to deal with muscle artifacts 
               </details>
+              <br><br>
+                <ul>
+                  <!--CLEANING OPTIONS.ARTIFACT.MUSCLE.BPFILTER--> 
+                  <li>
+                    <details>
+                      <summary>Period</summary>
+                      Where: fcp_1_RestingStateEpoching, line 97
+                      <br>
+                      Meaning: Indicates epoch length for epoching resting state data
+                    </details>
+                  </li>
+                  <!--CLEANING OPTIONS.ARTIFACT.MUSCLE.BPFREQ--> 
+                  <li>
+                    <details>
+                      <summary>Period</summary>
+                      Where: fcp_1_RestingStateEpoching, line 97
+                      <br>
+                      Meaning: Indicates epoch length for epoching resting state data
+                    </details>
+                  </li>
+                  <!--CLEANING OPTIONS.ARTIFACT.MUSCLE.BPFILTORD--> 
+                  <li>
+                    <details>
+                      <summary>Period</summary>
+                      Where: fcp_1_RestingStateEpoching, line 97
+                      <br>
+                      Meaning: Indicates epoch length for epoching resting state data
+                    </details>
+                  </li>
+                  <!--CLEANING OPTIONS.ARTIFACT.MUSCLE.BPFILTTYPE--> 
+                  <li>
+                    <details>
+                      <summary>Period</summary>
+                      Where: fcp_1_RestingStateEpoching, line 97
+                      <br>
+                      Meaning: Indicates epoch length for epoching resting state data
+                    </details>
+                  </li>
+                  <!--CLEANING OPTIONS.ARTIFACT.MUSCLE.HILBERT--> 
+                  <li>
+                    <details>
+                      <summary>Period</summary>
+                      Where: fcp_1_RestingStateEpoching, line 97
+                      <br>
+                      Meaning: Indicates epoch length for epoching resting state data
+                    </details>
+                  </li>
+                  <!--CLEANING OPTIONS.ARTIFACT.MUSCLE.BOXCAR--> 
+                  <li>
+                    <details>
+                      <summary>Period</summary>
+                      Where: fcp_1_RestingStateEpoching, line 97
+                      <br>
+                      Meaning: Indicates epoch length for epoching resting state data
+                    </details>
+                  </li>
+                  <!--CLEANING OPTIONS.ARTIFACT.MUSCLE.CUTOFF--> 
+                  <li>
+                    <details>
+                      <summary>Period</summary>
+                      Where: fcp_1_RestingStateEpoching, line 97
+                      <br>
+                      Meaning: Indicates epoch length for epoching resting state data
+                    </details>
+                  </li>
+                  <!--CLEANING OPTIONS.ARTIFACT.MUSCLE.TRLPADDING--> 
+                  <li>
+                    <details>
+                      <summary>Period</summary>
+                      Where: fcp_1_RestingStateEpoching, line 97
+                      <br>
+                      Meaning: Indicates epoch length for epoching resting state data
+                    </details>
+                  </li>
+                  <!--CLEANING OPTIONS.ARTIFACT.MUSCLE.FLTPADDING--> 
+                  <li>
+                    <details>
+                      <summary>Period</summary>
+                      Where: fcp_1_RestingStateEpoching, line 97
+                      <br>
+                      Meaning: Indicates epoch length for epoching resting state data
+                    </details>
+                  </li>
+                  <!--CLEANING OPTIONS.ARTIFACT.MUSCLE.ARTPADDING--> 
+                  <li>
+                    <details>
+                      <summary>Period</summary>
+                      Where: fcp_1_TaskEpoching in artifact detection, setting up the cfg to call “ft_artifact_muscle” 
+                      <br>
+                      Meaning: Often, artifacts start/end a bit later than what is detected by the artifact detection system. Thus artifact padding is used to extend the artifact timeperiod on either side.
+                    </details>
+                  </li>
             </li> 
             <!--CLEANING OPTIONS.ARTIFACT.JUMP--> 
             <li>
