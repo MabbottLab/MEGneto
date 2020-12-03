@@ -280,7 +280,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
      <!--FILTERING PARAMETERS.DFTFREQ--> 
       <li>
         <details>
-          <summary>DFTFREQ</summary>
+          <summary>Dftfreq</summary>
           Where: fcp_2_PreprocessingICA in setting up cfg for ft_preprocessing
           <br>
           Meaning: Indicates whether the frequency to filter out is 50 or 60Hz. 
@@ -298,7 +298,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
       <!--FILTERING PARAMETERS.BPFREQ--> 
       <li>
         <details>
-          <summary>Bpfreq<summary>
+          <summary>Bpfreq</summary>
           Where: fcp_2_PreprocessingICA in setting up cfg for ft_preprocessing
           <br>
           Meaning: [x,y] to specify what frequency band the filter should be
