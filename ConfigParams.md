@@ -26,6 +26,7 @@ Meaning: Epoch the data into trials
   3. Head Motion
     where:
     meaning: 
+    <br>
     a. threshold
       - where: 
       - meaning:
