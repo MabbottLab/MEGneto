@@ -624,6 +624,25 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
           Where: fcp_1_TaskEpoching
           <br>
           Meaning: Specifics for initial handling of head motion
+          <ul>
+          <!--BEAMFORMING.ATLAS.FILEPATH--> 
+          <li>
+            <details>
+              <summary>Filepath</summary>
+              Where: fcp_1_RestingStateEpoching, line 97
+              <br>
+              Meaning: Indicates epoch length for epoching resting state data
+            </details>
+          </li>
+          <!--BEAMFORMING.ATLAS.INPUTCOORD--> 
+          <li>
+            <details>
+              <summary>Inputcoord</summary>
+              Where: fcp_1_RestingStateEpoching, line 97
+              <br>
+              Meaning: Indicates epoch length for epoching resting state data
+            </details>
+          </li></ul>
         </details>
        </li>
        <!--BEAMFORMING.CHECKMRIVOLUMES--> 
