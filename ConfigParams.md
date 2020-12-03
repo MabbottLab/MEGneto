@@ -18,14 +18,35 @@ Meaning: Epoch the data into trials
   <ul><li>
     <details>
       <summary>Period</summary>
-      Where:
+      Where: fcp_1_RestingStateEpoching, line 97
       <br>
-      Meaning:
+      Meaning: Indicates epoch length for epoching resting state data
     </details>
     </li>
     
-  <li>Total time</li>
-  
-  <li>Head motion</li></ul>
-  
+  <li>
+    <details>
+      <summary>Total time</summary>
+      Where: Nowhere
+      <br>
+      Meaning: Relic from an older resting state epoch strategy. 
+    </details>
+    </li>
+    
+  <li>
+    <details>
+      <summary>Head motion</summary>
+      Where: fcp_1_TaskEpoching
+      <br>
+      Meaning: Specifics for initial handling of head motion
+      <br><ul><li>
+        <details>
+        <summary>Threshold</summary>
+        Where: fcp_1_TaskEpoching in head motion correction
+        <br>
+        Meaning: Threshold for which to reject trials with head motion 
+        </details>
+      </li></ul>
+    </details>
+    </li></ul>
 </details>
