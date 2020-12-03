@@ -14,6 +14,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
 Where: fcp_1_TaskEpoching.
 <br>
 Meaning: Epoch the data into trials
+  <br>
   1. Period
   - where:
   - meaning:
