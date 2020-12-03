@@ -773,6 +773,43 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
           Where: fcp_1_TaskEpoching
           <br>
           Meaning: Specifics for initial handling of head motion
+          <ul>
+           <!--BEAMFORMING.TIMEDOMAIN.COVARIANCE--> 
+            <li>
+              <details>
+                <summary>Covariance</summary>
+                Where:
+                <br>
+                Meaning:
+              </details>
+             </li>
+             <!--BEAMFORMING.TIMEDOMAIN.COVARIANCEWINDOW--> 
+            <li>
+              <details>
+                <summary>Covariancewindow</summary>
+                Where:
+                <br>
+                Meaning:
+              </details>
+             </li>
+             <!--BEAMFORMING.TIMEDOMAIN.VARTRLLENGTH--> 
+            <li>
+              <details>
+                <summary>Vartrllength</summary>
+                Where:
+                <br>
+                Meaning:
+              </details>
+             </li>
+             <!--BEAMFORMING.TIMEDOMAIN.PROJECTMOM--> 
+             <li>
+              <details>
+                <summary>Projectmom</summary>
+                Where:
+                <br>
+                Meaning:
+              </details>
+             </li></ul>
         </details>
        </li>
        <!--BEAMFORMING.OPTIONS--> 
@@ -782,6 +819,34 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
           Where: fcp_1_TaskEpoching
           <br>
           Meaning: Specifics for initial handling of head motion
+          <ul>
+           <!--BEAMFORMING.OPTIONS.KEEPTRIALS--> 
+            <li>
+              <details>
+                <summary>Keeptrials</summary>
+                Where:
+                <br>
+                Meaning:
+              </details>
+             </li>
+             <!--BEAMFORMING.OPTIONS.KEEPFILTER--> 
+            <li>
+              <details>
+                <summary>Keepfilter</summary>
+                Where:
+                <br>
+                Meaning:
+              </details>
+             </li>
+             <!--BEAMFORMING.OPTIONS.RAWTRIAL--> 
+            <li>
+              <details>
+                <summary>Rawtrial</summary>
+                Where:
+                <br>
+                Meaning:
+              </details>
+            </li></ul>
         </details>
        </li>
        <!--BEAMFORMING.METHOD--> 
