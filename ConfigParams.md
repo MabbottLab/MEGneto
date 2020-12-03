@@ -378,3 +378,110 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
         </details>
       </li>
  </details>
+  
+ <!--TASK-->
+
+<details>
+  <summary>task</summary>
+  Where: fcp_1_TaskEpoching and fcp_2_PreprocessingICA
+  <br><br>
+    <ul>
+      <!--TASK.ISREST-->
+      <li>
+        <details>
+          <summary>Period</summary>
+          Where: fcp_1_RestingStateEpoching, line 97
+          <br>
+          Meaning: Indicates epoch length for epoching resting state data
+        </details>
+      </li>
+     <!--TASK.TRIALDEF--> 
+      <li>
+        <details>
+          <summary>Head motion</summary>
+          Where: fcp_1_TaskEpoching
+          <br>
+          Meaning: Specifics for initial handling of head motion
+          <br><br>
+            <ul>
+              <!--TASK.TRIALDEF.DETAILS--> 
+              <li>
+              <details>
+                <summary>Threshold</summary>
+                Where: fcp_1_TaskEpoching in head motion correction
+                <br>
+                Meaning: Threshold for which to reject trials with head motion 
+                <br><br>
+                <ul>
+                  <!--TASK.TRIALDEF.DETAILS.NAME--> 
+                  <li>
+                  <details>
+                    <summary>Threshold</summary>
+                    Where: fcp_1_TaskEpoching in head motion correction
+                    <br>
+                    Meaning: Threshold for which to reject trials with head motion 
+                    <br>  
+                  </li>
+                  <!--TASK.TRIALDEF.DETAILS.INCLUDEONCE--> 
+                  <li>
+                  <details>
+                    <summary>Threshold</summary>
+                    Where: fcp_1_TaskEpoching in head motion correction
+                    <br>
+                    Meaning: Threshold for which to reject trials with head motion 
+                    <br>  
+                  </li>
+                  <!--TASK.TRIALDEF.DETAILS.EXCLUDE--> 
+                  <li>
+                  <details>
+                    <summary>Threshold</summary>
+                    Where: fcp_1_TaskEpoching in head motion correction
+                    <br>
+                    Meaning: Threshold for which to reject trials with head motion 
+                    <br>  
+                  </li>
+                  <!--TASK.TRIALDEF.DETAILS.INCLUDE--> 
+                  <li>
+                  <details>
+                    <summary>Threshold</summary>
+                    Where: fcp_1_TaskEpoching in head motion correction
+                    <br>
+                    Meaning: Threshold for which to reject trials with head motion 
+                    <br>  
+                  </li>
+                  <!--TASK.TRIALDEF.DETAILS.COUNTONLY--> 
+                  <li>
+                  <details>
+                    <summary>Threshold</summary>
+                    Where: fcp_1_TaskEpoching in head motion correction
+                    <br>
+                    Meaning: Threshold for which to reject trials with head motion 
+                    <br>  
+                  </li>
+                </ul>
+              </details>
+            <!--TASK.TRIALDEF.LIGHT--> 
+            <li>
+              <details>
+               <summary>Threshold</summary>
+               Where: fcp_1_TaskEpoching in head motion correction
+               <br>
+               Meaning: Threshold for which to reject trials with head motion 
+            <!--TASK.TRIALDEF.PARAMETERS--> 
+            <li>
+              <details>
+               <summary>Threshold</summary>
+               Where: fcp_1_TaskEpoching in head motion correction
+               <br>
+               Meaning: Threshold for which to reject trials with head motion 
+             <!--TASK.TRIALDEF.MARKERS--> 
+             <li>
+              <details>
+               <summary>Threshold</summary>
+               Where: fcp_1_TaskEpoching in head motion correction
+               <br>
+               Meaning: Threshold for which to reject trials with head motion 
+            </li></ul>
+        </details>
+ </details>
+ 
