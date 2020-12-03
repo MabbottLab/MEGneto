@@ -9,3 +9,18 @@ Where: sendEmail function is called at the end of each fcp_# step, and contact i
 <br>
 Meaning: Email address to which to send pipeline’s progress updates (contained in square brackets, [ ])
 </details>
+
+<details>
+<summary>Epoching</summary>
+<br>
+Where: fcp_1_TaskEpoching.
+<br>
+Meaning: Epoch the data into trials
+  <details>
+  <summary>Period</summary>
+  <br>
+  Where: fcp_1_RestingStateEpoching, line 97
+  <br>
+  Meaning: Indicates epoch length for epoching resting state data
+  </details>
+</details>
