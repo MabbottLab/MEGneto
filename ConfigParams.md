@@ -15,8 +15,17 @@ Where: fcp_1_TaskEpoching.
 <br>
 Meaning: Epoch the data into trials
 <br><br>
-  <ul><li>Period</li>
+  <ul><li>
+    <details>
+      <summary>Period</summary>
+      Where:
+      <br>
+      Meaning:
+    </details>
+    </li>
+    
   <li>Total time</li>
+  
   <li>Head motion</li></ul>
   
 </details>
