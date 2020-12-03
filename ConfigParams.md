@@ -45,7 +45,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
           Where: fcp_1_TaskEpoching
           <br>
           Meaning: Specifics for initial handling of head motion
-          <br>
+          <br><br>
             <ul><li>
               <details>
                 <summary>Threshold</summary>
