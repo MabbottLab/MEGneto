@@ -102,7 +102,6 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                 Where: fcp_1_TaskEpoching in artifact detection, setting up the cfg to call “ft_artifact_muscle”
                 <br>
                 Meaning: Configuration for muscle specifies how we want to deal with muscle artifacts 
-              </details>
               <br><br>
                 <ul>
                   <!--CLEANING OPTIONS.ARTIFACT.MUSCLE.BPFILTER--> 
@@ -195,6 +194,8 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                       Meaning: Often, artifacts start/end a bit later than what is detected by the artifact detection system. Thus artifact padding is used to extend the artifact timeperiod on either side.
                     </details>
                   </li>
+                </ul>
+              </details>
             </li> 
             <!--CLEANING OPTIONS.ARTIFACT.JUMP--> 
             <li>
