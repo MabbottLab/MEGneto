@@ -523,4 +523,114 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
             </li></ul>
         </details>
  </details>
+  
+<!--BEAMFORMING-->
+
+<details>
+  <summary>Beamforming</summary>
+  Where: fcp_1_TaskEpoching.
+  <br>
+  Meaning: Epoch the data into trials
+  <br><br>
+    <ul>
+      <!--BEAMFORMING.HEADMODEL--> 
+      <li>
+        <details>
+          <summary>Headmodel</summary>
+          Where: fcp_1_RestingStateEpoching, line 97
+          <br>
+          Meaning: Indicates epoch length for epoching resting state data
+          <ul>
+          <!--BEAMFORMING.HEADMODEL.METHOD--> 
+          <li>
+            <details>
+              <summary>Method</summary>
+              Where: fcp_1_RestingStateEpoching, line 97
+              <br>
+              Meaning: Indicates epoch length for epoching resting state data
+          </li>
+          <!--BEAMFORMING.HEADMODEL.UNITS--> 
+          <li>
+            <details>
+              <summary>Units</summary>
+              Where: fcp_1_RestingStateEpoching, line 97
+              <br>
+              Meaning: Indicates epoch length for epoching resting state data
+         </li></ul>
+        </details>
+      </li>
+       <!--BEAMFORMING.TEMPLATE--> 
+      <li>
+        <details>
+          <summary>Template</summary>
+          Where: Nowhere
+          <br>
+          Meaning: Relic from an older resting state epoch strategy. 
+        </details>
+      </li>
+      <!--BEAMFORMING.ATLAS--> 
+      <li>
+        <details>
+          <summary>Atlas</summary>
+          Where: fcp_1_TaskEpoching
+          <br>
+          Meaning: Specifics for initial handling of head motion
+        </details>
+       </li>
+       <!--BEAMFORMING.CHECKMRIVOLUMES--> 
+       <li>
+        <details>
+          <summary>checkMRIvolumes</summary>
+          Where: fcp_1_TaskEpoching
+          <br>
+          Meaning: Specifics for initial handling of head motion
+        </details>
+       </li>
+       <!--BEAMFORMING.SUBJ--> 
+       <li>
+        <details>
+          <summary>Subj</summary>
+          Where: fcp_1_TaskEpoching
+          <br>
+          Meaning: Specifics for initial handling of head motion
+        </details>
+       </li>
+       <!--BEAMFORMING.LEADFIELD--> 
+       <li>
+        <details>
+          <summary>Leadfield</summary>
+          Where: fcp_1_TaskEpoching
+          <br>
+          Meaning: Specifics for initial handling of head motion
+        </details>
+       </li>
+       <!--BEAMFORMING.TIMEDOMAIN--> 
+       <li>
+        <details>
+          <summary>TimeDomain</summary>
+          Where: fcp_1_TaskEpoching
+          <br>
+          Meaning: Specifics for initial handling of head motion
+        </details>
+       </li>
+       <!--BEAMFORMING.OPTIONS--> 
+       <li>
+        <details>
+          <summary>Options</summary>
+          Where: fcp_1_TaskEpoching
+          <br>
+          Meaning: Specifics for initial handling of head motion
+        </details>
+       </li>
+       <!--BEAMFORMING.METHOD--> 
+       <li>
+        <details>
+          <summary>Method</summary>
+          Where: fcp_1_TaskEpoching
+          <br>
+          Meaning: Specifics for initial handling of head motion
+        </details>
+      </li></ul>
+ </details>
+ 
  
