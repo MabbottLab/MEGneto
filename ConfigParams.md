@@ -390,72 +390,58 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
       <li>
         <details>
           <summary>isRest</summary>
-          Where: fcp_1_RestingStateEpoching, line 97
+          Where: fcp_2_PreprocessingICA when we load subject specific data 
           <br>
-          Meaning: Indicates epoch length for epoching resting state data
+          Meaning: “0” or “1” to indicate whether or not we are dealing with rest data 
         </details>
       </li>
      <!--TASK.TRIALDEF--> 
       <li>
         <details>
           <summary>Trialdef</summary>
-          Where: fcp_1_TaskEpoching
-          <br>
-          Meaning: Specifics for initial handling of head motion
+          Where: fcp_1_Task_Epoching for setting up the cfg for epoching (used in search TaskTrialFun in detail) and Fcp_5_freqanalysis and Fcp_5_task_Connectivity
           <br><br>
             <ul>
               <!--TASK.TRIALDEF.DETAILS--> 
               <li>
               <details>
                 <summary>Details</summary>
-                Where: fcp_1_TaskEpoching in head motion correction
-                <br>
-                Meaning: Threshold for which to reject trials with head motion 
+                Where: searchTaskTrialFun
                 <br><br>
                 <ul>
                   <!--TASK.TRIALDEF.DETAILS.NAME--> 
                   <li>
                   <details>
                     <summary>Name</summary>
-                    Where: fcp_1_TaskEpoching in head motion correction
-                    <br>
-                    Meaning: Threshold for which to reject trials with head motion 
+                    Where: searchTaskTrialFun
                     <br>  
                   </li>
                   <!--TASK.TRIALDEF.DETAILS.INCLUDEONCE--> 
                   <li>
                   <details>
                     <summary>includeOnce</summary>
-                    Where: fcp_1_TaskEpoching in head motion correction
-                    <br>
-                    Meaning: Threshold for which to reject trials with head motion 
+                    Where: searchTaskTrialFun
                     <br>  
                   </li>
                   <!--TASK.TRIALDEF.DETAILS.EXCLUDE--> 
                   <li>
                   <details>
                     <summary>Exclude</summary>
-                    Where: fcp_1_TaskEpoching in head motion correction
-                    <br>
-                    Meaning: Threshold for which to reject trials with head motion 
+                    Where: searchTaskTrialFun
                     <br>  
                   </li>
                   <!--TASK.TRIALDEF.DETAILS.INCLUDE--> 
                   <li>
                   <details>
                     <summary>Include</summary>
-                    Where: fcp_1_TaskEpoching in head motion correction
-                    <br>
-                    Meaning: Threshold for which to reject trials with head motion 
+                    Where: searchTaskTrialFun
                     <br>  
                   </li>
                   <!--TASK.TRIALDEF.DETAILS.COUNTONLY--> 
                   <li>
                   <details>
                     <summary>countOnly</summary>
-                    Where: fcp_1_TaskEpoching in head motion correction
-                    <br>
-                    Meaning: Threshold for which to reject trials with head motion 
+                    Where: searchTaskTrialFun
                     <br>  
                   </li>
                 </ul>
@@ -464,17 +450,13 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
             <li>
               <details>
                <summary>Light</summary>
-               Where: fcp_1_TaskEpoching in head motion correction
-               <br>
-               Meaning: Threshold for which to reject trials with head motion
+               Where: Nowhere
                <ul>
                  <!--TASK.TRIALDEF.LIGHT.AVGSTARTTHRESH-->
                  <li>
                   <details>
                    <summary>avgstartThresh</summary>
-                   Where: fcp_1_TaskEpoching in head motion correction
-                   <br>
-                   Meaning: Threshold for which to reject trials with head motion
+                   Where: Nowhere
                   </details>
                  </li>
                 </ul>
@@ -483,26 +465,20 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
             <li>
               <details>
                <summary>Parameters</summary>
-               Where: fcp_1_TaskEpoching in head motion correction
-               <br>
-               Meaning: Threshold for which to reject trials with head motion
+               Where: searchTaskTrialFun and fcp_5_freqanalysis and fcp_5_taskconnectivity
                <ul>
                  <!--TASK.TRIALDEF.PARAMETERS.T0SHIFT--> 
                  <li>
                   <details>
                    <summary>T0shift</summary>
-                   Where: fcp_1_TaskEpoching in head motion correction
-                   <br>
-                   Meaning: Threshold for which to reject trials with head motion
+                   Where: searchTaskTrialFun 
                   </details>
                  </li>
                  <!--TASK.TRIALDEF.PARAMETERS.TEPOCH--> 
                  <li>
                   <details>
                    <summary>tEpoch</summary>
-                   Where: fcp_1_TaskEpoching in head motion correction
-                   <br>
-                   Meaning: Threshold for which to reject trials with head motion
+                   Where: searchTaskTrialFun AND Fcp_5_freqanalysis AND Fcp_5_task_Connectivity when reshaping catmatrix into acceptable format 
                   </details>
                  </li>
                 </ul>
@@ -511,44 +487,36 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
              <li>
               <details>
                <summary>Markers</summary>
-               Where: fcp_1_TaskEpoching in head motion correction
-               <br>
-               Meaning: Threshold for which to reject trials with head motion
+               Where: fcp_1_TaskEpoching
                <!--TASK.TRIALDEF.MARKERS.CORRECT--> 
                <ul>
                  <li>
                   <details>
                    <summary>Correct</summary>
-                   Where: fcp_1_TaskEpoching in head motion correction
-                   <br>
-                   Meaning: Threshold for which to reject trials with head motion
+                   Where: searchTaskTrialFun 
                   </details>
                  </li>
                  <!--TASK.TRIALDEF.MARKERS.INCORRECT--> 
                  <li>
                   <details>
                    <summary>Incorrect</summary>
-                   Where: fcp_1_TaskEpoching in head motion correction
-                   <br>
-                   Meaning: Threshold for which to reject trials with head motion
+                   Where: Nowhere
                   </details>
                  </li>
                  <!--TASK.TRIALDEF.MARKERS.T0MARKER--> 
                  <li>
                   <details>
                    <summary>T0marker</summary>
-                   Where: fcp_1_TaskEpoching in head motion correction
+                   Where: fcp_1_TaskEpoching when t0 markers are grabbed (the plotTriggers function) AND search TaskTrialFun
                    <br>
-                   Meaning: Threshold for which to reject trials with head motion
+                   Meaning: Specifies the event type to epoch around (eg. OfflneLightOn, LeftButtonPress, etc.)
                   </details>
                  </li>
                  <!--TASK.TRIALDEF.MARKERS.NEWTRIG--> 
                  <li>
                   <details>
                    <summary>newTrig</summary>
-                   Where: fcp_1_TaskEpoching in head motion correction
-                   <br>
-                   Meaning: Threshold for which to reject trials with head motion
+                   Where: Nowhere
                   </details>
                  </li></ul>
               </details>
