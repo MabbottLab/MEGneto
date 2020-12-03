@@ -652,6 +652,43 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
           Where: fcp_1_TaskEpoching
           <br>
           Meaning: Specifics for initial handling of head motion
+          <ul>
+          <!--BEAMFORMING.CHECKMRIVOLUMES.METHOD--> 
+          <li>
+            <details>
+              <summary>Method</summary>
+              Where: fcp_1_RestingStateEpoching, line 97
+              <br>
+              Meaning: Indicates epoch length for epoching resting state data
+            </details>
+          </li>
+          <!--BEAMFORMING.CHECKMRIVOLUMES.SLIDESDIM--> 
+          <li>
+            <details>
+              <summary>Slidesdim</summary>
+              Where: fcp_1_RestingStateEpoching, line 97
+              <br>
+              Meaning: Indicates epoch length for epoching resting state data
+            </details>
+          </li>
+          <!--BEAMFORMING.CHECKMRIVOLUMES.NSLICES--> 
+          <li>
+            <details>
+              <summary>Nslices</summary>
+              Where: fcp_1_RestingStateEpoching, line 97
+              <br>
+              Meaning: Indicates epoch length for epoching resting state data
+            </details>
+          </li>
+          <!--BEAMFORMING.CHECKMRIVOLUMES.FUNPARAMETER--> 
+          <li>
+            <details>
+              <summary>Funparameter</summary>
+              Where: fcp_1_RestingStateEpoching, line 97
+              <br>
+              Meaning: Indicates epoch length for epoching resting state data
+            </details>
+          </li></ul>
         </details>
        </li>
        <!--BEAMFORMING.SUBJ--> 
@@ -661,6 +698,44 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
           Where: fcp_1_TaskEpoching
           <br>
           Meaning: Specifics for initial handling of head motion
+          <ul>
+          <!--BEAMFORMING.SUBJ.GRID--> 
+          <li>
+            <details>
+              <summary>Grid</summary>
+              Where: fcp_1_RestingStateEpoching, line 97
+              <br>
+              Meaning: Indicates epoch length for epoching resting state data
+              <ul>
+              <!--BEAMFORMING.SUBJ.GRID.WARPMNI-->
+              <li>
+                <details>
+                  <summary>Warpmni</summary>
+                  Where: fcp_1_RestingStateEpoching, line 97
+                  <br>
+                  Meaning: Indicates epoch length for epoching resting state data
+                </details>
+              </li>
+              <!--BEAMFORMING.SUBJ.GRID.NONLINEAR-->
+              <li>
+                <details>
+                  <summary>Nonlinear</summary>
+                  Where: fcp_1_RestingStateEpoching, line 97
+                  <br>
+                  Meaning: Indicates epoch length for epoching resting state data
+                </details>
+              </li>
+              <!--BEAMFORMING.SUBJ.GRID.UNIT-->
+              <li>
+                <details>
+                  <summary>Unit</summary>
+                  Where: fcp_1_RestingStateEpoching, line 97
+                  <br>
+                  Meaning: Indicates epoch length for epoching resting state data
+                </details>
+              </li></ul>
+            </details>
+          </li></ul>
         </details>
        </li>
        <!--BEAMFORMING.LEADFIELD--> 
@@ -670,6 +745,25 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
           Where: fcp_1_TaskEpoching
           <br>
           Meaning: Specifics for initial handling of head motion
+          <ul>
+          <!--BEAMFORMING.LEADFIELD.REDUCERANK--> 
+          <li>
+            <details>
+              <summary>Reducerank</summary>
+              Where:
+              <br>
+              Meaning:
+            </details>
+           </li>
+           <!--BEAMFORMING.LEADFIELD.NORMALIZE--> 
+           <li>
+            <details>
+              <summary>Normalize</summary>
+              Where:
+              <br>
+              Meaning:
+            </details>
+           </li></ul>
         </details>
        </li>
        <!--BEAMFORMING.TIMEDOMAIN--> 
