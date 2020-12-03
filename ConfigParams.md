@@ -56,6 +56,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                 Meaning: Threshold for which to reject trials with head motion 
               </details>
             </li></ul>
+        </details>
  </details>
  
  <!--CLEANING OPTIONS-->
