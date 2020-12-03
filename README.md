@@ -138,6 +138,7 @@ Below is a sample image of the interactive user display for identifying bad ICA 
 ![](images/ICA_interaction_plot.PNG)
 
 After browsing the ICA components and noting which ones are bad, the user should return to the Matlab command prompt where they are asked to enter those components, as seen in the image below. The sample participant ID is thing image, ‘ST01’, represents the participant who is currently being analyzed. This is repeated for all participants. 
+
 ![](images/ICA_interaction_input.PNG)
 
 
