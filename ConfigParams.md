@@ -548,6 +548,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
               Where: fcp_1_RestingStateEpoching, line 97
               <br>
               Meaning: Indicates epoch length for epoching resting state data
+            </details>
           </li>
           <!--BEAMFORMING.HEADMODEL.UNITS--> 
           <li>
@@ -556,6 +557,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
               Where: fcp_1_RestingStateEpoching, line 97
               <br>
               Meaning: Indicates epoch length for epoching resting state data
+            </details>
          </li></ul>
         </details>
       </li>
@@ -565,7 +567,54 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
           <summary>Template</summary>
           Where: Nowhere
           <br>
-          Meaning: Relic from an older resting state epoch strategy. 
+          Meaning: Relic from an older resting state epoch strategy.
+          <ul>
+          <!--BEAMFORMING.TEMPLATE.GRID--> 
+          <li>
+            <details>
+              <summary>Grid</summary>
+              Where: fcp_1_RestingStateEpoching, line 97
+              <br>
+              Meaning: Indicates epoch length for epoching resting state data
+              <ul>
+                <!--BEAMFORMING.TEMPLATE.GRID.RESOLUTION--> 
+                <li>
+                  <details>
+                    <summary>Resolution</summary>
+                    Where: fcp_1_RestingStateEpoching, line 97
+                    <br>
+                    Meaning: Indicates epoch length for epoching resting state data
+                  </details>
+                </li>
+                <!--BEAMFORMING.TEMPLATE.TIGHT--> 
+                <li>
+                  <details>
+                    <summary>Tight</summary>
+                    Where: fcp_1_RestingStateEpoching, line 97
+                    <br>
+                    Meaning: Indicates epoch length for epoching resting state data
+                  </details>
+               </li>
+               <!--BEAMFORMING.TEMPLATE.TINWARDSHIFT--> 
+                <li>
+                  <details>
+                    <summary>Inwardshift</summary>
+                    Where: fcp_1_RestingStateEpoching, line 97
+                    <br>
+                    Meaning: Indicates epoch length for epoching resting state data
+                  </details>
+                </li></ul>
+            </details>
+          </li>
+          <!--BEAMFORMING.TEMPLATE.COORDSYS--> 
+          <li>
+            <details>
+              <summary>Coordsys</summary>
+              Where: fcp_1_RestingStateEpoching, line 97
+              <br>
+              Meaning: Indicates epoch length for epoching resting state data
+            </details>
+         </li></ul>
         </details>
       </li>
       <!--BEAMFORMING.ATLAS--> 
