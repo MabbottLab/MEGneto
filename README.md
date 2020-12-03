@@ -60,7 +60,7 @@ Note that the functions associated with the steps laid out below are found in th
 
 Output: Struct with path definitions.
 
-![](MEGneto/images/paths_struct.png)
+![](images/paths_struct.PNG)
 
 See also: 
 - `Path_generation.m` to generate path locations
