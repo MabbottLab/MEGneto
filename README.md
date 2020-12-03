@@ -60,6 +60,8 @@ Note that the functions associated with the steps laid out below are found in th
 
 Output: Struct with path definitions.
 
+![](images/paths_struct.png)
+
 See also: 
 - `Path_generation.m` to generate path locations
 - `Path_check.m` to check that all paths are properly initialized
