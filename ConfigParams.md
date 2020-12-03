@@ -246,8 +246,9 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
               </details>
             </li>
           </ul>
+    </details>
  </details>
-        
+  
  <!--FILTERING PARAMETERS-->
 
 <details>
