@@ -71,12 +71,15 @@ See also:
 `FCP_1_TASKEPOCHING.m` will epoch MEG data into trials depending on the desired marker, detect trials with excessive head motion, muscle/jump artifacts, and bad channels. However, the epoching only rejects trials for excessive head motion and muscle/jump artifacts. Bad channels are detected and recorded, but repaired later on in the pipeline, after the ICA process at the final stage of preprocessing.
 
 Output: A struct with output file names, and for each subject: the number of trials per subject, trials marked with head motion, trials marked with noise, number of removed trials, names of bad channels 
+![](images/config_JSON1.PNG)
+![](images/config_JSON2.PNG)
 
 Notes:
 - Ensure that subj_fcp1.csv is populated with the subject IDs of included participants.
 - Prior to running this step, all desired parameters should be defined in the JSON config file. The user should double-check that the JSON config file is populated appropriately, especially if a template JSON was copied over.
 - At the beginning of this step, a logging file for progress tracking is set up and matching MEG/MRI data is identified.
 - If the user wishes to browse the output of plot_triggers function (a plot), they must indicate “true” for ‘ShowFigure’ when the plot_triggers function is called. By default, this is set to ‘“false”. See the code snippet from fcp_1_taskepoching below for reference.
+![](images/showFigure_plotTriggers.PNG)
 
 See also: 
 - `ds_pid_match` to get the PIDs where there is matching MEG and MRI data
@@ -84,6 +87,7 @@ See also:
 - `write_match_if_not_empty` to write down the matching meg/mri data if they exist
 - `check_csv_has_empty` to check for empty values in the pid matches table
 - `plot_triggers` to plot trigger events that are present in the data over time
+![](images/plotTriggers.PNG)
 - `ft_read_event`  to generate an event list and isolare unique events
 - `ft_read_header` to read out information present in the header of the data 
 - `ft_definetrial` to epoch the data into trials
@@ -127,6 +131,13 @@ See also:
 - `ft_rejectcomponent` to backproject an ICA decomposition to the channel level after removing component that have artifacts
 - `disp_ica_chans.m` (at bottom of script) 
 - `ft_databrowser` to visually inspect the data
+
+Visualization of this step:
+![](images/ICA_interaction_plot.PNG)
+Interactive user display for identifying bad ICA components. Users can browse the components using the left and right arrow buttons, zoom in and out horizontally/vertically using the appropriate “+” and “-” buttons, and more. 
+
+![](images/ICA_interaction_input.PNG)
+After browsing the ICA components and noting which ones are bad, the user should return to the Matlab command prompt where they are asked to enter those components, as seen above. The ID above this line (here, ‘ST01’)  represents the participant who is currently being analyzed. This is repeated for all participants. 
 
 ### Channel Repair
 
