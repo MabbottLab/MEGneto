@@ -14,47 +14,43 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
 <!--EPOCHING-->
 
 <details>
-<summary>Epoching</summary>
-Where: fcp_1_TaskEpoching.
-<br>
-Meaning: Epoch the data into trials
-<br><br>
-  <ul>
-    
-    <!--EPOCHING.PERIOD-->
-    
-    <li>
-    <details>
-      <summary>Period</summary>
-      Where: fcp_1_RestingStateEpoching, line 97
-      <br>
-      Meaning: Indicates epoch length for epoching resting state data
-    </details>
-    </li>
-    
-  <li>
-    <details>
-      <summary>Total time</summary>
-      Where: Nowhere
-      <br>
-      Meaning: Relic from an older resting state epoch strategy. 
-    </details>
-    </li>
-    
-  <li>
-    <details>
-      <summary>Head motion</summary>
-      Where: fcp_1_TaskEpoching
-      <br>
-      Meaning: Specifics for initial handling of head motion
-      <br><ul><li>
+  <summary>Epoching</summary>
+  Where: fcp_1_TaskEpoching.
+  <br>
+  Meaning: Epoch the data into trials
+  <br><br>
+    <ul>
+      <li>
         <details>
-        <summary>Threshold</summary>
-        Where: fcp_1_TaskEpoching in head motion correction
-        <br>
-        Meaning: Threshold for which to reject trials with head motion 
+          <summary>Period</summary>
+          Where: fcp_1_RestingStateEpoching, line 97
+          <br>
+          Meaning: Indicates epoch length for epoching resting state data
         </details>
-      </li></ul>
-    </details>
-    </li></ul>
-</details>
+      </li>
+      <li>
+        <details>
+          <summary>Total time</summary>
+          Where: Nowhere
+          <br>
+          Meaning: Relic from an older resting state epoch strategy. 
+        </details>
+      </li>
+     <!--EPOCHING.PERIOD--> 
+      <li>
+        <details>
+          <summary>Head motion</summary>
+          Where: fcp_1_TaskEpoching
+          <br>
+          Meaning: Specifics for initial handling of head motion
+          <br>
+            <ul><li>
+              <details>
+                <summary>Threshold</summary>
+                Where: fcp_1_TaskEpoching in head motion correction
+                <br>
+                Meaning: Threshold for which to reject trials with head motion 
+              </details>
+            </li></ul>
+ </details>
+    
