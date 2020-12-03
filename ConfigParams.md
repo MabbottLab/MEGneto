@@ -14,33 +14,18 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
 Where: fcp_1_TaskEpoching.
 <br>
 Meaning: Epoch the data into trials
+  1. Period
+  - where:
+  - meaning:
   <br>
-  <details>
-  <summary>Period</summary>
-  Where: fcp_1_RestingStateEpoching, line 97
+  2. Total time
+  - where:
+  - meaning:
   <br>
-  Meaning: Indicates epoch length for epoching resting state data
-  </details>
-  
-  <details>
-  <summary>Total time</summary>
-  Where: Nowhere
-  <br>
-  Meaning: Relic from an older resting state epoch strategy. 
-  </details>
-  
-  <details>
-  <summary>Head motion</summary>
-  Where: fcp_1_TaskEpoching 
-  <br>
-  Meaning:Specifics for initial handling of head motion
-    <details> 
-    <summary>Threshold</summary>
-    Where: fcp_1_TaskEpoching in head motion correction
-    <br>
-    Meaning: Threshold for which to reject trials with head motion 
-    </details>
-    
-  </details>
-  
+  3. Head Motion
+    where:
+    meaning: 
+    a. threshold
+      - where: 
+      - meaning:
 </details>
