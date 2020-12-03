@@ -204,19 +204,19 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                 Where: fcp_1_TaskEpoching in artifact detection
                 <br>
                 Meaning: Specifies how we want to deal with jump artifacts
+                <br><br>
+                  <ul>
+                    <!--CLEANING OPTIONS.ARTIFACT.JUMP.CUTOFF--> 
+                    <li>
+                      <details>
+                        <summary>Cutoff</summary>
+                        Where: fcp_1_TaskEpoching in artifact detection
+                        <br>
+                        Meaning: Cutoff frequency indicating at what point the signal should be classified as a jump artifact 
+                      </details>
+                    </li>
+                </ul>
               </details>
-              <br><br>
-                <ul>
-                  <!--CLEANING OPTIONS.ARTIFACT.JUMP.CUTOFF--> 
-                  <li>
-                    <details>
-                      <summary>Cutoff</summary>
-                      Where: fcp_1_TaskEpoching in artifact detection
-                      <br>
-                      Meaning: Cutoff frequency indicating at what point the signal should be classified as a jump artifact 
-                    </details>
-                  </li>
-              </ul>
             </li>
             <!--CLEANING OPTIONS.ARTIFACT.ICACLEAN--> 
             <li>
