@@ -337,46 +337,44 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
 
 <details>
   <summary>taskFunc</summary>
-  Where: fcp_1_TaskEpoching.
-  <br>
-  Meaning: Epoch the data into trials
+  Where: fcp_1_Task_Epoching for setting up the cfg for epoching
   <br><br>
     <ul>
-      <!--EPOCHING.PERIOD--> 
+      <!--TASKFUNC.FUNCTION-->
       <li>
         <details>
-          <summary>Period</summary>
-          Where: fcp_1_RestingStateEpoching, line 97
+          <summary>Function</summary>
+          Where: fcp_1_Task_Epoching for setting up the cfg for epoching
           <br>
-          Meaning: Indicates epoch length for epoching resting state data
+          Meaning: Name of a custom task epoching function to parse data into trials. Designed for marker epoching.
         </details>
       </li>
-      <!--EPOCHING.TOTALTIME--> 
+      <!--TASKFUNC.TYPE-->
       <li>
         <details>
-          <summary>Total time</summary>
-          Where: Nowhere
-          <br>
-          Meaning: Relic from an older resting state epoch strategy. 
+          <summary>Type</summary>
+          Where: fcp_1_Task_Epoching for setting up the cfg for epoching
         </details>
       </li>
-     <!--EPOCHING.HEADMOTION--> 
+     <!--TASKFUNC.FILE-->
       <li>
         <details>
-          <summary>Head motion</summary>
-          Where: fcp_1_TaskEpoching
-          <br>
-          Meaning: Specifics for initial handling of head motion
-          <br><br>
-            <ul>
-              <!--EPOCHING.HEADMOTION.THRESHOLDING-->
-              <li>
-              <details>
-                <summary>Threshold</summary>
-                Where: fcp_1_TaskEpoching in head motion correction
-                <br>
-                Meaning: Threshold for which to reject trials with head motion 
-              </details>
-            </li></ul>
+          <summary>File</summary>
+          Where: fcp_1_Task_Epoching for setting up the cfg for epoching
         </details>
+      </li>
+     <!--TASKFUNC.WORKSPACE-->
+      <li>
+        <details>
+          <summary>Workspace</summary>
+          Where: fcp_1_Task_Epoching for setting up the cfg for epoching
+        </details>
+      </li>
+      <!--TASKFUNC.WITHINFILEPATH-->
+      <li>
+        <details>
+          <summary>Within_file_path</summary>
+          Where: fcp_1_Task_Epoching for setting up the cfg for epoching
+        </details>
+      </li>
  </details>
