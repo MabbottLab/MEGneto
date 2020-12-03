@@ -108,88 +108,88 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                   <!--CLEANING OPTIONS.ARTIFACT.MUSCLE.BPFILTER--> 
                   <li>
                     <details>
-                      <summary>Period</summary>
-                      Where: fcp_1_RestingStateEpoching, line 97
+                      <summary>Bpfilter</summary>
+                      Where: fcp_1_TaskEpoching in artifact detection, setting up the cfg to call “ft_artifact_muscle” 
                       <br>
-                      Meaning: Indicates epoch length for epoching resting state data
+                      Meaning: “Yes” or “no” to indicate whether or not we want to bandpass filter
                     </details>
                   </li>
                   <!--CLEANING OPTIONS.ARTIFACT.MUSCLE.BPFREQ--> 
                   <li>
                     <details>
-                      <summary>Period</summary>
-                      Where: fcp_1_RestingStateEpoching, line 97
+                      <summary>Bpfreq</summary>
+                      Where: fcp_1_TaskEpoching in artifact detection, setting up the cfg to call “ft_artifact_muscle” 
                       <br>
-                      Meaning: Indicates epoch length for epoching resting state data
+                      Meaning: [x,y] to specify what frequency band the filter should be
                     </details>
                   </li>
                   <!--CLEANING OPTIONS.ARTIFACT.MUSCLE.BPFILTORD--> 
                   <li>
                     <details>
-                      <summary>Period</summary>
-                      Where: fcp_1_RestingStateEpoching, line 97
+                      <summary>Bpfiltord</summary>
+                      Where: fcp_1_TaskEpoching in artifact detection, setting up the cfg to call “ft_artifact_muscle”
                       <br>
-                      Meaning: Indicates epoch length for epoching resting state data
+                      Meaning: Specifies the fiter orde
                     </details>
                   </li>
                   <!--CLEANING OPTIONS.ARTIFACT.MUSCLE.BPFILTTYPE--> 
                   <li>
                     <details>
-                      <summary>Period</summary>
-                      Where: fcp_1_RestingStateEpoching, line 97
+                      <summary>Bpfilttype</summary>
+                      Where: fcp_1_TaskEpoching in artifact detection, setting up the cfg to call “ft_artifact_muscle
                       <br>
-                      Meaning: Indicates epoch length for epoching resting state data
+                      Meaning: Specifies the type of filter (e.g. “but” for butterworth)
                     </details>
                   </li>
                   <!--CLEANING OPTIONS.ARTIFACT.MUSCLE.HILBERT--> 
                   <li>
                     <details>
-                      <summary>Period</summary>
-                      Where: fcp_1_RestingStateEpoching, line 97
+                      <summary>Hilbert</summary>
+                      Where:fcp_1_TaskEpoching in artifact detection, setting up the cfg to call “ft_artifact_muscle
                       <br>
-                      Meaning: Indicates epoch length for epoching resting state data
+                      Meaning: “Yes” or “no” to indicate if we want to perform a hilbert transform
                     </details>
                   </li>
                   <!--CLEANING OPTIONS.ARTIFACT.MUSCLE.BOXCAR--> 
                   <li>
                     <details>
-                      <summary>Period</summary>
-                      Where: fcp_1_RestingStateEpoching, line 97
+                      <summary>Boxcar</summary>
+                      Where: fcp_1_TaskEpoching in artifact detection, setting up the cfg to call “ft_artifact_muscle” 
                       <br>
-                      Meaning: Indicates epoch length for epoching resting state data
+                      Meaning: Specifies window length for the moving average filter. Also known as a boxcar car smoothing kernel or sliding average (aka window length
                     </details>
                   </li>
                   <!--CLEANING OPTIONS.ARTIFACT.MUSCLE.CUTOFF--> 
                   <li>
                     <details>
-                      <summary>Period</summary>
-                      Where: fcp_1_RestingStateEpoching, line 97
+                      <summary>Cutoff</summary>
+                      Where: fcp_1_TaskEpoching in artifact detection, setting up the cfg to call “ft_artifact_muscle”
                       <br>
-                      Meaning: Indicates epoch length for epoching resting state data
+                      Meaning: Specifies frequency at which to cut off the signal
                     </details>
                   </li>
                   <!--CLEANING OPTIONS.ARTIFACT.MUSCLE.TRLPADDING--> 
                   <li>
                     <details>
-                      <summary>Period</summary>
-                      Where: fcp_1_RestingStateEpoching, line 97
+                      <summary>Trlpadding</summary>
+                      Where: fcp_1_TaskEpoching in artifact detection, setting up the cfg to call “ft_artifact_muscle” 
                       <br>
-                      Meaning: Indicates epoch length for epoching resting state data
+                      Meaning: Allows data to be padded on either side of the trial with a specified length so that artifact detection/rejection are performed on those data segments (i.e. If you wish to include data prior to/post the trial are included) 
                     </details>
                   </li>
                   <!--CLEANING OPTIONS.ARTIFACT.MUSCLE.FLTPADDING--> 
                   <li>
                     <details>
-                      <summary>Period</summary>
-                      Where: fcp_1_RestingStateEpoching, line 97
+                      <summary>Fltpadding</summary>
+                      Where: fcp_1_TaskEpoching in artifact detection, setting up the cfg to call “ft_artifact_muscle” 
                       <br>
-                      Meaning: Indicates epoch length for epoching resting state data
+                      Meaning: Only used for filtering, not artifact detection. Since filters may cause edge effects detected in artifact-detection & mistaken for actual artifacts, we need filter padding. This reads additional data on either side before filtering.
                     </details>
                   </li>
                   <!--CLEANING OPTIONS.ARTIFACT.MUSCLE.ARTPADDING--> 
                   <li>
                     <details>
-                      <summary>Period</summary>
+                      <summary>Artpadding</summary>
                       Where: fcp_1_TaskEpoching in artifact detection, setting up the cfg to call “ft_artifact_muscle” 
                       <br>
                       Meaning: Often, artifacts start/end a bit later than what is detected by the artifact detection system. Thus artifact padding is used to extend the artifact timeperiod on either side.
