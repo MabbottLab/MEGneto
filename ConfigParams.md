@@ -528,35 +528,31 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
 
 <details>
   <summary>Beamforming</summary>
-  Where: fcp_1_TaskEpoching.
-  <br>
-  Meaning: Epoch the data into trials
+  Where: Fcp_4_beamforming 
   <br><br>
     <ul>
       <!--BEAMFORMING.HEADMODEL--> 
       <li>
         <details>
           <summary>Headmodel</summary>
-          Where: fcp_1_RestingStateEpoching, line 97
-          <br>
-          Meaning: Indicates epoch length for epoching resting state data
+          Where: Fcp_4_beamforming 
           <ul>
           <!--BEAMFORMING.HEADMODEL.METHOD--> 
           <li>
             <details>
               <summary>Method</summary>
-              Where: fcp_1_RestingStateEpoching, line 97
+              Where: Fcp_4_beamforming when setting up cf to prepare the T1 head model AND participant specific head models 
               <br>
-              Meaning: Indicates epoch length for epoching resting state data
+              Meaning: Specifies what form the head model should be (e.g. single shell)
             </details>
           </li>
           <!--BEAMFORMING.HEADMODEL.UNITS--> 
           <li>
             <details>
               <summary>Units</summary>
-              Where: fcp_1_RestingStateEpoching, line 97
+              Where: Fcp_4_beamforming when setting up cf to prepare the T1 headmodel
               <br>
-              Meaning: Indicates epoch length for epoching resting state data
+              Meaning: Specifies units for the head model (e.g. cm)
             </details>
          </li></ul>
         </details>
@@ -565,43 +561,33 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
       <li>
         <details>
           <summary>Template</summary>
-          Where: Nowhere
-          <br>
-          Meaning: Relic from an older resting state epoch strategy.
+          Where: Fcp_4_beamforming when constructing the grid for the T1 template model 
           <ul>
           <!--BEAMFORMING.TEMPLATE.GRID--> 
           <li>
             <details>
               <summary>Grid</summary>
-              Where: fcp_1_RestingStateEpoching, line 97
-              <br>
-              Meaning: Indicates epoch length for epoching resting state data
+              Where: Fcp_4_beamforming when constructing the grid for the T1 template model 
               <ul>
                 <!--BEAMFORMING.TEMPLATE.GRID.RESOLUTION--> 
                 <li>
                   <details>
                     <summary>Resolution</summary>
-                    Where: fcp_1_RestingStateEpoching, line 97
-                    <br>
-                    Meaning: Indicates epoch length for epoching resting state data
+                    Where: Fcp_4_beamforming when constructing the grid for the T1 template model 
                   </details>
                 </li>
                 <!--BEAMFORMING.TEMPLATE.TIGHT--> 
                 <li>
                   <details>
                     <summary>Tight</summary>
-                    Where: fcp_1_RestingStateEpoching, line 97
-                    <br>
-                    Meaning: Indicates epoch length for epoching resting state data
+                    Where: Fcp_4_beamforming when constructing the grid for the T1 template model 
                   </details>
                </li>
                <!--BEAMFORMING.TEMPLATE.TINWARDSHIFT--> 
                 <li>
                   <details>
                     <summary>Inwardshift</summary>
-                    Where: fcp_1_RestingStateEpoching, line 97
-                    <br>
-                    Meaning: Indicates epoch length for epoching resting state data
+                    Where: Fcp_4_beamforming when constructing the grid for the T1 template model 
                   </details>
                 </li></ul>
             </details>
@@ -610,9 +596,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
           <li>
             <details>
               <summary>Coordsys</summary>
-              Where: fcp_1_RestingStateEpoching, line 97
-              <br>
-              Meaning: Indicates epoch length for epoching resting state data
+              Where: Fcp_4_beamforming when loading T1 template
             </details>
          </li></ul>
         </details>
@@ -621,26 +605,22 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
       <li>
         <details>
           <summary>Atlas</summary>
-          Where: fcp_1_TaskEpoching
-          <br>
-          Meaning: Specifics for initial handling of head motion
+          Where: Fcp_4_beamforming
           <ul>
           <!--BEAMFORMING.ATLAS.FILEPATH--> 
           <li>
             <details>
               <summary>Filepath</summary>
-              Where: fcp_1_RestingStateEpoching, line 97
+              Where: Fcp_4_beamforming just after we perform actual beamforming 
               <br>
-              Meaning: Indicates epoch length for epoching resting state data
+              Meaning: Specifies filepath to the atlas we wish to project on
             </details>
           </li>
           <!--BEAMFORMING.ATLAS.INPUTCOORD--> 
           <li>
             <details>
               <summary>Inputcoord</summary>
-              Where: fcp_1_RestingStateEpoching, line 97
-              <br>
-              Meaning: Indicates epoch length for epoching resting state data
+              Where: Fcp_4_beamforming for visualization of the T1 segmented head model (to check for alignment with grid) 
             </details>
           </li></ul>
         </details>
@@ -649,44 +629,36 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
        <li>
         <details>
           <summary>checkMRIvolumes</summary>
-          Where: fcp_1_TaskEpoching
-          <br>
-          Meaning: Specifics for initial handling of head motion
+          Where: Fcp_4_beamforming for visualization of participant’s segmented head model (to check for alignment)
           <ul>
           <!--BEAMFORMING.CHECKMRIVOLUMES.METHOD--> 
           <li>
             <details>
               <summary>Method</summary>
-              Where: fcp_1_RestingStateEpoching, line 97
-              <br>
-              Meaning: Indicates epoch length for epoching resting state data
+              Where: Fcp_4_beamforming for visualization of participant’s segmented head model (to check for alignment)
             </details>
           </li>
           <!--BEAMFORMING.CHECKMRIVOLUMES.SLIDESDIM--> 
           <li>
             <details>
               <summary>Slidesdim</summary>
-              Where: fcp_1_RestingStateEpoching, line 97
-              <br>
-              Meaning: Indicates epoch length for epoching resting state data
+              Where: Fcp_4_beamforming for visualization of participant’s segmented head model (to check for alignment)
             </details>
           </li>
           <!--BEAMFORMING.CHECKMRIVOLUMES.NSLICES--> 
           <li>
             <details>
               <summary>Nslices</summary>
-              Where: fcp_1_RestingStateEpoching, line 97
-              <br>
-              Meaning: Indicates epoch length for epoching resting state data
+              Where: Fcp_4_beamforming for visualization of participant’s segmented head model (to check for alignment)
             </details>
           </li>
           <!--BEAMFORMING.CHECKMRIVOLUMES.FUNPARAMETER--> 
           <li>
             <details>
               <summary>Funparameter</summary>
-              Where: fcp_1_RestingStateEpoching, line 97
+              Where: Nowhere
               <br>
-              Meaning: Indicates epoch length for epoching resting state data
+              Meaning: Functional parameter set to be ‘power’, which indicates what to plot on the anatomical data.
             </details>
           </li></ul>
         </details>
@@ -695,43 +667,37 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
        <li>
         <details>
           <summary>Subj</summary>
-          Where: fcp_1_TaskEpoching
-          <br>
-          Meaning: Specifics for initial handling of head motion
+          Where: Fcp_4_beamforming to prepare the subject specific source model (with reference to the T1 template model)
           <ul>
           <!--BEAMFORMING.SUBJ.GRID--> 
           <li>
             <details>
               <summary>Grid</summary>
-              Where: fcp_1_RestingStateEpoching, line 97
-              <br>
-              Meaning: Indicates epoch length for epoching resting state data
+              Where: Fcp_4_beamforming to prepare the subject specific source model (with reference to the T1 template model)
               <ul>
               <!--BEAMFORMING.SUBJ.GRID.WARPMNI-->
               <li>
                 <details>
                   <summary>Warpmni</summary>
-                  Where: fcp_1_RestingStateEpoching, line 97
+                  Where: Fcp_4_beamforming to prepare the subject specific source model (with reference to the T1 template model)
                   <br>
-                  Meaning: Indicates epoch length for epoching resting state data
+                  Meaning: “Yes” or “no” to specify whether we want to warp the model to the T1 model (which acts as a control to normalize across all participants) 
                 </details>
               </li>
               <!--BEAMFORMING.SUBJ.GRID.NONLINEAR-->
               <li>
                 <details>
                   <summary>Nonlinear</summary>
-                  Where: fcp_1_RestingStateEpoching, line 97
-                  <br>
-                  Meaning: Indicates epoch length for epoching resting state data
+                  Where: Fcp_4_beamforming to prepare the subject specific source model (with reference to the T1 template model)
                 </details>
               </li>
               <!--BEAMFORMING.SUBJ.GRID.UNIT-->
               <li>
                 <details>
                   <summary>Unit</summary>
-                  Where: fcp_1_RestingStateEpoching, line 97
+                  Where: Fcp_4_beamforming to prepare the subject specific source model (with reference to the T1 template model)
                   <br>
-                  Meaning: Indicates epoch length for epoching resting state data
+                  Meaning: Specify units (e.g. cm)
                 </details>
               </li></ul>
             </details>
@@ -742,26 +708,26 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
        <li>
         <details>
           <summary>Leadfield</summary>
-          Where: fcp_1_TaskEpoching
+          Where: Fcp_4_beamforming to compute leadfield 
           <br>
-          Meaning: Specifics for initial handling of head motion
+          Meaning: Computes leadfield used for each participant 
           <ul>
           <!--BEAMFORMING.LEADFIELD.REDUCERANK--> 
           <li>
             <details>
               <summary>Reducerank</summary>
-              Where:
+              Where: Nowhere, BUT in “compute leadfield” there is a field “cfg.reducerank” that has an associated number
               <br>
-              Meaning:
+              Meaning: “Yes” or “no” to specify whether we want to reduce rank. Addresses depth bias in the computation of the forward model.
             </details>
            </li>
            <!--BEAMFORMING.LEADFIELD.NORMALIZE--> 
            <li>
             <details>
               <summary>Normalize</summary>
-              Where:
+              Where: Fcp_4_beamforming to compute leadfield 
               <br>
-              Meaning:
+              Meaning: “Yes” or “no” to specify whether we want to normalize. Addresses depth bias in the computation of the forward model. 
             </details>
            </li></ul>
         </details>
@@ -770,44 +736,36 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
        <li>
         <details>
           <summary>TimeDomain</summary>
-          Where: fcp_1_TaskEpoching
-          <br>
-          Meaning: Specifics for initial handling of head motion
+          Where: Fcp_4_beamforming to compute the covariance matrix
           <ul>
            <!--BEAMFORMING.TIMEDOMAIN.COVARIANCE--> 
             <li>
               <details>
                 <summary>Covariance</summary>
-                Where:
-                <br>
-                Meaning:
+                Where: Fcp_4_beamforming to compute the covariance matrix
               </details>
              </li>
              <!--BEAMFORMING.TIMEDOMAIN.COVARIANCEWINDOW--> 
             <li>
               <details>
                 <summary>Covariancewindow</summary>
-                Where:
-                <br>
-                Meaning:
+                Where: Fcp_4_beamforming to compute the covariance matrix
               </details>
              </li>
              <!--BEAMFORMING.TIMEDOMAIN.VARTRLLENGTH--> 
             <li>
               <details>
                 <summary>Vartrllength</summary>
-                Where:
-                <br>
-                Meaning:
+                Where: Fcp_4_beamforming to compute the covariance matrix
               </details>
              </li>
              <!--BEAMFORMING.TIMEDOMAIN.PROJECTMOM--> 
              <li>
               <details>
                 <summary>Projectmom</summary>
-                Where:
+                Where: Fcp_4_beamforming just after we perform actual beamforming 
                 <br>
-                Meaning:
+                Meaning: Projects data to the dominant eigenvector so we have one resulting timeseries per source reflecting overall change in activity. Else, there would be reconstructed source data in three orientations.
               </details>
              </li></ul>
         </details>
@@ -816,35 +774,31 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
        <li>
         <details>
           <summary>Options</summary>
-          Where: fcp_1_TaskEpoching
-          <br>
-          Meaning: Specifics for initial handling of head motion
+          Where: Fcp_4_beamforming
           <ul>
            <!--BEAMFORMING.OPTIONS.KEEPTRIALS--> 
             <li>
               <details>
                 <summary>Keeptrials</summary>
-                Where:
+                Where: Fcp_4_beamforming when computing the covariance matrix
                 <br>
-                Meaning:
+                Meaning: Maintains separation of trials rather than returning the average source time series across all trials.
               </details>
              </li>
              <!--BEAMFORMING.OPTIONS.KEEPFILTER--> 
             <li>
               <details>
                 <summary>Keepfilter</summary>
-                Where:
+                Where: Fcp_4_beamforming after computing sensor weights
                 <br>
-                Meaning:
+                Meaning: “Yes” or “no” to specify whether or not we want to keep the filer → which we do so that we can project all the data points through it to do the beamforming
               </details>
              </li>
              <!--BEAMFORMING.OPTIONS.RAWTRIAL--> 
             <li>
               <details>
                 <summary>Rawtrial</summary>
-                Where:
-                <br>
-                Meaning:
+                Where: Fcp_4_beamforming just before we perform actual beamforming
               </details>
             </li></ul>
         </details>
@@ -853,11 +807,46 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
        <li>
         <details>
           <summary>Method</summary>
-          Where: fcp_1_TaskEpoching
+          Where:Fcp_4_beamforming just before we perform actual beamforming 
           <br>
-          Meaning: Specifics for initial handling of head motion
+          Meaning: Specifies what method we want to use to perform the beam forming 
         </details>
       </li></ul>
  </details>
  
+ <!--CONNECTIVITY-->
+
+<details>
+<summary>Connectivity</summary>
+Where: Fcp_5_task_Connectivity
+<ul>
+  <!--CONNECTIVITY.METHOD-->
+  <li>
+    <details>
+      <summary>Method</summary>
+      Where: Fcp_5_task_Connectivity
+      <br>
+      Meaning: Specifies what metric to use for connectivity analysis (e.g. wpli, etc.)
+    </details>
+  </li>
+  <!--CONNECTIVITY.FILTFREQS-->
+  <li>
+    <details>
+      <summary>Filt_freqs</summary>
+      Where: Fcp_5_task_Connectivity
+      <br>
+      Meaning: Specifies the various frequency bands (theta, alpha, beta, gamma, hi-gamma)
+    </details>
+  </li>
+  <!--CONNECTIVITY.COLLAPSEBAND-->
+  <li>
+    <details>
+      <summary>Collapse_band</summary>
+      Where: Nowhere
+      <br>
+      Meaning: Specifies method of collapsing multiple reconstructed sources within a certain ROI to a representative timeseries for that ROI (e.g. mean or max)
+    </details>
+  </li></ul>
+</details>
+
  
