@@ -247,3 +247,87 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
             </li>
           </ul>
  </details>
+        
+ <!--FILTERING PARAMETERS-->
+
+<details>
+  <summary>filteringParameters</summary>
+  Where: fcp_2_PreprocessingICA in setting up cfg for ft_preprocessing
+  <br>
+  Meaning: Overall, provides filtering specifications
+  <br><br>
+    <ul>
+      <!--FILTERING PARAMETERS.CHANNEL--> 
+      <li>
+        <details>
+          <summary>Channels</summary>
+          Where: fcp_2_PreprocessingICA in setting up cfg for ft_preprocessing
+          <br>
+          Meaning: Specifies which data channels to look at: (1. MEG- replaced by all MEG channels, 2. MEGREF-replaced by all MEG reference channels, 3. REFGRAD, 4. REFMAG)
+        </details>
+      </li>
+      <!--FILTERING PARAMETERS.DFTFILTER--> 
+      <li>
+        <details>
+          <summary>Dftfilter</summary>
+          Where: fcp_2_PreprocessingICA in setting up cfg for ft_preprocessing
+          <br>
+          Meaning: “Yes” or “no” to indicate whether or not we want to apply a notch filter to the data to remove the 50Hz
+ or 60Hz line noise components ('zeroing').
+        </details>
+      </li>
+     <!--FILTERING PARAMETERS.DFTFREQ--> 
+      <li>
+        <details>
+          <summary>DFTFREQ</summary>
+          Where: fcp_2_PreprocessingICA in setting up cfg for ft_preprocessing
+          <br>
+          Meaning: Indicates whether the frequency to filter out is 50 or 60Hz. 
+        </details>
+      </li>
+      <!--FILTERING PARAMETERS.BPFILTER--> 
+      <li>
+        <details>
+          <summary>Bpfilter</summary>
+          Where: fcp_2_PreprocessingICA in setting up cfg for ft_preprocessing
+          <br>
+          Meaning: “Yes” or “not” to indicate if we want to do a bandpass filter 
+        </details>
+      </li>
+      <!--FILTERING PARAMETERS.BPFREQ--> 
+      <li>
+        <details>
+          <summary>Bpfreq/summary>
+          Where: fcp_2_PreprocessingICA in setting up cfg for ft_preprocessing
+          <br>
+          Meaning: [x,y] to specify what frequency band the filter should be
+        </details>
+      </li>
+      <!--FILTERING PARAMETERS.BPFILTORD--> 
+      <li>
+        <details>
+          <summary>Bpfiltord</summary>
+          Where: fcp_2_PreprocessingICA in setting up cfg for ft_preprocessing
+          <br>
+          Meaning: Specifies the filter order
+        </details>
+      </li>
+      <!--FILTERING PARAMETERS.SAMPLERATE--> 
+      <li>
+        <details>
+          <summary>sampleRate</summary>
+          Where: fcp_2_PreprocessingICA for downsampling data AND fcp_4_beamforming to resample the data
+          <br>
+          Meaning: Rate at which data is sampled (how many data points per second) 
+        </details>
+      </li>
+      <!--FILTERING PARAMETERS.CTFLAYOUR--> 
+      <li>
+        <details>
+          <summary>CTFlayout</summary>
+          Where: End of fcp_2_5_checkpoint for displaying ica channels functio
+          <br>
+          Meaning: Indicates which MEG model you’re using (here, the CTF 151 model) so that it can plot results on a 2D image of the head with proper electrode positions.
+        </details>
+      </li>
+ </details>
