@@ -39,8 +39,7 @@ Meaning: Epoch the data into trials
   Where: fcp_1_TaskEpoching 
   <br>
   Meaning:Specifics for initial handling of head motion
-    <details>
-      
+    <details> 
     <summary>Threshold</summary>
     <br>
     Where: fcp_1_TaskEpoching in head motion correction
