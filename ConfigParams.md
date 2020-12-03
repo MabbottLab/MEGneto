@@ -819,7 +819,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
 <details>
 <summary>Connectivity</summary>
 Where: Fcp_5_task_Connectivity
-<br>
+<br><br>
 <ul>
   <!--CONNECTIVITY.METHOD-->
   <li>
