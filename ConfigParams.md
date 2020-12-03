@@ -16,7 +16,7 @@ Where: fcp_1_TaskEpoching.
 Meaning: Epoch the data into trials
   <br>
   <details>
-  <summary>- Period</summary>
+  <summary>Period</summary>
   Where: fcp_1_RestingStateEpoching, line 97
   <br>
   Meaning: Indicates epoch length for epoching resting state data
