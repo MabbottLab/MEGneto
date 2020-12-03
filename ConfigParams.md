@@ -46,7 +46,9 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
           <br>
           Meaning: Specifics for initial handling of head motion
           <br><br>
-            <ul><li>
+            <ul>
+              <!--EPOCHING.HEADMOTION.THRESHOLDING-->
+              <li>
               <details>
                 <summary>Threshold</summary>
                 Where: fcp_1_TaskEpoching in head motion correction
@@ -55,4 +57,87 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
               </details>
             </li></ul>
  </details>
-    
+ 
+ <!--CLEANING OPTIONS-->
+
+<details>
+  <summary>Cleaning Options</summary>
+  Where: fcp_1_TaskEpoching
+  <br>
+  Meaning: Overall, gives options for how to handle artifacts, ICA, noisy trials, bad channels
+  <br><br>
+    <ul>
+     <!--CLEANING OPTIONS.ARTIFACT--> 
+      <li>
+        <details>
+          <summary>Artifact</summary>
+          Where: fcp_1_TaskEpoching in artifact detection/rejection (all types)
+          <br>
+          Meaning: Specifies how we want to deal with various parts involved in detecting and rejecting different artifacts
+          <br><br>
+            <ul>
+            <!--CLEANING OPTIONS.ARTIFACT.DETECTION--> 
+            <li>
+              <details>
+                <summary>Detection</summary>
+                Where: fcp_1_TaskEpoching in artifact detection
+                <br>
+                Meaning: “0” or “1” to indicate if we want to detect artifacts
+              </details>
+            </li>
+            <!--CLEANING OPTIONS.ARTIFACT.REJECTION--> 
+            <li>
+              <details>
+                <summary>Rejection</summary>
+                Where: Nowhere: instead, in fcp_1_TaskEpoching under “Artifact Rejection”, there is a field “cfg.artfctdef.reject” that is equal to “complete” 
+                <br>
+                Meaning: Indicates how much we want to reject trials with artifacts (e.g. “complete” removes the entire trial)
+              </details>
+            </li>
+            <!--CLEANING OPTIONS.ARTIFACT.MUSCLE--> 
+            <li>
+              <details>
+                <summary>Muscle</summary>
+                Where: fcp_1_TaskEpoching in artifact detection, setting up the cfg to call “ft_artifact_muscle”
+                <br>
+                Meaning: Configuration for muscle specifies how we want to deal with muscle artifacts 
+              </details>
+            </li> 
+            <!--CLEANING OPTIONS.ARTIFACT.JUMP--> 
+            <li>
+              <details>
+                <summary>Jump</summary>
+                Where: fcp_1_TaskEpoching in artifact detection
+                <br>
+                Meaning: Specifies how we want to deal with jump artifacts
+              </details>
+            </li>
+            <!--CLEANING OPTIONS.ARTIFACT.ICACLEAN--> 
+            <li>
+              <details>
+                <summary>icaClean</summary>
+                Where: fcp_2_PreprocessingICA before we do/don’t run ICA
+                <br>
+                Meaning: “0” or “1” to indicacte whether or not we want to perform ICA
+              </details>
+            </li>
+            <!--CLEANING OPTIONS.ARTIFACT.rmNOISYTRIALS--> 
+            <li>
+              <details>
+                <summary>rmNoisyTrials</summary>
+                Where: fcp_2_PreprocessingICA 
+                <br>
+                Meaning: “0” or “1” to specify whether or not we want to remove noisy trials (artifacts)
+              </details>
+            </li>
+            <!--CLEANING OPTIONS.ARTIFACT.rmBADCHANNELS--> 
+            <li>
+              <details>
+                <summary>rmBadChannels</summary>
+                Where: fcp_3_ChannelRepair when checking if we want to remove channels
+                <br>
+                Meaning: “0” or “1” to indicate whether or not we want to remove bad channels (which we kept a list of from fcp_1)
+              </details>
+            </li>
+          </ul>
+ </details>
