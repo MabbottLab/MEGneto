@@ -20,6 +20,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
   Meaning: Epoch the data into trials
   <br><br>
     <ul>
+      <!--EPOCHING.PERIOD--> 
       <li>
         <details>
           <summary>Period</summary>
@@ -28,6 +29,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
           Meaning: Indicates epoch length for epoching resting state data
         </details>
       </li>
+      <!--EPOCHING.TOTALTIME--> 
       <li>
         <details>
           <summary>Total time</summary>
@@ -36,7 +38,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
           Meaning: Relic from an older resting state epoch strategy. 
         </details>
       </li>
-     <!--EPOCHING.PERIOD--> 
+     <!--EPOCHING.HEADMOTION--> 
       <li>
         <details>
           <summary>Head motion</summary>
