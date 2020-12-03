@@ -515,9 +515,10 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                <br>
                Meaning: Threshold for which to reject trials with head motion
                <!--TASK.TRIALDEF.MARKERS.CORRECT--> 
+               <ul>
                  <li>
                   <details>
-                   <summary>T0shift</summary>
+                   <summary>Correct</summary>
                    Where: fcp_1_TaskEpoching in head motion correction
                    <br>
                    Meaning: Threshold for which to reject trials with head motion
@@ -526,7 +527,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                  <!--TASK.TRIALDEF.MARKERS.INCORRECT--> 
                  <li>
                   <details>
-                   <summary>T0shift</summary>
+                   <summary>Incorrect</summary>
                    Where: fcp_1_TaskEpoching in head motion correction
                    <br>
                    Meaning: Threshold for which to reject trials with head motion
@@ -535,7 +536,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                  <!--TASK.TRIALDEF.MARKERS.T0MARKER--> 
                  <li>
                   <details>
-                   <summary>T0shift</summary>
+                   <summary>T0marker</summary>
                    Where: fcp_1_TaskEpoching in head motion correction
                    <br>
                    Meaning: Threshold for which to reject trials with head motion
@@ -544,12 +545,12 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                  <!--TASK.TRIALDEF.MARKERS.NEWTRIG--> 
                  <li>
                   <details>
-                   <summary>T0shift</summary>
+                   <summary>newTrig</summary>
                    Where: fcp_1_TaskEpoching in head motion correction
                    <br>
                    Meaning: Threshold for which to reject trials with head motion
                   </details>
-                 </li>
+                 </li></ul>
               </details>
             </li></ul>
         </details>
