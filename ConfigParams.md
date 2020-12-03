@@ -466,7 +466,8 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                <summary>Light</summary>
                Where: fcp_1_TaskEpoching in head motion correction
                <br>
-               Meaning: Threshold for which to reject trials with head motion 
+               Meaning: Threshold for which to reject trials with head motion
+              </details>
             <!--TASK.TRIALDEF.PARAMETERS--> 
             <li>
               <details>
@@ -474,13 +475,15 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                Where: fcp_1_TaskEpoching in head motion correction
                <br>
                Meaning: Threshold for which to reject trials with head motion 
+              </details>
              <!--TASK.TRIALDEF.MARKERS--> 
              <li>
               <details>
                <summary>Markers</summary>
                Where: fcp_1_TaskEpoching in head motion correction
                <br>
-               Meaning: Threshold for which to reject trials with head motion 
+               Meaning: Threshold for which to reject trials with head motion
+              </details>
             </li></ul>
         </details>
  </details>
