@@ -135,7 +135,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                   <li>
                     <details>
                       <summary>Bpfilttype</summary>
-                      Where: fcp_1_TaskEpoching in artifact detection, setting up the cfg to call “ft_artifact_muscle
+                      Where: fcp_1_TaskEpoching in artifact detection, setting up the cfg to call “ft_artifact_muscle"
                       <br>
                       Meaning: Specifies the type of filter (e.g. “but” for butterworth)
                     </details>
@@ -144,7 +144,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                   <li>
                     <details>
                       <summary>Hilbert</summary>
-                      Where:fcp_1_TaskEpoching in artifact detection, setting up the cfg to call “ft_artifact_muscle
+                      Where:fcp_1_TaskEpoching in artifact detection, setting up the cfg to call “ft_artifact_muscle"
                       <br>
                       Meaning: “Yes” or “no” to indicate if we want to perform a hilbert transform
                     </details>
