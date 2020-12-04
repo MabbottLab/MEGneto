@@ -261,7 +261,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
       <!--FILTERING PARAMETERS.CHANNEL--> 
       <li>
         <details>
-          <summary>Channels</summary>
+          <summary>Channel</summary>
           Where: fcp_2_PreprocessingICA in setting up cfg for ft_preprocessing
           <br>
           Meaning: Specifies which data channels to look at: (1. MEG- replaced by all MEG channels, 2. MEGREF-replaced by all MEG reference channels, 3. REFGRAD, 4. REFMAG)
