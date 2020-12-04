@@ -1,6 +1,6 @@
 # JSON Config Paramters
 
-This file is the documentation for the paramters found in the JSON config file. Click the arrow on each parameter to reveal a dropdown explanation of where the paramter is used in the code and what it means. 
+Click the arrows on the overarching parameters to reveal sub-parameters and explanations for each one. 
 
 <!--CONTACT-->
 
