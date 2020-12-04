@@ -808,7 +808,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
           <summary>Method</summary>
           Where:Fcp_4_beamforming just before we perform actual beamforming 
           <br>
-          Meaning: Specifies what method we want to use to perform the beam forming 
+          Meaning: Specifies what method we want to use to perform the beamforming 
         </details>
       </li></ul>
  </details>
