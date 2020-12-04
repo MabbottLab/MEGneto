@@ -715,7 +715,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
           <li>
             <details>
               <summary>Reducerank</summary>
-              Where: Nowhere, BUT in “compute leadfield” there is a field “cfg.reducerank” that has an associated number
+              Where: Nowhere, but in “compute leadfield” there is a field “cfg.reducerank” that has an associated number
               <br>
               Meaning: “Yes” or “no” to specify whether we want to reduce rank, which addresses depth bias in the computation of the forward model
             </details>
