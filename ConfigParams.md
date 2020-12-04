@@ -6,7 +6,7 @@ Click the arrows on the overarching parameters to reveal sub-parameters and expl
 
 <details>
 <summary>Contact</summary>
-Where: sendEmail function is called at the end of each fcp_# step, and contact is passed as a parameter.
+Where: sendEmail function is called at the end of each fcp_# step, and contact is passed as a parameter
 <br>
 Meaning: Email address to which to send pipeline’s progress updates (contained in square brackets, [ ])
 </details>
@@ -35,7 +35,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
           <summary>Total time</summary>
           Where: Nowhere
           <br>
-          Meaning: Relic from an older resting state epoch strategy. 
+          Meaning: Relic from an older resting state epoch strategy
         </details>
       </li>
      <!--EPOCHING.HEADMOTION--> 
@@ -128,7 +128,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                       <summary>Bpfiltord</summary>
                       Where: fcp_1_TaskEpoching in artifact detection, setting up the cfg to call “ft_artifact_muscle”
                       <br>
-                      Meaning: Specifies the fiter orde
+                      Meaning: Specifies the fiter order
                     </details>
                   </li>
                   <!--CLEANING OPTIONS.ARTIFACT.MUSCLE.BPFILTTYPE--> 
@@ -155,7 +155,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                       <summary>Boxcar</summary>
                       Where: fcp_1_TaskEpoching in artifact detection, setting up the cfg to call “ft_artifact_muscle” 
                       <br>
-                      Meaning: Specifies window length for the moving average filter. Also known as a boxcar car smoothing kernel or sliding average (aka window length
+                      Meaning: Specifies window length for the moving average filter (aka a boxcar car smoothing kernel or sliding average/window length)
                     </details>
                   </li>
                   <!--CLEANING OPTIONS.ARTIFACT.MUSCLE.CUTOFF--> 
@@ -182,7 +182,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                       <summary>Fltpadding</summary>
                       Where: fcp_1_TaskEpoching in artifact detection, setting up the cfg to call “ft_artifact_muscle” 
                       <br>
-                      Meaning: Only used for filtering, not artifact detection. Since filters may cause edge effects detected in artifact-detection & mistaken for actual artifacts, we need filter padding. This reads additional data on either side before filtering.
+                      Meaning: Filter padding is needed because filters may cause edge effects detected in artifact-detection & mistaken for actual artifacts (only used for filtering, not artifact detection)
                     </details>
                   </li>
                   <!--CLEANING OPTIONS.ARTIFACT.MUSCLE.ARTPADDING--> 
@@ -191,7 +191,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                       <summary>Artpadding</summary>
                       Where: fcp_1_TaskEpoching in artifact detection, setting up the cfg to call “ft_artifact_muscle” 
                       <br>
-                      Meaning: Often, artifacts start/end a bit later than what is detected by the artifact detection system. Thus artifact padding is used to extend the artifact timeperiod on either side.
+                      Meaning: Often, artifacts start/end a bit later than what is detected by the artifact detection system, thus artifact padding is used to extend the artifact timeperiod on either side
                     </details>
                   </li>
                 </ul>
@@ -273,8 +273,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
           <summary>Dftfilter</summary>
           Where: fcp_2_PreprocessingICA in setting up cfg for ft_preprocessing
           <br>
-          Meaning: “Yes” or “no” to indicate whether or not we want to apply a notch filter to the data to remove the 50Hz
- or 60Hz line noise components ('zeroing').
+          Meaning: “Yes” or “no” to indicate whether or not we want to apply a notch filter to the data to remove the 50Hz or 60Hz line noise components ('zeroing')
         </details>
       </li>
      <!--FILTERING PARAMETERS.DFTFREQ--> 
@@ -283,7 +282,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
           <summary>Dftfreq</summary>
           Where: fcp_2_PreprocessingICA in setting up cfg for ft_preprocessing
           <br>
-          Meaning: Indicates whether the frequency to filter out is 50 or 60Hz. 
+          Meaning: Indicates whether the frequency to filter out is 50 or 60Hz 
         </details>
       </li>
       <!--FILTERING PARAMETERS.BPFILTER--> 
@@ -326,9 +325,9 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
       <li>
         <details>
           <summary>CTFlayout</summary>
-          Where: End of fcp_2_5_checkpoint for displaying ica channels functio
+          Where: End of fcp_2_5_checkpoint for displaying ica channels function
           <br>
-          Meaning: Indicates which MEG model you’re using (here, the CTF 151 model) so that it can plot results on a 2D image of the head with proper electrode positions.
+          Meaning: Indicates which MEG model you’re using (here, the CTF 151 model) so that it can plot results on a 2D image of the head with proper electrode positions
         </details>
       </li>
  </details>
@@ -346,7 +345,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
           <summary>Function</summary>
           Where: fcp_1_Task_Epoching for setting up the cfg for epoching
           <br>
-          Meaning: Name of a custom task epoching function to parse data into trials. Designed for marker epoching.
+          Meaning: Name of a custom task epoching function to parse data into trials (designed for marker epoching)
         </details>
       </li>
       <!--TASKFUNC.TYPE-->
@@ -658,7 +657,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
               <summary>Funparameter</summary>
               Where: Nowhere
               <br>
-              Meaning: Functional parameter set to be ‘power’, which indicates what to plot on the anatomical data.
+              Meaning: Functional parameter set to be ‘power’, which indicates what to plot on the anatomical data
             </details>
           </li></ul>
         </details>
@@ -718,7 +717,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
               <summary>Reducerank</summary>
               Where: Nowhere, BUT in “compute leadfield” there is a field “cfg.reducerank” that has an associated number
               <br>
-              Meaning: “Yes” or “no” to specify whether we want to reduce rank. Addresses depth bias in the computation of the forward model.
+              Meaning: “Yes” or “no” to specify whether we want to reduce rank, which addresses depth bias in the computation of the forward model
             </details>
            </li>
            <!--BEAMFORMING.LEADFIELD.NORMALIZE--> 
@@ -727,7 +726,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
               <summary>Normalize</summary>
               Where: Fcp_4_beamforming to compute leadfield 
               <br>
-              Meaning: “Yes” or “no” to specify whether we want to normalize. Addresses depth bias in the computation of the forward model. 
+              Meaning: “Yes” or “no” to specify whether we want to normalize, which addresses depth bias in the computation of the forward model 
             </details>
            </li></ul>
         </details>
@@ -782,7 +781,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                 <summary>Keeptrials</summary>
                 Where: Fcp_4_beamforming when computing the covariance matrix
                 <br>
-                Meaning: Maintains separation of trials rather than returning the average source time series across all trials.
+                Meaning: Maintains separation of trials rather than returning the average source time series across all trials
               </details>
              </li>
              <!--BEAMFORMING.OPTIONS.KEEPFILTER--> 
