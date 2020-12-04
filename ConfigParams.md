@@ -291,7 +291,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
           <summary>Bpfilter</summary>
           Where: fcp_2_PreprocessingICA in setting up cfg for ft_preprocessing
           <br>
-          Meaning: “Yes” or “not” to indicate if we want to do a bandpass filter 
+          Meaning: “Yes” or “no” to indicate if we want to do a bandpass filter 
         </details>
       </li>
       <!--FILTERING PARAMETERS.BPFREQ--> 
