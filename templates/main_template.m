@@ -1,10 +1,14 @@
 %% Master run file
 % Use the following code to run each step of the MEG pipeline in the
 % presented sequence.
+
 % Rename this file with something sensible like
 % main_[analysis-name]_[date].m to denote your current analysis.
-% Store this file in the project folder (whose path is the "project_path",
-% which is specified by the user in the code block below).
+
+% Store this file somewhere sensible like in the project folder (whose 
+% path is the "project_path", which is specified by the user in the code 
+% block below), in the corresponding analysis folder (see "analysis_name"
+% below), etc. 
 
 %% Fill in the following paths for your project/analysis
 
