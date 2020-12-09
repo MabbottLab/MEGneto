@@ -5,13 +5,15 @@ This functional connectivity pipeline (fcp) is built on MATLAB using the FieldTr
 - [System Requirements](#system-requirements)
 - [Installation Guide](#installation-guide)
 - [How to Use](#how-to-use)
-   1. [Initial Setup](#initial-setup)
-   2. [Epoching](#epoching)
-   3. [Preprocessing](#preprocessing)
-   4. [ICA Checkpoint](#ica-checkpoint)
-   5. [Channel Repair](#channel-repair)
-   6. [Beamforming](#beamforming)
-   7. [Functional Connectivity](#functional-connectivity)
+   1. [Common terms](#commonterms)
+   2. [Initial Setup](#initial-setup)
+   3. [Epoching](#epoching)
+   4. [Preprocessing](#preprocessing)
+   5. [ICA Checkpoint](#ica-checkpoint)
+   6. [Channel Repair](#channel-repair)
+   7. [Beamforming](#beamforming)
+   8. [Frequency Analysis](#frequency-analysis)
+   9. [Functional Connectivity](#functional-connectivity)
 - [Credits](#credits)
 - [On Downsampling](#on-downsampling)
 - [Supplementary Reading Material](#supplementary-reading-material)
@@ -38,52 +40,138 @@ ft_defaults; % allow fieldtrip to run setup
 
 Note that the functions associated with the steps laid out below are found in the top-level MEGneto folder. Any related functions listed below are found in subfolders of the repo (e.g., the `functions` folder). Anything under development is, accordingly, under `dev_functions`. 
 
+### Common Terms
+
+| Term  | Meaning |
+| ------------- | ------------- |
+| *.ds files  | Folders which contain MEG-related files. |
+| Fiducial   | Used as a reference point to localize head position relative to sensor position. |
+| JSON config file  | A configuration file where the user specifies all desired parameters for various steps of the pipeline. See “config file documentation” for an explanation of all necessary parameters. |
+| ICA   | Independent component analysis. A computational method for separating a linearly mixed signal into its independent components. |
+| Leadfield   | Provides information on the contribution of a dipole source at a given location in a sensor’s region. |
+| MEG  | Magnetoencephalography |
+| MRI  | Magnetic resonance imaging |
+| Struct   | In programming, a struct is a data type that stores multiple different data items in a single entity. |
+| Time window analysis  | A form of data analysis where data is separated into subsamples of time. The time periods may have some overlap and calculations are performed on every subsample. |
+
 ### Initial Setup
 
-`MEGNE2SETUP.m` will create a subfolder to `PROJECT_PATH` or the current working directory (if `PROJECT_PATH` is not provided) called ANALYSIS_NAME, create config and analysis subfolders within, and create unfilled `participants.txt` and `config.json` files in the config directory. If you already have a config file with your preferred parameters, replace the unfilled config file with that one. You should have a rawdata folder in your project directory with all the `*.ds` files, and a subfolder to rawdata called `MRIs` which contains all the MRIs in the form `[PID].mri`.
+`MEGNE2SETUP.m` will create a subfolder to PROJECT_PATH or the current working directory (if PROJECT_PATH is not provided) called ANALYSIS_NAME, create config and analysis subfolders within, and create unfilled participants.txt and config.json files in the config directory. If you already have a config file with your preferred parameters, replace the unfilled config file with that one. You should have a raw data folder in your project directory with all the *.ds files, and a subfolder to rawdata called MRIs which contains all the MRIs in the form [PID].mri.
 
-See also: `path_generation.m`, `path_check.m`
+Output: Struct with path definitions.
+
+![](images/paths_struct.PNG)
+
+See also: 
+- `Path_generation.m` to generate path locations
+- `Path_check.m` to check that all paths are properly initialized
 
 ### Epoching
 
-`FCP_1_TASKEPOCHING.m` will epoch MEG data into trials depending on the desired marker, detect trials with excessive head motion, muscle/jump artifacts, and bad channels. However, the epoching only rejects trials for excessive head motion and muscle/jump artifacts. Bad channel repair happens later, after the ICA process at the final stage of preprocessing.
+`FCP_1_TASKEPOCHING.m` will epoch MEG data into trials depending on the desired marker, detect trials with excessive head motion, muscle/jump artifacts, and bad channels. However, the epoching only rejects trials for excessive head motion and muscle/jump artifacts. Bad channels are detected and recorded, but repaired later on in the pipeline, after the ICA process at the final stage of preprocessing.
 
-Notes: 
-- Ensure that `subj_fcp1.csv` is populated with the subject IDs of included participants. 
-- Desired parameters should be defined in the JSON config file. User should double-check that the JSON config file is populated appropriately, especially if a template JSON was copied over. 
+Output: A struct with output file names, and for each subject: the number of trials per subject, trials marked with head motion, trials marked with noise, number of removed trials, names of bad channels 
+![](images/config_JSON1.PNG)
+![](images/config_JSON2.PNG)
 
-See also: `DS_PID_MATCH`, `WRITE_MATCH_IF_NOT_EMPTY`, `PLOTTRIGGERS`, `HEADMOTIONTOOL`, `DETECTBADCHANNELS`, `SEARCHTASKTRIALFUN`, `DETECTBADCHANNELS`
+Notes:
+- Ensure that subj_fcp1.csv is populated with the subject IDs of included participants.
+- Prior to running this step, all desired parameters should be defined in the JSON config file. The user should double-check that the JSON config file is populated appropriately, especially if a template JSON was copied over.
+- At the beginning of this step, a logging file for progress tracking is set up and matching MEG/MRI data is identified.
+- If the user wishes to browse the output of plot_triggers function (a plot), they must indicate “true” for ‘ShowFigure’ when the plot_triggers function is called. By default, this is set to ‘“false”. See the code snippet from fcp_1_taskepoching below for reference.
+![](images/showFigure_plotTriggers.PNG)
+
+See also: 
+- `ds_pid_match` to get the PIDs where there is matching MEG and MRI data
+- `load_participants` to load participants and get *.ds files
+- `write_match_if_not_empty` to write down the matching meg/mri data if they exist
+- `check_csv_has_empty` to check for empty values in the pid matches table
+- `plot_triggers` to plot trigger events that are present in the data over time
+![](images/plotTriggers.PNG)
+- `ft_read_event`  to generate an event list and isolare unique events
+- `ft_read_header` to read out information present in the header of the data 
+- `ft_definetrial` to epoch the data into trials
+- `headmotiontool` to display head movement information and remove bad trials 
+- `ft_rejectartifact` to remove channels with artifacts
+- `ft_artifact_muscle` to detect and clean artifacts due to muscle movements
+- `ft_artifiact_jump` to detect and clean jump artifacts
+- `detectbadchannels` to detect channels that contain poor data
+- `ft_preprocessing` to preprocess data
+
 
 ### Preprocessing
 
-`FCP_2_PREPROCESSINGICA.m` will prepare epoched data for ICA preprocessing by downsampling and filtering with 3rd order gradients, then carry out the ICA omitting signal from bad channels. The pipeline will downsample to whatever frequency you've specified in the config JSON.  
+`FCP_2_PREPROCESSINGICA.m` will prepare epoched data for ICA preprocessing by downsampling and filtering with 3rd order gradients (derived from measurements taken by gradiometers). If indicated in the config JSON file, ICA will be carried out and the ICA components will be saved. The pipeline will downsample to whatever frequency the user specified in the config JSON.
+
+Output: A struct with file names for the configuration of the preprocessed data, the data noise correlation matrix, and the ICA components.
 
 Notes:
-- Check participants who had excessive head motion or excessive numbers of bad channels. 
-- Ensure that subj_fcp2.csv is populated with the subject IDs of participants you want to include after checking over initial results. 
+- Prior to running the function, ensure that subj_fcp2.csv is populated with the subject IDs of participants you want to include after checking over initial results.
+- Outputs from fcp_1 will be loaded in at the start of this step. Additionally, a logging file will be set up to keep track of progress and the pipeline will check for matching MEG/MRI data. 
+- Check participants who had excessive head motion or excessive numbers of bad channels.
 - Need to remove bad channels from ica - if not you will get complex numbers. Because during repair channels procedure bad channels are repaired according to neighbours, thus the new ones are not unique (no independent components).
 
-See also: `ft_channelselection.m`, `ft_selectdata.m`, `ft_resample.m`, `ft_componentanalysis.m`, 
+See also: 
+- `ds_pid_match` to get the PIDs where there is matching MEG and MRI data
+- `write_match_if_not_empty` to write down the matching MEG/MRI data if they exist
+- `ft_denoise_synthetic` to compute third order gradients for gradiometer definition and denoise data.
+- `ft_resamepledata` to resample the data to a user specified sampling rate. 
+- `ft_selectdata` to select data portions of the data
+- `ft_componentanalysis` to perform independent component analysis 
 
 ### ICA Checkpoint
 
-`FCP_2_5_CHECKPOINT.m` is an interactive session that guides user through inspection of ICA components to identify components associate with artifacts such as heartbeats, blinks. After inspection, backprojects ICA components to remove signal corresponding with bad ICA components. 
+`FCP_2_5_CHECKPOINT.m` is an interactive session that guides the user through inspection of ICA components to identify components associated with artifacts such as heartbeats, blinks, etc. After inspection, the pipeline backprojects ICA components to remove the signal corresponding with the bad ICA components.
 
-See also: `disp_ica_chans.m` (at bottom of script), `ft_rejectcomponent.m`, `ft_databrowser`
+Output: A struct with file names for the configuration of the preprocessed data, the data noise correlation matrix, and the ICA components and the bad components specified by the user. 
+
+See also: 
+- `ds_pid_match` to get the PIDs where there is matching MEG and MRI data
+- `write_match_if_not_empty` to write down the matching MEG/MRI data if they exist
+- `ft_rejectcomponent` to backproject an ICA decomposition to the channel level after removing component that have artifacts
+- `disp_ica_chans.m` (at bottom of script) 
+- `ft_databrowser` to visually inspect the data
+
+Visualization of this step:
+Below is a sample image of the interactive user display for identifying bad ICA component. Users can browse the components using the left and right arrow buttons, zoom in and out horizontally/vertically using the appropriate “+” and “-” buttons, and more. 
+
+![](images/ICA_interaction_plot.PNG)
+
+After browsing the ICA components and noting which ones are bad, the user should return to the Matlab command prompt where they are asked to enter those components, as seen in the image below. The sample participant ID is thing image, ‘ST01’, represents the participant who is currently being analyzed. This is repeated for all participants. 
+
+![](images/ICA_interaction_input.PNG)
+
 
 ### Channel Repair
 
-`FCP_3_CHECKPOINT.m` repairs bad channels detected from fcp_1, but we held off on removing until the data had been ICA-cleaned. 
+`FCP_3_CHECKPOINT.m` repairs bad channels detected from fcp_1, but we held off on removing until the data had been ICA-cleaned. The channels are repaired by replacing them with a weighted average of neighbouring channels.
 
-See also: `ft_prepare_neighbours`, `ft_channelrepair`
+Output: *.mat file of fully cleaned data (i.e., removed head motion/muscle and jump artifacts, 3rd order gradients, ICA cleaned data, and repaired bad channels). 
+
+Notes:
+- Outputs from fcp2 are loaded at the start of this step and a logging file will be set up to keep track of progress. Further, the pipeline will check for matching MEG/MRI data.
+- The output data of this step is in the sensor space MEG data (fully processed).
+
+See also: 
+- `ds_pid_match` to extract a list of matching PIDs from the MRI files and output a CSV file with each input DS matched to a PID
+- `write_match_if_not_empty` writes a list of PIDs with matched MEG/MRI data if the PIDs aren’t empty
+- `ft_prepare_neighbours` to find neighbouring channels based on distance
+- `ft_channelrepair` to repair bad channels by replacing them with an average of all neighbours 
+
 
 ### Beamforming
 
-`FCP_4_BEAMFORMING.m` maps functional data onto the source model and interpolates to an atlas. Here, be careful about conversions between mm and cm units in MEG and MRI data. 
+`FCP_4_BEAMFORMING.m` maps functional data onto the source model and interpolates to an atlas. Here, be careful about conversions between mm and cm units in MEG and MRI data. A T1 template head model is loaded in (to normalize all participant head models), and is segmented to set the boundaries of which dipoles are actually located in the brain (ie. removes the skull). Once the head model is properly prepared to create the volume conduction model (which specifies how currents are generated by sources in the brain) a source model is prepared. The source model is a 3D grid/cortical sheet that specifies the set of positions of electric dipole currents that are considered in source reconstruction. 
+
+For each participant, their anatomical MRI data is loaded in and fiducials are identified. The MRI data is segmented and prepared as a head model. The participant’s fully processed MEG data is loaded and resampled to the sampling rate specified in the config JSON file. A subject specific source model is prepared using the T1 template model as a control across participants. A leadfield is computed to be used for efficient inverse modelling. 
+
+Finally, beamforming is performed. A covariance matrix is computed to inform us how related sensor signals are to each other, and sensor weights are computed using the gradiometers (sensor position), leadfield and head model. This information is used for beamforming.The participant’s trials are projected through a spatial filter (which transforms data from sensor to source space) and the resulting virtual sources are projected to their dominant orientation. The output at this point is a matrix with the timeseries for each source, trial, and participant. Next, an atlas is loaded into the pipeline and the source data is interpolated onto that atlas. In that interpolation process, all reconstructed sources that fall into regions as parcellated by the atlas are averaged, generating a representative time series for the region. 
+
+Output: A matrix with three dimensions: [number of participants] x [number of trials] x [number of timepoints]. Thus, you can isolate the timeseries for a certain participant and trial etc.
 
 The following source reconstruction algorithms are currently recommended/supported:
 - Exact low resolution electromagnetic tomography (eLORETA) source reconstruction (recommended)
-- Linear constrained minimum variance (LCMV) beamformer 
+- Linear constrained minimum variance (LCMV) beamformer
 
 The following atlases are currently supported:
 - AAL 116 region atlas, but truncated to just regions 1-90 to exclude cerebellar regions
@@ -91,30 +179,55 @@ The following atlases are currently supported:
 - Yeo 17-network parcellation
 - Brainnetome parcellation (although the number of regions here greatly outranks the rank of the sensors)
 
-See also: 
+Note:
+- At the start of the function, outputs from fcp_3 will be loaded in and a logging file will be set up to keep track of progress. Also, the pipeline will check for matching MEG/MRI data.
+
+See also:
+- `ds_pid_match` to extract a list of matching PIDs from the MRI files and output a CSV file with each input DS matched to a PID
+- `write_match_if_not_empty` writes a list of PIDs with matched MEG/MRI data if the PIDs aren’t empty
 - `ft_read_mri` to import T1 template from spm8
 - `ft_volumesegment.m` to segment anatomical MRI into T1 template specs
-- `ft_prepare_headmodel.m` to construct a volume conduction model based on geometry of head, takes previous output as input
 - `ft_convert_units.m` to convert volumes between mm and cm for CTF type
-- `ft_read_atlas.m`
-- `ft_volumelookup.m` to create binary mask; once applied, will isolate desired regions
-- `ft_sourceplot.m` to visualize/check alignment between template and subject head models; save output image
+- `ft_prepare_headmodel.m` to construct a volume conduction model based on geometry of head, takes previous output as input
+- `ft_prepare_sourcemodel.m` to create a 3D grid used for source reconstruction
+- `ft_resampledata`  to resample or downsample the data
 - `ft_prepare_leadfield.m` to compute the lead field matrix
+- `ft_timelockanalysis` to compute the covariance matrix
 - `ft_sourceanalysis.m` for source reconstruction
 - `ft_sourcedescriptives.m` to project to dominant orientation (largest eigenvector)
+- `ft_read_atlas.m`
 - `ft_sourceinterpolate.m` to interpolate functional data onto anatomical data using prev as input, subject MRI
+- `ft_volumelookup.m` to create binary mask; once applied, will isolate desired regions
+
+
+### Frequency Analysis
+`FCP_5_FREQANALYSIS.m` uses spectral analysis on time-frequency representations of data to test hypotheses based on spectral power. The virtual sensor data from the beamforming step is loaded in and frequency analysis is performed on various timewindows of the data (time window analysis). Thus, for each subject and each interpolated atlas region, a power spectrum is calculated and corrected to a baseline to control for general/random spikes in power. 
+
+Output: A 4-D matrix containing power spectrum data. Matrix dimensions are [participants] x [regions] x [frequency] x [time]. Users can plot a power spectrum (frequency by time) for a specific region of a given participant’s data by applying a plotting function on a slice of the matrix. 
+
+Notes:
+- At the start of this step, outputs from fcp_4 will be loaded in and a logging file will be set up to keep track of progress. Also, the pipeline will check for matching MEG/MRI data.
+
+See also: `ft_freqanalysis.m`
+
 
 ### Functional Connectivity
 
-`FCP_5_TASKCONNECTIVITY.m` estimates functional connectivity. Currently supports the following connectivity metrics: 
+`FCP_5_TASKCONNECTIVITY.m` estimates functional connectivity (i.e., analyzes the synchrony of signals from two regions). At the start of this step, outputs from fcp_4 will be loaded in and a logging file will be set up to keep track of progress. Also, the pipeline will check for matching MEG/MRI data.
+
+Currently supports the following connectivity metrics:
 - 'plv' (phase locking value)
 - 'pli' (phase lag index)
 - 'wpli' (weighted phase lag index)
 - 'wpli_debiased' (as above, but debiased)
-- 'coh' (coherence)
-The strings listed above should be specified in the config JSON file exactly as presented. 
+- 'coh' (coherence) The strings listed above should be specified in the config JSON file exactly as presented.
 
-See also: `ft_freqanalysis.m`, `ft_connectivityanalysis.m`, `ft_checkdata.m`
+Output: An adjacency matrix for all participants containing region by region by participant by frequency band.
+
+See also: 
+- `ft_freqanalysis.m` to perform time-frequency and frequency analysis on the time series data 
+- `ft_connectivityanalysis.m` to calculate connectivity between channels
+- `ft_checkdata.m` to check the input data of the main FieldTrip functions 
 
 ## Credits
 
