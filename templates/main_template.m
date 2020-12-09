@@ -90,6 +90,11 @@ fcp_2_PreprocessingICA(paths)
 % fcp_2,and identify the ones that contain artifacts. After each 
 % inspection, the user enters which components contain artifacts 
 
+% remember to fill in participant IDs in the subj_fcp2.csv! If you would
+% like to auto-populate subj_fcp2.csv (i.e. include all participants), copy
+% the commented lines of code from fcp_1 and chaged "path.subj_fcp1" to
+% "paths.subj_fcp2_5"
+
 fcp_2_5_checkpoint(paths)
 
 % remember to note participants to be excluded based on too many ICA artifact components!
