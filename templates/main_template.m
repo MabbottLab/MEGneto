@@ -138,3 +138,27 @@ fcp_5_freqanalysis(paths);
 
 fcp_5_taskconnectivity(paths);
 
+%% Additional functions
+% The section(s) below contain additional functions that may be run after
+% the final fcp step of the pipeline. These functions serve as additional
+% analysis/analysis preparation tools.
+
+%% make_NBS_ready 
+% This function prepares a design matrix to serve as input to the Matlab
+% NBS toolbox. The design matrix columns are the participant groups
+% (e.g. "control", "surgery", etc.) and rows are participants. A "0" or
+% "1" indicates whether the participant belongs to the group/column ("1") 
+% or not("0"). 
+
+% Don't forget to include a ParticipantCategories.xlsx file in your
+% paths.conf_dir folder. Fill in the variables below which are input to the
+% function.
+
+% Specify inputs to the function
+group_names = []; % array of strings, e.g., ["surg", "rad", "control"], 
+%                   exactly as they appear in folder names 
+conn = ""; % name of connectivity metric as a character array (must match 
+%            the metric outlined in the file name of the connectivity
+%            matrix .mat file, e.g. "wpli_debiased")
+
+make_NBS_ready(paths, group_names, conn)
