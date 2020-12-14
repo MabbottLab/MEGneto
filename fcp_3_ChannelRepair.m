@@ -1,7 +1,10 @@
 function fcp_3_ChannelRepair(paths)
 
-% FCP_3_CHANNELREPAIR remove and repair bad channels detected from fcp_1, 
-% but that we held off on removing until the data had been ICA-cleaned. 
+% FCP_3_CHANNELREPAIR removes and repairs bad channels detected from fcp_1, 
+% but that we held off on removing until the data had been ICA-cleaned. The
+% bad channels are repaired by replacing them with some combination of
+% neighbouring channels (a 'weighted' average by default, but other options
+% include 'average', 'spline' or 'slap').
 % 
 % NOTES:
 %   - Ensure that subj_fcp3.csv is populated with the subject IDs of
@@ -16,7 +19,8 @@ function fcp_3_ChannelRepair(paths)
 %       Head motion removed, muscle + jump artifacts removed, 3rd order
 %       gradients accounted for, ICA-cleaned, bad channels repaired data. 
 %
-% See also: 
+% See also: DS_PID_MATCH, WRITE_MATCH_IF_NOT_EMPTY, FT_PREPARE_NEIGHBOURS,
+% FT_CHANNELREPAIR
 %
 % Last updated by: Julie Tseng, 2020-01-08
 %   This file is part of MEGneto, see https://github.com/SonyaBells/MEGneto
@@ -62,7 +66,7 @@ fcp2_output = recursive_json_struct_string_to_func(fcp2_output);
 rangeOFsubj = 1:height(subj_match);
 
 disp('Starting channel repair...');
-for ss = rangeOFsubj
+for ss = rangeOFsubj % for participants that have both MEG and MRI data
     right_now = clock;
     fprintf('%d:%d:%02.f       Working on SUBJECT: %s!\n', ...
         right_now(4:6), subj_match.pid{ss})
@@ -75,7 +79,7 @@ for ss = rangeOFsubj
     channel_check = dir([paths.(subj_match.pid{ss}) '/badChannels.json']);
     if config.cleaningOptions.rmBadChannels == 1 && channel_check.bytes > 5
 
-    %%% FIND NEIGHBOURS ---------------------------------------------------
+    %%% FIND NEIGHBOURING CHANNELS ---------------------------------------------------
         disp('Finding neighbours ...')
 
         cfg               = [];
@@ -88,7 +92,7 @@ for ss = rangeOFsubj
         disp('Repairing bad channels ...')
 
         % run repair
-        cfg             = [];
+        cfg             = []; % set up config for channel repair
         cfg.method      = 'weighted';        %'average', 'spline' or 'slap' (default = 'weighted')
         cfg.badchannel  = loadjson([paths.(subj_match.pid{ss}) '/badChannels.json'])'; 
         cfg.neighbours  = neighbours; %neighbourhood structure, see also FT_PREPARE_NEIGHBOURS
@@ -110,7 +114,7 @@ fprintf('%d:%d:%02.f       Done running **%s**.\n', ...
     right_now(4:6), mfilename)
 diary off
 
-%% let the users know
+%% let the users know that bad channel repair is complete
 sendEmail("repairing bad channels", string(config.contact));
     
 end

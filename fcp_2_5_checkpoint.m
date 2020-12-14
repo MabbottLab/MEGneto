@@ -22,7 +22,8 @@ function fcp_2_5_checkpoint(paths)
 %     .ICA_badcomp      = record of user-specified bad components
 
 %
-% See also: DISP_ICA_CHANS
+% See also: DS_PID_MATCH, WRITE_MATCH_IF_NOT_EMPTY, FT_REJECTCOMPONENT,
+% DISP_ICA_CHANS, FT_DATABROWSER
 
 % Last updated by: Julie Tseng, 2020-01-08
 %   This file is part of MEGneto, see https://github.com/SonyaBells/MEGneto
