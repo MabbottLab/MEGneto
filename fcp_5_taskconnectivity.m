@@ -1,6 +1,7 @@
 function fcp_5_taskconnectivity(paths)
 
-% FCP_5_TASKCONNECTIVITY estimates functional connectivity. 
+% FCP_5_TASKCONNECTIVITY estimates functional connectivity (i.e., analyzes 
+% the synchrony of signals from two regions). 
 % Currently supports the following connectivity metrics: 
 %       - 'plv' (phase locking value)
 %       - 'pli' (phase lag index)
@@ -59,11 +60,12 @@ ssSubjPath  = @(x) paths.(subj_match.pid{x});
 %% MAKE FILTERS
 
 %%% LOAD SAMPLE PPT -------------------------------------------------------
+% used to get the sample rate
 load([ssSubjPath(1) '/AAL_beamforming_results'], '-mat') %SB - add cond
 
 %%% MAKE FILTER -----------------------------------------------------------
 maxn = 0;
-for fq = 1:length(config.connectivity.filt_freqs)
+for fq = 1:length(config.connectivity.filt_freqs) % for each frequency band specified in the JSON config file
 
     % calculate filter coefficients
     filtband = config.connectivity.filt_freqs(fq,:);
@@ -130,7 +132,7 @@ all_conn_mat = nan(size(catmatrix,3), size(catmatrix,3), ... % num_nodes x num_n
             %%% FOR EACH AAL NODE/SOURCE
             for kk = 1:num_sources
               % mean center or z-score the timeseries before filtering
-              ts = prefilter(catmatrix(:,tt,kk));          
+              ts = prefilter(catmatrix(:,tt,kk)); % prepared specified portion of catmatrix         
               % filter data, calculate hilbert transform, get instantaneous phase
                 if (max(length(fir_coef{fq})-1,length(1)-1)*3) < length(ts)          
                     data.trial{tt}(kk,:) = filtfilt(fir_coef{fq}, 1, ts);
@@ -142,18 +144,18 @@ all_conn_mat = nan(size(catmatrix,3), size(catmatrix,3), ... % num_nodes x num_n
 
 %%% CALCULATE CONNECTIVITY ------------------------------------------------
             fprintf('Onto the connectivity calculations!\n')
-            cfg             = [];
+            cfg             = []; % set up config for connectivity calculation
             cfg.method      = 'mtmfft';
             cfg.output      = 'powandcsd';
             cfg.channel     = 'all';
             cfg.trials      = 'all';
             cfg.keeptrials  = 'yes';
             cfg.taper       = 'hanning';
-            cfg.foilim      = config.connectivity.filt_freqs(fq,:);
+            cfg.foilim      = config.connectivity.filt_freqs(fq,:); % calculate connectvity
             % GET THE CROSS SPECTRUM
-            freq            = ft_freqanalysis(cfg, data);
+            freq            = ft_freqanalysis(cfg, data); 
 
-            % COMPUTE METRIC
+            % COMPUTE CONNECTIVITY METRIC
             if strcmp(config.connectivity.method, 'pli')
                 % need to trick fieldtrip if we're using PLI, as they don't
                 % have it implemented in their ft_connectivityanalysis
@@ -163,9 +165,9 @@ all_conn_mat = nan(size(catmatrix,3), size(catmatrix,3), ... % num_nodes x num_n
                 conn.cfg           = freq.cfg;
                 conn.plispctrm     = squeeze(abs(mean(sign(freq.crsspctrm), 1)));
             else
-                cfg             = [];
+                cfg             = []; % set up config for computing connectivity metric
                 cfg.method      = config.connectivity.method;
-                conn            = ft_connectivityanalysis(cfg, freq);
+                conn            = ft_connectivityanalysis(cfg, freq); % compute connectivity metric
             end
             
             % RESHAPE INTO SOURCE X SOURCE CONN MAT AND STORE
@@ -196,7 +198,7 @@ fprintf('%d:%d:%02.f ============== Finished Processing ====================\n',
     right_now(4:6))
 diary off
 
-%% let the users know
+%% let the users know that connectivity analysis is complete
 sendEmail("connectivity", string(config.contact));
 
 end
