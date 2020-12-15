@@ -18,7 +18,7 @@ function make_NBS_ready(paths, group_names, conn)
 % design_matrix.mat:        design matrix for NBS analysis
 % NBS[freq]_datamatrix.mat: data matrices organized by frequency band
 
-% IMPORTANT: this version assumes that the participant adjmats only have
+% IMPORTANT: this version assumes that the participant conn_mats only have
 % the first entry of the 3rd dimension (the trials dimension) populated.
 % This is because WPLI and debiased WPLI must avg across trials for the
 % final connectivity estimate. 
@@ -35,19 +35,19 @@ groups = groups(:,1:numGroups);
 groupPLI = cell(1,numGroups); % for each group
 for gg = 1:numGroups 
     this_ppt_list = rmmissing(groups.(group_names(gg))); % isolate ppt list for this group
-    groupPLI{gg} = cellfun(@(x) sprintf('%s/%s/fcp_5_adjmat_%s.mat', spath, x, conn), ...
+    groupPLI{gg} = cellfun(@(x) sprintf('%s/%s/fcp_5_conn_mat_%s.mat', spath, x, conn), ...
                             this_ppt_list, 'UniformOutput', false); % generate filepaths to those folders
 end
 
-%% initialize subjects in conditions - load PLI adj. matrix
+%% initialize subjects in conditions - load PLI conn. matrix
 
 nbs_datamat = [];
 for gg = 1:numGroups
     fprintf(['\t---- Group ',num2str(gg),' ----\n']);
         for ss = 1:length(groupPLI{gg})
-            this_adjmat = load(groupPLI{gg}{ss}); % load the struct
-            this_adjmat = this_adjmat.adjmat;
-            nbs_datamat = cat(4, nbs_datamat, this_adjmat); % throw in the participant's conn
+            this_conn_mat = load(groupPLI{gg}{ss}); % load the struct
+            this_conn_mat = this_conn_mat.conn_mat;
+            nbs_datamat = cat(4, nbs_datamat, this_conn_mat); % throw in the participant's conn
         end
 end
 
