@@ -16,11 +16,12 @@ function fcp_5_taskconnectivity(paths)
 %                           folders, analysis folders, config files, etc. 
 %
 % OUTPUTS:
-%   adjmat:             participant adj matrix preserving results of each
-%                       trial, saved into individual analysis folder
-%   all_adjmat:         master matrix with all participants adj mats
-%                       nodes x nodes x num_participants x num_freq_bands,
-%                       saved into group analysis folder
+%   conn_mat:             participant connectivity matrix preserving 
+%                         results of each trial, saved into individual 
+%                         analysis folder
+%   all_conn_mat:         master matrix with all participants conn mats
+%                         nodes x nodes x num_participants x num_freq_bands,
+%                         saved into group analysis folder
 %
 % See also: 
 %
@@ -88,10 +89,9 @@ fprintf('Max filter length: %d samples = %.4f sec.\n', maxn, maxn/srate);
 
 %% RUN CONNECTIVITY ANALYSIS
 
-% setup band names and master adjacency matrix (stores each participant's
-% matrix)
+% setup band names and master connectivity matrix
 band_names = ["theta", "alpha", "beta", "lowgamma", "highgamma"];
-all_adjmat = nan(size(catmatrix,3), size(catmatrix,3), ... % num_nodes x num_nodes x ...
+all_conn_mat = nan(size(catmatrix,3), size(catmatrix,3), ... % num_nodes x num_nodes x ...
                 length(subj_match.ds), ...                 % num_subjects x ... 
                 length(config.connectivity.filt_freqs));   % num_freq_bands
 
@@ -111,9 +111,9 @@ all_adjmat = nan(size(catmatrix,3), size(catmatrix,3), ... % num_nodes x num_nod
         num_trials  = size(catmatrix, 2);
         num_sources = size(catmatrix, 3);
 
-%%% INITIALIZE PARTICIPANT ADJACENCY MATRIX -------------------------------
+%%% INITIALIZE PARTICIPANT CONNECTIVITY MATRIX -------------------------------
 %   Dimensions = [sources] x [sources] x [freq. band]
-        adjmat  = nan(num_sources, num_sources, length(config.connectivity.filt_freqs)); % set up blank connectivity matrix to store data
+        conn_mat  = nan(num_sources, num_sources, length(config.connectivity.filt_freqs)); 
         data    = [];
         time_info = config.task.trialdef.parameters.tEpoch;
         for src = 1:num_sources
@@ -170,27 +170,27 @@ all_adjmat = nan(size(catmatrix,3), size(catmatrix,3), ... % num_nodes x num_nod
                 conn            = ft_connectivityanalysis(cfg, freq); % compute connectivity metric
             end
             
-            % RESHAPE INTO SOURCE X SOURCE ADJ MAT AND STORE
-            conn            = ft_checkdata(conn, 'cmbrepresentation', 'full'); % check data format
+            % RESHAPE INTO SOURCE X SOURCE CONN MAT AND STORE
+            conn            = ft_checkdata(conn, 'cmbrepresentation', 'full');
             if ~strcmp(config.connectivity.method, 'mean') % default to max across band
-                adjmat(:,:,fq) = squeeze(max(conn.(sprintf('%sspctrm', config.connectivity.method)),[], 3));
+                conn_mat(:,:,fq) = squeeze(max(conn.(sprintf('%sspctrm', config.connectivity.method)),[], 3));
             else % otherwise, use mean
-                adjmat(:,:,fq) = squeeze(mean(conn.(sprintf('%sspctrm', config.connectivity.method)), 3));
+                conn_mat(:,:,fq) = squeeze(mean(conn.(sprintf('%sspctrm', config.connectivity.method)), 3));
             end
           
             fprintf('Done this band. ')
         end % repeat for each frequency band
 
-%%% SAVE PARTICIPANT'S ADJACENCY MATRIX -----------------------------------
+%%% SAVE PARTICIPANT'S CONNECTIVITY MATRIX -----------------------------------
         fprintf('Saving the mat file...\n');
-        save([ssSubjPath(ss) '/fcp_5_adjmat_' config.connectivity.method '.mat'],'adjmat','-mat','-v7.3')
+        save([ssSubjPath(ss) '/fcp_5_conn_mat_' config.connectivity.method '.mat'],'conn_mat','-mat','-v7.3')
 
 %%% CALCULATE AND RECORD AVG ACROSS TRIALS FOR THIS PARTICIPANT
-        all_adjmat(:,:,ss,:) = adjmat;
+        all_conn_mat(:,:,ss,:) = conn_mat;
     end
     
-%%% SAVE MASTER ADJACENCY MATRIX WITH ALL PARTICIPANTS
-save([paths.anout_grp '/fcp_5_allParticipants_adjmats_' config.connectivity.method '.mat'],'all_adjmat','-v7.3');
+%%% SAVE MASTER CONNECTIVITY MATRIX WITH ALL PARTICIPANTS
+save([paths.anout_grp '/fcp_5_allParticipants_conn_mats_' config.connectivity.method '.mat'],'all_conn_mat','-v7.3');
 
 %% turn off diary
 right_now = clock;
