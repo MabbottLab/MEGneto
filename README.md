@@ -222,7 +222,7 @@ Currently supports the following connectivity metrics:
 - 'wpli_debiased' (as above, but debiased)
 - 'coh' (coherence) The strings listed above should be specified in the config JSON file exactly as presented.
 
-Output: An adjacency matrix for all participants containing region by region by participant by frequency band.
+Output: A connectivity matrix for all participants containing region by region by participant by frequency band.
 
 See also: 
 - `ft_freqanalysis.m` to perform time-frequency and frequency analysis on the time series data 
