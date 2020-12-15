@@ -238,6 +238,7 @@ See also:
 - November 2016: Sonya Bells
 - June 2019: Ming Scott
 - October 2019: Julie Tseng 
+- December 2020: Dunja Matic
 
 ## On Downsampling
 

@@ -1,8 +1,8 @@
 {
     "config" : {
+	"contact" : ["dunja.matic@sickkids.ca"],
         "epoching" : {
-            "period" : 30,
-            "totalTime" : 120,
+            "period" : 30,    
             "headMotion" : {
                 "thr" : 10
             }
@@ -10,7 +10,6 @@
         "cleaningOptions" : {
             "artifact" : {
                 "detection" : 1,
-                "rejection" : "complete",
                 "muscle" : {
                     "bpfilter"    : "yes",
                     "bpfreq"      : [110, 140],
@@ -29,7 +28,7 @@
                 "icaClean" : 1,
                 "rmNoisyTrials" : 1
             },
-            "rmBadChannels" : 1
+	    "rmBadChannels" : 1
         },
         "filteringParameters" : {
             "channel"    : ["MEG", "MEGREF", "REFGRAD", "REFMAG"], 
@@ -46,9 +45,9 @@
             "type": "anonymous",
             "file": "",
             "workspace": [
-                {
-                }
-            ],
+		{
+		}
+	    ],
             "within_file_path": "__base_function"
         },
         "task" : {
@@ -61,18 +60,13 @@
                     "include" : ["Correct"],
                     "countOnly" : false
                 },
-                "light" : {
-                	"avgStartThresh" : [-0.5, 0.96]
-                },
                 "parameters" : {
                     "t0shift" : 0.023,
-                    "tEpoch" : [-2.0, 2.0 ]
+                    "tEpoch" : [-2.0, 2.0]
                 },
                 "markers" : {
                     "Correct" : ["LeftCorrect", "RightCorrect"],
-                    "Incorrect" : ["LeftIncorrect", "RightIncorrect"],
-                    "t0marker" : "OfflineLightOn",
-                    "newTrig" : ["Hit"]
+                    "t0marker" : "OfflineLightOn"
                 }
             }
         },
@@ -96,8 +90,7 @@
 		"checkMRIvolumes" : {
 			"method" : "slice",
 			"slicesdim" : 2,
-			"nslices" : 20,
-			"funparameter" : "pow"
+			"nslices" : 20
 		},
 		"subj" : {
 			"grid" : {
@@ -107,7 +100,6 @@
 			}
 		},
 		"leadfield" : {
-			"reducerank" : "no",
 			"normalize" : "no" 
 		},
 		"timeDomain" : {
@@ -131,8 +123,7 @@
 				[13,29],
 				[30,59],
 				[60,100]
-				],
-		"collapse_band" : "max"
+				]
 		}
 	}    
 }
