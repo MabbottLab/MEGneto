@@ -125,6 +125,9 @@ See also:
 
 Output: A struct with file names for the configuration of the preprocessed data, the data noise correlation matrix, and the ICA components and the bad components specified by the user. 
 
+Notes:
+- Prior to running the function, ensure that subj_fcp2_5.csv is populated with the subject IDs of participants you want to include.
+
 See also: 
 - `ds_pid_match` to get the PIDs where there is matching MEG and MRI data
 - `write_match_if_not_empty` to write down the matching MEG/MRI data if they exist
@@ -144,11 +147,12 @@ After browsing the ICA components and noting which ones are bad, the user should
 
 ### Channel Repair
 
-`FCP_3_CHECKPOINT.m` repairs bad channels detected from fcp_1, but we held off on removing until the data had been ICA-cleaned. The channels are repaired by replacing them with a weighted average of neighbouring channels.
+`FCP_3_CHECKPOINT.m` repairs bad channels detected from fcp_1, but we held off on removing until the data had been ICA-cleaned. The channels are repaired by replacing them with a some combination of neighbouring channels (default is 'weighted' average, other options include 'average', 'spline', or 'slap').
 
 Output: *.mat file of fully cleaned data (i.e., removed head motion/muscle and jump artifacts, 3rd order gradients, ICA cleaned data, and repaired bad channels). 
 
 Notes:
+- Prior to running the function, ensure that subj_fcp3.csv is populated with the subject IDs of participants you want to include.
 - Outputs from fcp2 are loaded at the start of this step and a logging file will be set up to keep track of progress. Further, the pipeline will check for matching MEG/MRI data.
 - The output data of this step is in the sensor space MEG data (fully processed).
 
@@ -179,7 +183,8 @@ The following atlases are currently supported:
 - Yeo 17-network parcellation
 - Brainnetome parcellation (although the number of regions here greatly outranks the rank of the sensors)
 
-Note:
+Notes:
+- Prior to running the function, ensure that subj_fcp4.csv is populated with the subject IDs of participants you want to include.
 - At the start of the function, outputs from fcp_3 will be loaded in and a logging file will be set up to keep track of progress. Also, the pipeline will check for matching MEG/MRI data.
 
 See also:
@@ -206,6 +211,7 @@ See also:
 Output: A 4-D matrix containing power spectrum data. Matrix dimensions are [participants] x [regions] x [frequency] x [time]. Users can plot a power spectrum (frequency by time) for a specific region of a given participant’s data by applying a plotting function on a slice of the matrix. 
 
 Notes:
+- Prior to running the function, ensure that subj_fcp5.csv is populated with the subject IDs of participants you want to include.
 - At the start of this step, outputs from fcp_4 will be loaded in and a logging file will be set up to keep track of progress. Also, the pipeline will check for matching MEG/MRI data.
 
 See also: `ft_freqanalysis.m`
