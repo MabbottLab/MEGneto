@@ -1,8 +1,17 @@
 function fcp_4_beamforming(paths)
 
 % FCP_4_BEAMFORMING carries out beamforming and source projection on
-% cleaned data.
-% 
+% cleaned data. A T1 template head model is loaded in (normalizing across
+% particpants) to create a volume conduction model and subsequently, a
+% source model. Each participant's MRI data is then loaded in and their
+% head and source models are created. After a leadfield is computed for
+% efficienct inverse modelling, beamforming is performed by computing a
+% covariance matrix and projecting each participant's trials through a
+% spatial filter. Once the virtual sources are projected to their dominant
+% orientation, the source data is interpolated onto an atlas. All
+% reconstructed sources that fall into regions of interest on the atlas,
+% are averaged to generate a representative timseries for the region.
+%
 % NOTES:
 %   - Ensure that subj_fcp4.csv is populated with the subject IDs of
 %   participants you want to include after checking over initial results. 
@@ -69,6 +78,7 @@ end
 %% TEMPLATE HEAD MODEL/SOURCE MODEL
 
 %%% LOAD T1 TEMPLATE FROM SPM W/IN FIELDTRIP ------------------------------
+% the template head model is used to normalize all participants
 ftpath      = which('ft_defaults.m');
 ftpath      = ftpath(1:end-14);
 template    = ft_read_mri(fullfile(ftpath, '/external/spm8/templates/T1.nii'));
@@ -135,7 +145,7 @@ template_grid       = ft_prepare_sourcemodel(cfg);
 
 rangeOFsubj = 1:length(subj_match.ds);
 
-for ss = rangeOFsubj
+for ss = rangeOFsubj % for each participant that has matched MEG/MRI data
 %%% FOR EACH PARTICIPANT --------------------------------------------------
     right_now = clock;
     fprintf('%d:%d:%02.f       Working on subject %s!\n', ...
@@ -145,32 +155,33 @@ for ss = rangeOFsubj
     mri     = ft_read_mri([paths.rawmri '/' subj_match.pid{ss} '_V2.mri']);
     mri     = ft_convert_units(mri,'cm');
     
-    % check for fiducials
+    % check for fiducials which help to localize head position relative to
+    % the sensors
     if any(mri.hdr.fiducial.mri.nas) == 0 || any(mri.hdr.fiducial.mri.lpa) == 0  || any(mri.hdr.fiducial.mri.rpa) == 0
         error('No fiducials found for subject %s!', subj_match.pid{ss});
     end
 
 %%% SEGMENT ANATOMICAL MRI ------------------------------------------------
-    cfg        = [];
+    cfg        = []; % set up config for volume segmentation
     cfg.output = 'brain';
-    seg        = ft_volumesegment(cfg, mri);
+    seg        = ft_volumesegment(cfg, mri); % segment participant MRI
 
 %%% PREPARE HEAD MODEL WITH SEGMENTED PARTICIPANT BRAIN -------------------
-    cfg             = [];
+    cfg             = []; % set up confirm to prepare the participant head model
     cfg.method      = config.beamforming.headmodel.method;
     headmodel_units = 'cm';
-    hdm             = ft_prepare_headmodel(cfg, seg);
-    hdm             = ft_convert_units(hdm,headmodel_units);
+    hdm             = ft_prepare_headmodel(cfg, seg); % prepare head model
+    hdm             = ft_convert_units(hdm,headmodel_units); % convert to specified units
     
 %%% LOAD MEG DATA ---------------------------------------------------------
     load([ssSubjPath(ss) '/ft_meg_fullyProcessed.mat'],'-mat','data');
     
     % Resample all datasets
     if ~(config.filteringParameters.sampleRate == data.fsample)
-        cfg             = [];
+        cfg             = []; % set up config to resample the data
         cfg.resamplefs  = config.filteringParameters.sampleRate;
         cfg.detrend     = 'no';
-        data_resamp     = ft_resampledata(cfg, data);
+        data_resamp     = ft_resampledata(cfg, data); % resample data to specified rate
         data = data_resamp;
         clear data_resamp
     end
@@ -194,13 +205,13 @@ for ss = rangeOFsubj
 %     print(hf, [ssSubjPath(ss) '/segmented_mri_alignment'], '-dpng', '-r600');
     
 %%% PREPARE SUBJECT-SPECIFIC SOURCE MODEL WITH TEMPLATE HEAD MODEL ----------
-    cfg                 = [];
+    cfg                 = []; % set upp config for participant source model preparation 
     cfg.template        = template_grid;
     cfg.warpmni         = config.beamforming.subj.grid.warpmni;
     cfg.nonlinear       = config.beamforming.subj.grid.nonlinear;
     cfg.mri             = mri;
     cfg.unit            = config.beamforming.subj.grid.unit; 
-    grid                = ft_prepare_sourcemodel(cfg);
+    grid                = ft_prepare_sourcemodel(cfg); % prepare source model
 %    coords             = sourcemodel.pos;
 
 %%% VISUALIZATION: TISSUE PROBABILITY MAPS --------------------------------
@@ -225,7 +236,9 @@ for ss = rangeOFsubj
 %     print(hf, [ssSubjPath(ss) '/source_head_align'], '-dpng', '-r600');
 
 %%% COMPUTE LEADFIELD -----------------------------------------------------
-    cfg              = [];
+    % the leadfield is used to provide information on the contribution of a
+    % dipole source at a given location in a sensor's region
+    cfg              = []; % set up config to prepare the leadfield
     cfg.headmodel    = hdm;
     cfg.channel      = 'MEG';
     cfg.reducerank   = 2;
@@ -233,7 +246,7 @@ for ss = rangeOFsubj
     cfg.grid.inside  = grid.inside;
     cfg.normalize    = config.beamforming.leadfield.normalize;
     cfg.grad         = data.grad;
-    leadfield        = ft_prepare_leadfield(cfg, data);
+    leadfield        = ft_prepare_leadfield(cfg, data); % create leadfield
 
 %% ACTUAL BEAMFORMING
 
@@ -244,16 +257,17 @@ for ss = rangeOFsubj
 %%% VECTOR - Time Domain Source Reconstruction ----------------------------
 
     %%% compute common spatial filter (returns: COVARIANCE MATRIX)
-    cfg                    = [];
+    % the covariance matrix tells us how related the sensors are
+    cfg                    = []; % set up config to compute covariance matrix
     cfg.covariance         = config.beamforming.timeDomain.covariance;
     cfg.channel            = 'MEG';
     cfg.covariancewindow   = config.beamforming.timeDomain.covariancewindow;
     cfg.vartrllength       = config.beamforming.timeDomain.vartrllength;
     cfg.keeptrials         = config.beamforming.options.keeptrials;
-    tlock                  = ft_timelockanalysis(cfg, data);  
+    tlock                  = ft_timelockanalysis(cfg, data); % compute covariance matrix
 
     %%% calculate sensor weights (actual beamforming)
-    cfg                 = [];
+    cfg                 = []; % set up config for sensor weight calculation
     cfg.grad            = data.grad;            % sensor position (gradiometer)
     cfg.headmodel       = hdm;
     cfg.grid            = grid;          % source model
@@ -262,7 +276,7 @@ for ss = rangeOFsubj
     source_t_avg        = ft_sourceanalysis(cfg, tlock);
     
     %%% project all trials thru spatial filter
-    cfg                 = [];
+    cfg                 = []; % set up config for beamforming
     cfg.grid             = grid; % source model
     cfg.grid.filter      = source_t_avg.avg.filter;
     cfg.grid.leadfield   = leadfield.leadfield;
@@ -271,14 +285,14 @@ for ss = rangeOFsubj
     cfg.method           = config.beamforming.method;
     cfg.keeptrials       = 'yes';
     cfg.rawtrial         = config.beamforming.options.rawtrial;       
-    source_t_trials      = ft_sourceanalysis(cfg, tlock);
+    source_t_trials      = ft_sourceanalysis(cfg, tlock); % perform beamforming
         
     %%% project virtual sources to strongest (dominant) orientation
     %%% (taking the largest eigenvector of the sources timeseries)
-    cfg                  = [];
+    cfg                  = []; % set up config for projecting to dominant orientation
     cfg.projectmom       = config.beamforming.timeDomain.projectmom;
     cfg.keeptrials       = 'yes';
-    projection           = ft_sourcedescriptives(cfg, source_t_trials);
+    projection           = ft_sourcedescriptives(cfg, source_t_trials); % project to dominant orientation
     
 %%% INTERPOLATE AAL ATLAS ONTO VIRTUAL SOURCES ----------------------------
 
@@ -290,19 +304,19 @@ for ss = rangeOFsubj
     [pathstr,~,~]           = fileparts(fullPath);
     atlas                   = ft_read_atlas([pathstr config.beamforming.atlas.filepath]);
     if contains(config.beamforming.atlas.filepath, 'aal')
-        atlas.tissuelabel   = atlas.tissuelabel(1:90); % we only want non-cerebellar regions
+        atlas.tissuelabel   = atlas.tissuelabel(1:90); % we only want non-cerebellar regions (isolate desired regions)
         atlas.tissue(atlas.tissue > 90) = 0;
     end
-    atlas           = ft_convert_units(atlas, 'cm');
+    atlas           = ft_convert_units(atlas, 'cm'); % convert atlas units to centimeters
 
     % source interpolate
     cfg              = [];
     cfg.interpmethod = 'nearest';
     cfg.parameter    = 'tissue';
-    source_atlas       = ft_sourceinterpolate(cfg,atlas,sourcemodel);
+    source_atlas       = ft_sourceinterpolate(cfg,atlas,sourcemodel); % interpolate source activity onto voxels of anatomical description of the brain
 
     % actual interpolation
-    catmatrix      = NaN(length(projection.time), ...
+    catmatrix      = NaN(length(projection.time), ... % set up empty matrix to store reconstructed timeseries for each trial and region of interest
                          length(projection.trial), ...
                          length(source_atlas.tissuelabel));   % overall AAL region timeseries across trial
 
