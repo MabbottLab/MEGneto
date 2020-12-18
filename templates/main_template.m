@@ -143,18 +143,20 @@ fcp_5_taskconnectivity(paths);
 % the final fcp step of the pipeline. These functions serve as additional
 % analysis/analysis preparation tools.
 
+%% Preparation functions
+% make_NBS_ready, make_BNV_ready
 %% make_NBS_ready 
 % This function prepares a design matrix to serve as input to the Matlab
 % NBS toolbox. The design matrix columns are the participant groups
 % (e.g. "control", "surgery", etc.) and rows are participants. A "0" or
 % "1" indicates whether the participant belongs to the group/column ("1") 
-% or not("0"). 
+% or not ("0"). 
 
 % Don't forget to include a ParticipantCategories.xlsx file in your
 % paths.conf_dir folder. Fill in the variables below which are input to the
 % function.
 
-% Specify inputs to the function
+% Specify function inputs
 group_names = []; % array of strings, e.g., ["surg", "rad", "control"], 
 %                   exactly as they appear in folder names 
 conn = ""; % name of connectivity metric as a character array (must match 
@@ -162,3 +164,58 @@ conn = ""; % name of connectivity metric as a character array (must match
 %            matrix .mat file, e.g. "wpli_debiased")
 
 make_NBS_ready(paths, group_names, conn)
+%% make_BNV_ready
+% This fuction creates *.node and *.edge files for viewing connectivity 
+% results from PLS or NBS on BrainNet Viewer (BNV). 
+
+% Don't forget to create the 'brainnet' struct containing nine user 
+% specified parameters to pass into this function. 
+
+make_BNV_ready(paths, brainnet)
+
+%% Statistical analysis functions
+% bootTestDiffSeeds
+%% bootTestDiffSeeds
+% This function performs bootstrap testing for 
+
+% Specify function inputs
+seed_regions = ; % 
+freq_band = ; % frequency band of interst (e.g. 'gamma')
+two_groups = ; % 
+num_bootstraps = ; % number of desired bootstrap tests
+thresh = ; % 
+
+bootTestDiffSeeds(paths, seed_regions, freq_band, two_groups, num_bootstraps, thresh)
+
+%% Summary functions
+% inspecting_results, getTrialSummary, getMarkerSummary
+%% inspecting_results
+% This function allows the user to analyze the pipeline results by
+% visualizing the data as specified by the user (in type.viz).
+
+% Don't forget to include a ParticipantCategories.xlsx file in your
+% paths.conf_dir folder and a 'type' struct input.
+
+% Specify function inputs
+name = ''; % name of the group output file the user wishes to inspect
+% type = struct with specifications for inspecting the data
+
+inspecting_results(paths, name, type)
+
+%% getTrialSummary
+% This function summarizes trial information for each participant, such as
+% the number of trials, the number of trials removed due to head motion, 
+% number of trials removed due to noise, etc. 
+
+% Specify function inputs
+num_markers = ; %
+thresh = ; %
+
+getTrialSummary(paths, num_markers, thresh)
+
+%% getMarkerSummary
+% This function summarizes the markers for each participant and generates a
+% cluster which describes redundancies in the markers.
+
+getMarkerSummary(paths)
+
