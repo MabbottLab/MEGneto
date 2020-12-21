@@ -145,6 +145,7 @@ fcp_5_taskconnectivity(paths);
 
 %% Preparation functions
 % includes: make_NBS_ready, make_BNV_ready
+
 %% make_NBS_ready 
 % This function prepares a design matrix to serve as input to the Matlab
 % NBS toolbox. The design matrix columns are the participant groups
@@ -171,10 +172,14 @@ make_NBS_ready(paths, group_names, conn)
 % Don't forget to create the 'brainnet' struct containing nine user 
 % specified parameters to pass into this function. 
 
+% Specify function inputs
+% brainnet = struct created by the user
+
 make_BNV_ready(paths, brainnet)
 
 %% Statistical analysis functions
 % includes: bootTestDiffSeeds
+
 %% bootTestDiffSeeds
 % This function performs permutation-based significance testing (via 
 % t-test or f-test using the max procedure) to build a null distribution 
@@ -192,6 +197,7 @@ bootTestDiffSeeds(paths, seed_regions, freq_band, two_groups, num_bootstraps, th
 
 %% Summary functions
 % includes: inspecting_results, getTrialSummary, getMarkerSummary
+
 %% inspecting_results
 % This function allows the user to analyze the pipeline results by
 % visualizing the data as specified by the user (in type.viz).
