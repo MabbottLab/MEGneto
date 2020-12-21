@@ -179,11 +179,11 @@ make_BNV_ready(paths, brainnet)
 % This function performs bootstrap testing for 
 
 % Specify function inputs
-seed_regions = ; % 
-freq_band = ; % frequency band of interst (e.g. 'gamma')
+seed_regions = 0; % specify seed regions of interest 
+freq_band = ''; % frequency band of interst (e.g. 'gamma')
 two_groups = ; % 
-num_bootstraps = ; % number of desired bootstrap tests
-thresh = ; % 
+num_bootstraps = 0; % number of desired bootstrap tests
+thresh = 0; % 
 
 bootTestDiffSeeds(paths, seed_regions, freq_band, two_groups, num_bootstraps, thresh)
 
@@ -194,7 +194,7 @@ bootTestDiffSeeds(paths, seed_regions, freq_band, two_groups, num_bootstraps, th
 % visualizing the data as specified by the user (in type.viz).
 
 % Don't forget to include a ParticipantCategories.xlsx file in your
-% paths.conf_dir folder and a 'type' struct input.
+% paths.conf_dir folder and a 'type' struct as input.
 
 % Specify function inputs
 name = ''; % name of the group output file the user wishes to inspect
@@ -208,8 +208,8 @@ inspecting_results(paths, name, type)
 % number of trials removed due to noise, etc. 
 
 % Specify function inputs
-num_markers = ; %
-thresh = ; %
+num_markers = 0; % number of markers available 
+thresh = 0; %
 
 getTrialSummary(paths, num_markers, thresh)
 
