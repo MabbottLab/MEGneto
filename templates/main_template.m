@@ -139,12 +139,12 @@ fcp_5_freqanalysis(paths);
 fcp_5_taskconnectivity(paths);
 
 %% Additional functions
-% The section(s) below contain additional functions that may be run after
+% The sections below contain additional functions that may be run after
 % the final fcp step of the pipeline. These functions serve as additional
 % analysis/analysis preparation tools.
 
 %% Preparation functions
-% make_NBS_ready, make_BNV_ready
+% includes: make_NBS_ready, make_BNV_ready
 %% make_NBS_ready 
 % This function prepares a design matrix to serve as input to the Matlab
 % NBS toolbox. The design matrix columns are the participant groups
@@ -174,21 +174,24 @@ make_NBS_ready(paths, group_names, conn)
 make_BNV_ready(paths, brainnet)
 
 %% Statistical analysis functions
-% bootTestDiffSeeds
+% includes: bootTestDiffSeeds
 %% bootTestDiffSeeds
-% This function performs bootstrap testing for 
+% This function performs permutation-based significance testing (via 
+% t-test or f-test using the max procedure) to build a null distribution 
+% and control for Type 1 error.
 
 % Specify function inputs
-seed_regions = 0; % specify seed regions of interest 
+seed_regions = []; % numeric indices indicating the seed ROI
 freq_band = ''; % frequency band of interst (e.g. 'gamma')
-two_groups = ; % 
+two_groups = false; % true or false to indicate if the function does a Tmax 
+                    % or Fmax analysis 
 num_bootstraps = 0; % number of desired bootstrap tests
-thresh = 0; % 
+thresh = 0; % significance threshold for the p-vale
 
 bootTestDiffSeeds(paths, seed_regions, freq_band, two_groups, num_bootstraps, thresh)
 
 %% Summary functions
-% inspecting_results, getTrialSummary, getMarkerSummary
+% includes: inspecting_results, getTrialSummary, getMarkerSummary
 %% inspecting_results
 % This function allows the user to analyze the pipeline results by
 % visualizing the data as specified by the user (in type.viz).
@@ -208,8 +211,10 @@ inspecting_results(paths, name, type)
 % number of trials removed due to noise, etc. 
 
 % Specify function inputs
-num_markers = 0; % number of markers available 
-thresh = 0; %
+num_markers = 0; % number of events expected 
+                 % (total number of times stimulus is presented)
+thresh = 0; % percentage indicating what percentage of trials removed 
+            % is unacceptable
 
 getTrialSummary(paths, num_markers, thresh)
 
