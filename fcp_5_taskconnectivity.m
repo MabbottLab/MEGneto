@@ -172,7 +172,7 @@ all_conn_mat = nan(size(catmatrix,3), size(catmatrix,3), ... % num_nodes x num_n
             
             % RESHAPE INTO SOURCE X SOURCE CONN MAT AND STORE
             conn            = ft_checkdata(conn, 'cmbrepresentation', 'full');
-            if ~strcmp(config.connectivity.method, 'mean') % default to max across band
+            if ~strcmp(config.connectivity.method, config.connectivity.collapse_band) % default to max across band
                 conn_mat(:,:,fq) = squeeze(max(conn.(sprintf('%sspctrm', config.connectivity.method)),[], 3));
             else % otherwise, use mean
                 conn_mat(:,:,fq) = squeeze(mean(conn.(sprintf('%sspctrm', config.connectivity.method)), 3));
