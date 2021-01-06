@@ -33,9 +33,9 @@ function fcp_2_5_checkpoint(paths)
 
 % logging file
 right_now = clock;
-log_filename = [paths.conf_dir '/log_' sprintf('%d%d%d', right_now(1:3))];
+log_filename = [paths.conf_dir '/log_' sprintf('%02.f:%02.f:%02.f', right_now(1:3))];
 diary(log_filename)
-fprintf('\n\n%d:%d:%02.f       Now running **%s**.\n', ...
+fprintf('\n\n%02.f:%02.f:%02.f       Now running **%s**.\n', ...
     right_now(4:6), mfilename)
 
 % load config JSON with analysis parameters
@@ -151,7 +151,7 @@ for ss = rangeOFsubj
 
     % save a JSON copy of the components
     right_now = clock;
-    save_to_json(bad_comp, sprintf('%s/ICA_badcomp_%d%d%d_%d%d.json', ...
+    save_to_json(bad_comp, sprintf('%s/ICA_badcomp_%02.f%02.f%02.f_%02.f%02.f.json', ...
         ssSubjPath(ss), right_now(1:5)));
 end
 
@@ -171,7 +171,7 @@ disp('Done.\n')
 %% turn off logging
 
 right_now = clock;
-fprintf('%d:%d:%02.f       Done running **%s**.\n', ...
+fprintf('%02.f:%02.f:%02.f       Done running **%s**.\n', ...
     right_now(4:6), mfilename)
 diary off
 

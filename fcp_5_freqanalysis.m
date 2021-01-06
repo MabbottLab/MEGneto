@@ -42,7 +42,7 @@ ssSubjPath  = @(x) paths.(subj_match.pid{x});
 
 for ss = 1:length(subj_match.ds)
     right_now = clock;
-    fprintf('%d:%d:%02.f       Working on subject %s!\n', ...
+    fprintf('%02.f:%02.f:%02.f       Working on subject %s!\n', ...
         right_now(4:6), subj_match.pid{ss})
 
 %%% LOAD VIRTUAL SENSOR DATA ----------------------------------------------

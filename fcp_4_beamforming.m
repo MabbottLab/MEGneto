@@ -47,10 +47,10 @@ function fcp_4_beamforming(paths)
 %% SET UP LOGGING FILE
 
 right_now = clock;
-log_filename = [paths.conf_dir '/log_' sprintf('%d%d%d', right_now(1:3))];
+log_filename = [paths.conf_dir '/log_' sprintf('%02.f:%02.f:%02.f', right_now(1:3))];
 diary(log_filename)
 
-fprintf('\n\n%d:%d:%02.f       Now running **%s**.\n', ...
+fprintf('\n\n%02.f:%02.f:%02.f       Now running **%s**.\n', ...
     right_now(4:6), mfilename)
 
 %% SETUP
@@ -148,7 +148,7 @@ rangeOFsubj = 1:length(subj_match.ds);
 for ss = rangeOFsubj % for each participant that has matched MEG/MRI data
 %%% FOR EACH PARTICIPANT --------------------------------------------------
     right_now = clock;
-    fprintf('%d:%d:%02.f       Working on subject %s!\n', ...
+    fprintf('%02.f:%02.f:%02.f      Working on subject %s!\n', ...
         right_now(4:6), subj_match.pid{ss})
 
 %%% LOAD ANATOMICAL MRI DATA ----------------------------------------------
@@ -251,7 +251,7 @@ for ss = rangeOFsubj % for each participant that has matched MEG/MRI data
 %% ACTUAL BEAMFORMING
 
     right_now = clock;
-    fprintf('%d:%d:%02.f       Now, for actual beamforming...\n', ...
+    fprintf('%02.f:%02.f:%02.f       Now, for actual beamforming...\n', ...
         right_now(4:6))
 
 %%% VECTOR - Time Domain Source Reconstruction ----------------------------
@@ -322,7 +322,7 @@ for ss = rangeOFsubj % for each participant that has matched MEG/MRI data
 
     %%% FOR EACH TRIAL ----------------------------------------------------
     right_now = clock;
-    fprintf('%d:%d:%02.f       Projecting to AAL sources!\n', ...
+    fprintf('%02.f:%02.f:%02.f       Projecting to AAL sources!\n', ...
         right_now(4:6))
     
     for t = 1:projection.df
@@ -357,14 +357,14 @@ for ss = rangeOFsubj % for each participant that has matched MEG/MRI data
         source_t_avg tlock leadfield aal_node
     
     right_now = clock;
-    fprintf('%d:%d:%02.f       Done subject %s!\n', ...
+    fprintf('%02.f:%02.f:%02.f       Done subject %s!\n', ...
         right_now(4:6), subj_match.pid{ss})
     
 end
 
 %% turn off diary
 right_now = clock;
-fprintf('%d:%d:%02.f       Done running **%s**.\n', ...
+fprintf('%02.f:%02.f:%02.f       Done running **%s**.\n', ...
     right_now(4:6), mfilename)
 
 %% send email to user

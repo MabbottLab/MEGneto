@@ -29,10 +29,10 @@ function fcp_3_ChannelRepair(paths)
 %% SET UP LOGGING FILE
 
 right_now = clock;
-log_filename = [paths.conf_dir '/log_' sprintf('%d%d%d', right_now(1:3))];
+log_filename = [paths.conf_dir '/log_' sprintf('%02.f:%02.f:%02.f', right_now(1:3))];
 diary(log_filename)
 
-fprintf('\n\n%d:%d:%02.f       Now running **%s**.\n', ...
+fprintf('\n\n%02.f:%02.f:%02.f       Now running **%s**.\n', ...
     right_now(4:6), mfilename)
 
 %% SETUP
@@ -68,7 +68,7 @@ rangeOFsubj = 1:height(subj_match);
 disp('Starting channel repair...');
 for ss = rangeOFsubj % for participants that have both MEG and MRI data
     right_now = clock;
-    fprintf('%d:%d:%02.f       Working on SUBJECT: %s!\n', ...
+    fprintf('%02.f:%02.f:%02.f       Working on SUBJECT: %s!\n', ...
         right_now(4:6), subj_match.pid{ss})
 
 %%% LOAD DATA -------------------------------------------------------------
@@ -110,7 +110,7 @@ for ss = rangeOFsubj % for participants that have both MEG and MRI data
     
 %% turn off diary
 right_now = clock;
-fprintf('%d:%d:%02.f       Done running **%s**.\n', ...
+fprintf('%02.f:%02.f:%02.f       Done running **%s**.\n', ...
     right_now(4:6), mfilename)
 diary off
 
