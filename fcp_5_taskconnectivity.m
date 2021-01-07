@@ -33,10 +33,10 @@ function fcp_5_taskconnectivity(paths)
 %% SET UP LOGGING FILE
 
 right_now = clock;
-log_filename = [paths.conf_dir '/log_' sprintf('%d%d%d', right_now(1:3))];
+log_filename = [paths.conf_dir '/log_' sprintf('%02.f%02.f%02.f', right_now(1:3))];
 diary(log_filename)
 
-fprintf('\n\n%d:%d:%02.f       Now running **%s**.\n', ...
+fprintf('\n\n%02.f:%02.f:%02.f       Now running **%s**.\n', ...
     right_now(4:6), mfilename)
 
 %% SETUP
@@ -100,7 +100,7 @@ all_conn_mat = nan(size(catmatrix,3), size(catmatrix,3), ... % num_nodes x num_n
   
     for ss = 1:length(subj_match.ds)
         right_now = clock;
-        fprintf('%d:%d:%02.f       Working on subject %s!\n', ...
+        fprintf('%02.f:%02.f:%02.f       Working on subject %s!\n', ...
             right_now(4:6), subj_match.pid{ss})
 
 %%% LOAD VIRTUAL SENSOR DATA ----------------------------------------------
@@ -194,7 +194,7 @@ save([paths.anout_grp '/fcp_5_allParticipants_conn_mats_' config.connectivity.me
 
 %% turn off diary
 right_now = clock;
-fprintf('%d:%d:%02.f ============== Finished Processing ====================\n', ...
+fprintf('%02.f:%02.f:%02.f ============== Finished Processing ====================\n', ...
     right_now(4:6))
 diary off
 
