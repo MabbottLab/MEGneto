@@ -158,11 +158,12 @@ fcp_5_taskconnectivity(paths);
 % function.
 
 % Specify function inputs
-group_names = []; % array of strings, e.g., ["surg", "rad", "control"], 
+group_names = NA; % array of strings, e.g., ["surg", "rad", "control"], 
 %                   exactly as they appear in folder names 
-conn = ""; % name of connectivity metric as a character array (must match 
+conn = NA; % name of connectivity metric as a character array (must match 
 %            the metric outlined in the file name of the connectivity
-%            matrix .mat file, e.g. "wpli_debiased")
+%            matrix .mat file). Can take on values including: 
+%            "plv, "pli", "wpli", "wpli_debiased", "coh"
 
 make_NBS_ready(paths, group_names, conn)
 %% make_BNV_ready
@@ -173,7 +174,7 @@ make_NBS_ready(paths, group_names, conn)
 % specified parameters to pass into this function. 
 
 % Specify function inputs
-% brainnet = struct created by the user
+brainnet = NA; % struct created by the user
 
 make_BNV_ready(paths, brainnet)
 
@@ -186,12 +187,15 @@ make_BNV_ready(paths, brainnet)
 % and control for Type 1 error.
 
 % Specify function inputs
-seed_regions = []; % numeric indices indicating the seed ROI
-freq_band = ''; % frequency band of interst (e.g. 'gamma')
+seed_regions = NA; % numeric indices indicating the seed ROI (e.g. for AAL
+%                    atlas there are 90 regions, so indices should take on
+%                    values between 1-90). 
+freq_band = 'gamma'; % frequency band of interst (e.g. 'alpha', 'beta', 'gamma', 'theta')
 two_groups = false; % true or false to indicate if the function does a Tmax 
-                    % or Fmax analysis 
-num_bootstraps = 0; % number of desired bootstrap tests
-thresh = 0; % significance threshold for the p-vale
+                    % or Fmax analysis. Default is 'false'. 
+num_bootstraps = 0; % number of desired bootstrap tests.
+thresh = 0.05; % significance threshold for the p-value. Default is 0.05, 
+%                can be altered to desired threshold by the user.
 
 bootTestDiffSeeds(paths, seed_regions, freq_band, two_groups, num_bootstraps, thresh)
 
@@ -207,7 +211,7 @@ bootTestDiffSeeds(paths, seed_regions, freq_band, two_groups, num_bootstraps, th
 
 % Specify function inputs
 name = ''; % name of the group output file the user wishes to inspect
-% type = struct with specifications for inspecting the data
+type = ''; % user-created struct with specifications for inspecting the data
 
 inspecting_results(paths, name, type)
 
@@ -217,10 +221,10 @@ inspecting_results(paths, name, type)
 % number of trials removed due to noise, etc. 
 
 % Specify function inputs
-num_markers = 0; % number of events expected 
+num_markers = NaN; % number of events expected 
                  % (total number of times stimulus is presented)
-thresh = 0; % percentage indicating what percentage of trials removed 
-            % is unacceptable
+thresh = 25; % percentage indicating what percentage of trials removed 
+             % is unacceptable. Here, 25 is the lab's convention.
 
 getTrialSummary(paths, num_markers, thresh)
 
