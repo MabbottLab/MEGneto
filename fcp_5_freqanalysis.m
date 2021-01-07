@@ -26,6 +26,15 @@ function fcp_5_freqanalysis(paths)
 %   This file is part of MEGneto, see https://github.com/SonyaBells/MEGneto
 %   for the documentation and details.
 %
+%% SET UP LOGGING FILE
+
+right_now = clock;
+log_filename = [paths.conf_dir '/log_' sprintf('%02.f%02.f%02.f', right_now(1:3))];
+diary(log_filename)
+
+fprintf('\n\n%02.f:%02.f:%02.f       Now running **%s**.\n', ...
+    right_now(4:6), mfilename)
+
 %% SETUP
 
 %%% PARTICIPANT IDS -------------------------------------------------------
@@ -99,5 +108,13 @@ end
 %%% save the output
 save([paths.anout_grp '/fcp_5_powspctrm_blcorrected.mat'],'pow_spctrm','-mat','-v7.3') 
 
+%% turn off diary
+right_now = clock;
+fprintf('%d:%d:%02.f ============== Finished Processing ====================\n', ...
+    right_now(4:6))
+diary off
+
+%% let the users know that connectivity analysis is complete
+sendEmail("connectivity", string(config.contact));
 
 end
