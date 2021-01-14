@@ -189,9 +189,14 @@ make_BNV_ready(paths, brainnet)
 % and control for Type 1 error.
 
 % Specify function inputs
-seed_regions = NA; % numeric indices indicating the seed ROI (e.g. for AAL
-%                    atlas there are 90 regions, so indices should take on
-%                    values between 1-90). 
+seed_regions = [1, 2, 3]; % numeric indices indicating the seed ROIs (e.g. 
+%                           if the AAL atlas is used, the default input 
+%                           [1, 2, 3] corresponds to the following regions 
+%                           ['left precentral gyrus', 'right precentral 
+%                           gyrus', 'left superior frontal gyrus,
+%                           dorsolateral']. Note that for AAL atlas there 
+%                           are 90 regions, so indices should take on 
+%                           values between 1-90). 
 freq_band = 'gamma'; % frequency band of interst (e.g. 'alpha', 'beta', 
 %                      'gamma', 'theta')
 two_groups = false; % true or false to indicate if the function does a Tmax 
