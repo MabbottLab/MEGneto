@@ -174,7 +174,9 @@ make_NBS_ready(paths, group_names, conn)
 % specified parameters to pass into this function. 
 
 % Specify function inputs
-brainnet = NA; % struct created by the user
+brainnet = NA; % struct created by the user. Refer to documentation in the 
+%                file 'make_BNV_ready.m' for a descrption of the parameters
+%                in 'brainnet'.
 
 make_BNV_ready(paths, brainnet)
 
@@ -190,10 +192,11 @@ make_BNV_ready(paths, brainnet)
 seed_regions = NA; % numeric indices indicating the seed ROI (e.g. for AAL
 %                    atlas there are 90 regions, so indices should take on
 %                    values between 1-90). 
-freq_band = 'gamma'; % frequency band of interst (e.g. 'alpha', 'beta', 'gamma', 'theta')
+freq_band = 'gamma'; % frequency band of interst (e.g. 'alpha', 'beta', 
+%                      'gamma', 'theta')
 two_groups = false; % true or false to indicate if the function does a Tmax 
                     % or Fmax analysis. Default is 'false'. 
-num_bootstraps = 0; % number of desired bootstrap tests.
+num_bootstraps = 1000; % number of desired bootstrap tests.Default is 1000.
 thresh = 0.05; % significance threshold for the p-value. Default is 0.05, 
 %                can be altered to desired threshold by the user.
 
@@ -210,8 +213,13 @@ bootTestDiffSeeds(paths, seed_regions, freq_band, two_groups, num_bootstraps, th
 % paths.conf_dir folder and a 'type' struct as input.
 
 % Specify function inputs
-name = ''; % name of the group output file the user wishes to inspect
-type = ''; % user-created struct with specifications for inspecting the data
+name = NA; % name of the group output file the user wishes to inspect from 
+%            fcp_5_freqanalysis (e.g. 'fcp_5_powspctrm_blcorrected.mat') or
+%            fcp_5_taskconnectivity 
+%            (e.g. 'fcp_5_allParticipants_conn_mats_wpli_debiased.mat')
+type = NA; % user-created struct with specifications for inspecting the 
+%            data. Refer to the documentation in 'inspecting_results.m' 
+%            for an example of the parameters included in the 'type'. 
 
 inspecting_results(paths, name, type)
 
@@ -221,7 +229,7 @@ inspecting_results(paths, name, type)
 % number of trials removed due to noise, etc. 
 
 % Specify function inputs
-num_markers = NaN; % number of events expected 
+num_markers = NA; % number of events expected 
                  % (total number of times stimulus is presented)
 thresh = 25; % percentage indicating what percentage of trials removed 
              % is unacceptable. Here, 25 is the lab's convention.
@@ -229,8 +237,7 @@ thresh = 25; % percentage indicating what percentage of trials removed
 getTrialSummary(paths, num_markers, thresh)
 
 %% getMarkerSummary
-% This function summarizes the markers for each participant and generates a
-% cluster which describes redundancies in the markers.
+% This function summarizes the markers for each participant and generates 
+% a cluster which describes redundancies in the markers.
 
 getMarkerSummary(paths)
-
