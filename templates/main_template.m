@@ -158,9 +158,9 @@ fcp_5_taskconnectivity(paths);
 % function.
 
 % Specify function inputs
-group_names = NA; % array of strings, e.g., ["surg", "rad", "control"], 
+group_names = NaN; % array of strings, e.g., ["surg", "rad", "control"], 
 %                   exactly as they appear in folder names 
-conn = NA; % name of connectivity metric as a character array (must match 
+conn = NaN; % name of connectivity metric as a character array (must match 
 %            the metric outlined in the file name of the connectivity
 %            matrix .mat file). Can take on values including: 
 %            "plv, "pli", "wpli", "wpli_debiased", "coh"
@@ -174,7 +174,7 @@ make_NBS_ready(paths, group_names, conn)
 % specified parameters to pass into this function. 
 
 % Specify function inputs
-brainnet = NA; % struct created by the user. Refer to documentation in the 
+brainnet = NaN; % struct created by the user. Refer to documentation in the 
 %                file 'make_BNV_ready.m' for a descrption of the parameters
 %                in 'brainnet'.
 
@@ -218,11 +218,11 @@ bootTestDiffSeeds(paths, seed_regions, freq_band, two_groups, num_bootstraps, th
 % paths.conf_dir folder and a 'type' struct as input.
 
 % Specify function inputs
-name = NA; % name of the group output file the user wishes to inspect from 
+name = NaN; % name of the group output file the user wishes to inspect from 
 %            fcp_5_freqanalysis (e.g. 'fcp_5_powspctrm_blcorrected.mat') or
 %            fcp_5_taskconnectivity 
 %            (e.g. 'fcp_5_allParticipants_conn_mats_wpli_debiased.mat')
-type = NA; % user-created struct with specifications for inspecting the 
+type = NaN; % user-created struct with specifications for inspecting the 
 %            data. Refer to the documentation in 'inspecting_results.m' 
 %            for an example of the parameters included in the 'type'. 
 
@@ -234,7 +234,7 @@ inspecting_results(paths, name, type)
 % number of trials removed due to noise, etc. 
 
 % Specify function inputs
-num_markers = NA; % number of events expected 
+num_markers = NaN; % number of events expected 
                  % (total number of times stimulus is presented)
 thresh = 25; % percentage indicating what percentage of trials removed 
              % is unacceptable. Here, 25 is the lab's convention.
