@@ -139,26 +139,110 @@ fcp_5_freqanalysis(paths);
 fcp_5_taskconnectivity(paths);
 
 %% Additional functions
-% The section(s) below contain additional functions that may be run after
+% The sections below contain additional functions that may be run after
 % the final fcp step of the pipeline. These functions serve as additional
 % analysis/analysis preparation tools.
+
+%% Preparation functions
+% includes: make_NBS_ready, make_BNV_ready
 
 %% make_NBS_ready 
 % This function prepares a design matrix to serve as input to the Matlab
 % NBS toolbox. The design matrix columns are the participant groups
 % (e.g. "control", "surgery", etc.) and rows are participants. A "0" or
 % "1" indicates whether the participant belongs to the group/column ("1") 
-% or not("0"). 
+% or not ("0"). 
 
 % Don't forget to include a ParticipantCategories.xlsx file in your
 % paths.conf_dir folder. Fill in the variables below which are input to the
 % function.
 
-% Specify inputs to the function
-group_names = []; % array of strings, e.g., ["surg", "rad", "control"], 
+% Specify function inputs
+group_names = NaN; % array of strings, e.g., ["surg", "rad", "control"], 
 %                   exactly as they appear in folder names 
-conn = ""; % name of connectivity metric as a character array (must match 
+conn = NaN; % name of connectivity metric as a character array (must match 
 %            the metric outlined in the file name of the connectivity
-%            matrix .mat file, e.g. "wpli_debiased")
+%            matrix .mat file). Can take on values including: 
+%            "plv, "pli", "wpli", "wpli_debiased", "coh"
 
 make_NBS_ready(paths, group_names, conn)
+%% make_BNV_ready
+% This fuction creates *.node and *.edge files for viewing connectivity 
+% results from PLS or NBS on BrainNet Viewer (BNV). 
+
+% Don't forget to create the 'brainnet' struct containing nine user 
+% specified parameters to pass into this function. 
+
+% Specify function inputs
+brainnet = NaN; % struct created by the user. Refer to documentation in the 
+%                file 'make_BNV_ready.m' for a descrption of the parameters
+%                in 'brainnet'.
+
+make_BNV_ready(paths, brainnet)
+
+%% Statistical analysis functions
+% includes: bootTestDiffSeeds
+
+%% bootTestDiffSeeds
+% This function performs permutation-based significance testing (via 
+% t-test or f-test using the max procedure) to build a null distribution 
+% and control for Type 1 error.
+
+% Specify function inputs
+seed_regions = [1, 2, 3]; % numeric indices indicating the seed ROIs (e.g. 
+%                           if the AAL atlas is used, the default input 
+%                           [1, 2, 3] corresponds to the following regions 
+%                           ['left precentral gyrus', 'right precentral 
+%                           gyrus', 'left superior frontal gyrus,
+%                           dorsolateral']. Note that for AAL atlas there 
+%                           are 90 regions, so indices should take on 
+%                           values between 1-90). 
+freq_band = 'gamma'; % frequency band of interst (e.g. 'alpha', 'beta', 
+%                      'gamma', 'theta')
+two_groups = false; % true or false to indicate if the function does a Tmax 
+                    % or Fmax analysis. Default is 'false'. 
+num_bootstraps = 1000; % number of desired bootstrap tests.Default is 1000.
+thresh = 0.05; % significance threshold for the p-value. Default is 0.05, 
+%                can be altered to desired threshold by the user.
+
+bootTestDiffSeeds(paths, seed_regions, freq_band, two_groups, num_bootstraps, thresh)
+
+%% Summary functions
+% includes: inspecting_results, getTrialSummary, getMarkerSummary
+
+%% inspecting_results
+% This function allows the user to analyze the pipeline results by
+% visualizing the data as specified by the user (in type.viz).
+
+% Don't forget to include a ParticipantCategories.xlsx file in your
+% paths.conf_dir folder and a 'type' struct as input.
+
+% Specify function inputs
+name = NaN; % name of the group output file the user wishes to inspect from 
+%            fcp_5_freqanalysis (e.g. 'fcp_5_powspctrm_blcorrected.mat') or
+%            fcp_5_taskconnectivity 
+%            (e.g. 'fcp_5_allParticipants_conn_mats_wpli_debiased.mat')
+type = NaN; % user-created struct with specifications for inspecting the 
+%            data. Refer to the documentation in 'inspecting_results.m' 
+%            for an example of the parameters included in the 'type'. 
+
+inspecting_results(paths, name, type)
+
+%% getTrialSummary
+% This function summarizes trial information for each participant, such as
+% the number of trials, the number of trials removed due to head motion, 
+% number of trials removed due to noise, etc. 
+
+% Specify function inputs
+num_markers = NaN; % number of events expected 
+                 % (total number of times stimulus is presented)
+thresh = 25; % percentage indicating what percentage of trials removed 
+             % is unacceptable. Here, 25 is the lab's convention.
+
+getTrialSummary(paths, num_markers, thresh)
+
+%% getMarkerSummary
+% This function summarizes the markers for each participant and generates 
+% a cluster which describes redundancies in the markers.
+
+getMarkerSummary(paths)
