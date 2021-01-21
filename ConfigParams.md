@@ -810,6 +810,15 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
           <br>
           Meaning: Specifies what method we want to use to perform the beamforming 
         </details>
+      </li>
+      <!--BEAMFORMING.REP_TIMESERIES-->
+      <li>
+        <details>
+          <summary>Rep_timeseries</summary>
+          Where:Fcp_4_beamforming just before a representative timeseries for each ROI 
+          <br>
+          Meaning: Specifies what method we want to use to derive the timeseries
+        </details>
       </li></ul>
  </details>
  
