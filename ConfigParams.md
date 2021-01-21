@@ -817,7 +817,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
           <summary>Rep_timeseries</summary>
           Where: Fcp_4_beamforming just before a representative timeseries for each ROI 
           <br>
-          Meaning: Specifies what method we want to use to derive the timeseries
+          Meaning: Specifies what method we want to use to derive the timeseries ("mean" or "pca")
         </details>
       </li></ul>
  </details>
