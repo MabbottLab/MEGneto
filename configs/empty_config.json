@@ -110,7 +110,8 @@
 			"keepfilter" : "",
 			"rawtrial" : ""		
 		},
-		"method" : ""
+		"method" : "",
+		"rep_timeseries" : ""
 	},
 	"connectivity" : {
 		"method" : "",

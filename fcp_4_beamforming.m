@@ -334,8 +334,13 @@ for ss = rangeOFsubj % for each participant that has matched MEG/MRI data
             % ori_region               = cell2mat(projection.trial(t).ori(node)); % orientations; num_nodes x time
             
             % IF NODE EXISTS
-            if size(source_timeseries, 1) >= 1
-                catmatrix(:,t,i) = nanmean(source_timeseries,1); % take avg across source points
+            if size(source_timeseries, 1) >= 1 
+                if config.beamforming.rep_timeseries == "mean"
+                    catmatrix(:,t,i) = nanmean(source_timeseries,1); % take avg across source points
+                elseif config.beamforming.rep_timeseries == "pca"
+                    [coeff, score, ~, ~, explained] = pca(transpose(source_timeseries)); % perform pca
+                    catmatrix(:,t,i) = transpose(score(:, 1)); % store first principal component across timeseries
+                end
                 % ori_avg(:,t,i) = nanmean(ori_region,1);
             % IF NO SOURCE POINTS W/IN NODE
             else

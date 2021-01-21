@@ -113,7 +113,8 @@
 			"keepfilter" : "yes",
 			"rawtrial" : "yes"		
 		},
-		"method" : "lcmv"
+		"method" : "lcmv",
+		"method" : "mean"
 	},
 	"connectivity" : {
 		"method" : "wpli_debiased",
