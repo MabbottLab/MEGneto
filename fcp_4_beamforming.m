@@ -320,6 +320,9 @@ for ss = rangeOFsubj % for each participant that has matched MEG/MRI data
                          length(projection.trial), ...
                          length(source_atlas.tissuelabel));   % overall AAL region timeseries across trial
 
+    var_explained  = NaN(1, ... % set up empty matrix to store variance explained of first principial component for each trial and region of interest 
+                         length(projection.trial), ...
+                         length(source_atlas.tissuelabel));
     %%% FOR EACH TRIAL ----------------------------------------------------
     right_now = clock;
     fprintf('%02.f:%02.f:%02.f       Projecting to AAL sources!\n', ...
@@ -338,8 +341,9 @@ for ss = rangeOFsubj % for each participant that has matched MEG/MRI data
                 if config.beamforming.rep_timeseries == "mean"
                     catmatrix(:,t,i) = nanmean(source_timeseries,1); % take avg across source points
                 elseif config.beamforming.rep_timeseries == "pca"
-                    [coeff, score, ~, ~, explained] = pca(transpose(source_timeseries)); % perform pca
+                    [~, score, ~, ~, explained] = pca(transpose(source_timeseries)); % perform pca
                     catmatrix(:,t,i) = transpose(score(:, 1)); % store first principal component across timeseries
+                    var_explained(:,t,i) = explained(1);
                 end
                 % ori_avg(:,t,i) = nanmean(ori_region,1);
             % IF NO SOURCE POINTS W/IN NODE
@@ -354,7 +358,7 @@ for ss = rangeOFsubj % for each participant that has matched MEG/MRI data
     coords    = projection.pos;                          % coordinates
 
 %%% SAVE OUTPUT -----------------------------------------------------------
-    save([ssSubjPath(ss) '/AAL_beamforming_results'],'catmatrix','srate','coords','-mat','-v7.3')
+    save([ssSubjPath(ss) '/AAL_beamforming_results'],'catmatrix', 'var_explained', 'srate','coords','-mat','-v7.3')
 
 %%% OPTIMIZING RUN SPACE --------------------------------------------------
     clear coords catmatrix srate source_timeseries ...
