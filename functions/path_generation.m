@@ -66,11 +66,15 @@ else % otherwise, define the rest of the paths struct
     all_participants = glob([paths.rawmri '/*.mri']);
     pids = cell(length(all_participants),1);
     for ii = 1:length(all_participants)
-        if contains(all_participants{ii}, '_') % check whether the character array contains an underscore 
-            extracted_pid = extractBetween(all_participants{ii}, 'MRIs/', '_'); % extract characters between 'MRIs/' and '_'
+        if (length(strfind(all_participants{ii}, '_')) > 1) || (length(strfind(all_participants{ii}, '.')) > 1) 
+            warning('incorrect PID format: more than one underscore or period was found') % throw an error if PID format is wrong
         else
-            extracted_pid = extractBetween(all_participants{ii}, 'MRIs/', '.'); % extract characters between 'MRIs/' and '.'
-        end 
+            if contains(all_participants{ii}, '_') % check whether the character array contains an underscore 
+                extracted_pid = extractBetween(all_participants{ii}, 'MRIs/', '_'); % extract characters between 'MRIs/' and '_'
+            else
+                extracted_pid = extractBetween(all_participants{ii}, 'MRIs/', '.'); % extract characters between 'MRIs/' and '.'
+            end 
+        end
         pids{ii} = extracted_pid{1}; % extract and store content of 1x1 cell array containing the pid 
         all_participants{ii} = [paths.anout '/' extracted_pid{1}];
         
