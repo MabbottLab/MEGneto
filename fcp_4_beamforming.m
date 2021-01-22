@@ -358,7 +358,7 @@ for ss = rangeOFsubj % for each participant that has matched MEG/MRI data
     coords    = projection.pos;                          % coordinates
 
 %%% SAVE OUTPUT -----------------------------------------------------------
-    save([ssSubjPath(ss) '/AAL_beamforming_results'],'catmatrix', 'var_explained', 'srate','coords','-mat','-v7.3')
+    save([ssSubjPath(ss) '/AAL_beamforming_results.mat'],'catmatrix', 'var_explained', 'srate','coords','-mat','-v7.3')
 
 %%% OPTIMIZING RUN SPACE --------------------------------------------------
     clear coords catmatrix srate source_timeseries ...
