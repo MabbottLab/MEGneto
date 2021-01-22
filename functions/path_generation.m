@@ -66,14 +66,13 @@ else % otherwise, define the rest of the paths struct
     all_participants = glob([paths.rawmri '/*.mri']);
     pids = cell(length(all_participants),1);
     for ii = 1:length(all_participants)
-        if contains(all_participants{ii}, '_') == true % check whether the character array contains an underscore 
+        if contains(all_participants{ii}, '_') % check whether the character array contains an underscore 
             extracted_pid = extractBetween(all_participants{ii}, 'MRIs/', '_'); % extract characters between 'MRIs/' and '_'
         else
             extracted_pid = extractBetween(all_participants{ii}, 'MRIs/', '.'); % extract characters between 'MRIs/' and '.'
         end 
-        extracted_pid = extracted_pid{1}; % extract content of 1x1 cell array containing the pid 
-        pids{ii} = extracted_pid; 
-        all_participants{ii} = [paths.anout '/' extracted_pid];
+        pids{ii} = extracted_pid{1}; % extract and store content of 1x1 cell array containing the pid 
+        all_participants{ii} = [paths.anout '/' extracted_pid{1}];
         
     end
     all_participants = cell2struct(all_participants,pids);
