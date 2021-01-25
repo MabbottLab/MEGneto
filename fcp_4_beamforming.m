@@ -358,8 +358,12 @@ for ss = rangeOFsubj % for each participant that has matched MEG/MRI data
     coords    = projection.pos;                          % coordinates
 
 %%% SAVE OUTPUT -----------------------------------------------------------
-    save([ssSubjPath(ss) '/AAL_beamforming_results.mat'],'catmatrix', 'var_explained', 'srate','coords','-mat','-v7.3')
-
+    if isnan(var_explained) % if the variance explained has not been populated, don't save it
+        save([ssSubjPath(ss) '/AAL_beamforming_results.mat'],'catmatrix', 'srate','coords','-mat','-v7.3')
+    else
+        save([ssSubjPath(ss) '/AAL_beamforming_results.mat'],'catmatrix', 'var_explained', 'srate','coords','-mat','-v7.3')
+    end 
+        
 %%% OPTIMIZING RUN SPACE --------------------------------------------------
     clear coords catmatrix srate source_timeseries ...
         atlas sourcemodel source_t_trials projection seg mri data grid hdm ...

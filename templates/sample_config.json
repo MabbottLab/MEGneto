@@ -114,7 +114,7 @@
 			"rawtrial" : "yes"		
 		},
 		"method" : "lcmv",
-		"method" : "mean"
+		"rep_timeseries" : "mean"
 	},
 	"connectivity" : {
 		"method" : "wpli_debiased",
