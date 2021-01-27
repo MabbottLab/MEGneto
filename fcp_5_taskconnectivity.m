@@ -61,7 +61,7 @@ ssSubjPath  = @(x) paths.(subj_match.pid{x});
 
 %%% LOAD SAMPLE PPT -------------------------------------------------------
 % used to get the sample rate
-load([ssSubjPath(1) '/AAL_beamforming_results'], '-mat') %SB - add cond
+load([ssSubjPath(1) '/AAL_beamforming_results.mat'], '-mat') %SB - add cond
 
 %%% MAKE FILTER -----------------------------------------------------------
 maxn = 0;
@@ -104,7 +104,7 @@ all_conn_mat = nan(size(catmatrix,3), size(catmatrix,3), ... % num_nodes x num_n
             right_now(4:6), subj_match.pid{ss})
 
 %%% LOAD VIRTUAL SENSOR DATA ----------------------------------------------
-        load([ssSubjPath(ss) '/AAL_beamforming_results'], '-mat'); 
+        load([ssSubjPath(ss) '/AAL_beamforming_results.mat'], '-mat'); 
 
         % define some dimensions
         num_samples = size(catmatrix, 1);
