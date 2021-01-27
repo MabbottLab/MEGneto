@@ -55,7 +55,7 @@ for ss = 1:length(subj_match.ds)
         right_now(4:6), subj_match.pid{ss})
 
 %%% LOAD VIRTUAL SENSOR DATA ----------------------------------------------
-    load([ssSubjPath(ss) '/AAL_beamforming_results'], '-mat'); 
+    load([ssSubjPath(ss) '/AAL_beamforming_results.mat'], '-mat'); 
     
     % define some dimensions
     num_samples = size(catmatrix, 1);
