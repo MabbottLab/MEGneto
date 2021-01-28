@@ -19,7 +19,6 @@ uniquetypes = unique({eventslist.type});
 eventslistnum = cellfun(@(str) find(strcmp(uniquetypes, str),1), {eventslist.type});
 
 numt0marker = sum(ismember({eventslist.type}, t0marker));
-
 %% Plot
 
 xpoints = [eventslist.sample];

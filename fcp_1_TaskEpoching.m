@@ -28,7 +28,7 @@ function fcp_1_TaskEpoching(paths)
 %     .HMremove_trls    = number of trials removed due to head motion
 %     .noisy_trl        = muscle and jump artifact trial timestamps
 %     .Nremove_trls     = total number of noisy trials removed
-%     .bad_chann        = string array; bad channels detected for each 
+%     .        = string array; bad channels detected for each 
 %                         participant
 %
 % See also: DS_PID_MATCH, WRITE_MATCH_IF_NOT_EMPTY, PLOTTRIGGERS, 
