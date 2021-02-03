@@ -6,7 +6,7 @@ Click the arrows on the overarching parameters to reveal sub-parameters and expl
 
 <details>
 <summary>Contact</summary>
-Where: sendEmail function is called at the end of each fcp_# step, and contact is passed as a parameter
+Where: the sendEmail function is called at the end of each fcp_# step, and contact is passed as a parameter
 <br>
 Meaning: Email address to which to send pipeline’s progress updates (contained in square brackets, [ ])
 </details>
@@ -26,7 +26,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
           <summary>Period</summary>
           Where: fcp_1_RestingStateEpoching, line 97
           <br>
-          Meaning: Indicates epoch length for epoching resting state data
+          Meaning: Indicates epoch length for epoching resting state data (e.g. 30)
         </details>
       </li>
       <!--EPOCHING.TOTALTIME--> 
@@ -35,7 +35,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
           <summary>Total time</summary>
           Where: Nowhere
           <br>
-          Meaning: Relic from an older resting state epoch strategy
+          Meaning: Relic from an older resting state epoch strategy, will be deleted from config template.
         </details>
       </li>
      <!--EPOCHING.HEADMOTION--> 
@@ -44,7 +44,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
           <summary>Head motion</summary>
           Where: fcp_1_TaskEpoching
           <br>
-          Meaning: Specifics for initial handling of head motion
+          Meaning: Overall, the field within head motion indicates specifications for initial handling of head motion
           <br><br>
             <ul>
               <!--EPOCHING.HEADMOTION.THRESHOLDING-->
@@ -53,7 +53,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                 <summary>Threshold</summary>
                 Where: fcp_1_TaskEpoching in head motion correction
                 <br>
-                Meaning: Threshold for which to reject trials with head motion 
+                Meaning: Threshold for which to reject trials with head motion. This is based on the coil distances from the chosen reference location in mm. (e.g. 5 indicates a threshold of 5mm, means movement within a trial from -4mm to 4mm in one direction gives a range of 8mm and thus this trial would be flagged). 
               </details>
             </li></ul>
         </details>
@@ -65,7 +65,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
   <summary>Cleaning Options</summary>
   Where: fcp_1_TaskEpoching
   <br>
-  Meaning: Overall, gives options for how to handle artifacts, ICA, noisy trials, bad channels
+  Meaning: Overall, the fields within cleaning options specify the handling of artifacts, ICA, noisy trials, and bad channels
   <br><br>
     <ul>
      <!--CLEANING OPTIONS.ARTIFACT--> 
@@ -74,7 +74,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
           <summary>Artifact</summary>
           Where: fcp_1_TaskEpoching in artifact detection/rejection (all types)
           <br>
-          Meaning: Specifies how we want to deal with various parts involved in detecting and rejecting different artifacts
+          Meaning: The fields within artifact specify how we want to deal with various parts involved in detecting and rejecting different artifacts
           <br><br>
             <ul>
             <!--CLEANING OPTIONS.ARTIFACT.DETECTION--> 
@@ -83,7 +83,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                 <summary>Detection</summary>
                 Where: fcp_1_TaskEpoching in artifact detection
                 <br>
-                Meaning: “0” or “1” to indicate if we want to detect artifacts
+                Meaning: 0 or 1 to indicate if we want to detect artifacts (0=no, 1=yes)
               </details>
             </li>
             <!--CLEANING OPTIONS.ARTIFACT.REJECTION--> 
@@ -101,7 +101,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                 <summary>Muscle</summary>
                 Where: fcp_1_TaskEpoching in artifact detection, setting up the cfg to call “ft_artifact_muscle”
                 <br>
-                Meaning: Configuration for muscle specifies how we want to deal with muscle artifacts 
+                Meaning: Overall, the field within muscle specify how we want to deal with muscle artifacts 
               <br><br>
                 <ul>
                   <!--CLEANING OPTIONS.ARTIFACT.MUSCLE.BPFILTER--> 
@@ -119,7 +119,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                       <summary>Bpfreq</summary>
                       Where: fcp_1_TaskEpoching in artifact detection, setting up the cfg to call “ft_artifact_muscle” 
                       <br>
-                      Meaning: [x,y] to specify what frequency band the filter should be
+                      Meaning: [x,y] to specify what frequency band the filter should be (x being lower band, y being higher band)
                     </details>
                   </li>
                   <!--CLEANING OPTIONS.ARTIFACT.MUSCLE.BPFILTORD--> 
@@ -128,7 +128,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                       <summary>Bpfiltord</summary>
                       Where: fcp_1_TaskEpoching in artifact detection, setting up the cfg to call “ft_artifact_muscle”
                       <br>
-                      Meaning: Specifies the fiter order
+                      Meaning: Specifies the fiter order (e.g. 8)
                     </details>
                   </li>
                   <!--CLEANING OPTIONS.ARTIFACT.MUSCLE.BPFILTTYPE--> 
@@ -155,7 +155,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                       <summary>Boxcar</summary>
                       Where: fcp_1_TaskEpoching in artifact detection, setting up the cfg to call “ft_artifact_muscle” 
                       <br>
-                      Meaning: Specifies window length for the moving average filter (aka a boxcar car smoothing kernel or sliding average/window length)
+                      Meaning: Specifies window length for the moving average filter. Also known as a boxcar car smoothing kernel or sliding average (aka window length, e.g. 0.2)
                     </details>
                   </li>
                   <!--CLEANING OPTIONS.ARTIFACT.MUSCLE.CUTOFF--> 
@@ -164,7 +164,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                       <summary>Cutoff</summary>
                       Where: fcp_1_TaskEpoching in artifact detection, setting up the cfg to call “ft_artifact_muscle”
                       <br>
-                      Meaning: Specifies frequency at which to cut off the signal
+                      Meaning: Specifies frequency at which to cut off the signal (e.g. 30)
                     </details>
                   </li>
                   <!--CLEANING OPTIONS.ARTIFACT.MUSCLE.TRLPADDING--> 
@@ -173,7 +173,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                       <summary>Trlpadding</summary>
                       Where: fcp_1_TaskEpoching in artifact detection, setting up the cfg to call “ft_artifact_muscle” 
                       <br>
-                      Meaning: Allows data to be padded on either side of the trial with a specified length so that artifact detection/rejection are performed on those data segments (i.e. If you wish to include data prior to/post the trial are included) 
+                      Meaning: Allows data to be padded on either side of the trial with a specified length so that artifact detection/rejection are performed on those data segments (i.e. If you wish to include data prior to/post the trial are included). This field is measured in seconds (e.g. 0.1 means you wish to pad with 0.1 seconds on the right and left side).  
                     </details>
                   </li>
                   <!--CLEANING OPTIONS.ARTIFACT.MUSCLE.FLTPADDING--> 
@@ -182,7 +182,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                       <summary>Fltpadding</summary>
                       Where: fcp_1_TaskEpoching in artifact detection, setting up the cfg to call “ft_artifact_muscle” 
                       <br>
-                      Meaning: Filter padding is needed because filters may cause edge effects detected in artifact-detection & mistaken for actual artifacts (only used for filtering, not artifact detection)
+                      Meaning: Filter padding is needed because filters may cause edge effects detected in artifact-detection & mistaken for actual artifacts (only used for filtering, not artifact detection). This field is measured in seconds (e.g. 0.1 means you wish to pad with 0.1 seconds on the right and left side). 
                     </details>
                   </li>
                   <!--CLEANING OPTIONS.ARTIFACT.MUSCLE.ARTPADDING--> 
@@ -191,7 +191,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                       <summary>Artpadding</summary>
                       Where: fcp_1_TaskEpoching in artifact detection, setting up the cfg to call “ft_artifact_muscle” 
                       <br>
-                      Meaning: Often, artifacts start/end a bit later than what is detected by the artifact detection system, thus artifact padding is used to extend the artifact timeperiod on either side
+                      Meaning: Often, artifacts start/end a bit later than what is detected by the artifact detection system, thus artifact padding is used to extend the artifact timeperiod on either side. This field is measured in seconds (e.g. 0.1 means you wish to pad with 0.1 seconds on the right and left side). 
                     </details>
                   </li>
                 </ul>
@@ -203,7 +203,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                 <summary>Jump</summary>
                 Where: fcp_1_TaskEpoching in artifact detection
                 <br>
-                Meaning: Specifies how we want to deal with jump artifacts
+                Meaning: Overall, the fields within jump specify how we want to deal with jump artifacts
                 <br><br>
                   <ul>
                     <!--CLEANING OPTIONS.ARTIFACT.JUMP.CUTOFF--> 
@@ -212,7 +212,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                         <summary>Cutoff</summary>
                         Where: fcp_1_TaskEpoching in artifact detection
                         <br>
-                        Meaning: Cutoff frequency indicating at what point the signal should be classified as a jump artifact 
+                        Meaning: Cutoff frequency indicating at what point the signal should be classified as a jump artifact (e.g. 35)
                       </details>
                     </li>
                 </ul>
@@ -224,7 +224,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                 <summary>icaClean</summary>
                 Where: fcp_2_PreprocessingICA before we do/don’t run ICA
                 <br>
-                Meaning: “0” or “1” to indicacte whether or not we want to perform ICA
+                Meaning: 0 or 1 (0=no, 1=yes) to indicacte whether or not we want to perform ICA 
               </details>
             </li>
             <!--CLEANING OPTIONS.ARTIFACT.rmNOISYTRIALS--> 
@@ -233,7 +233,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                 <summary>rmNoisyTrials</summary>
                 Where: fcp_2_PreprocessingICA 
                 <br>
-                Meaning: “0” or “1” to specify whether or not we want to remove noisy trials (artifacts)
+                Meaning: 0 or 1 (0=no, 1=yes) to specify whether or not we want to remove noisy trials/artifacts
               </details>
             </li>
             <!--CLEANING OPTIONS.ARTIFACT.rmBADCHANNELS--> 
@@ -242,7 +242,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                 <summary>rmBadChannels</summary>
                 Where: fcp_3_ChannelRepair when checking if we want to remove channels
                 <br>
-                Meaning: “0” or “1” to indicate whether or not we want to remove bad channels (which we kept a list of from fcp_1)
+                Meaning: 0 or 1 (0=no, 1=yes) to indicate whether or not we want to remove bad channels (which we kept a list of from fcp_1)
               </details>
             </li>
           </ul>
@@ -255,7 +255,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
   <summary>filteringParameters</summary>
   Where: fcp_2_PreprocessingICA in setting up cfg for ft_preprocessing
   <br>
-  Meaning: Overall, provides filtering specifications
+  Meaning: Overall, the fields within filteringParameters provide filtering specifications
   <br><br>
     <ul>
       <!--FILTERING PARAMETERS.CHANNEL--> 
@@ -264,7 +264,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
           <summary>Channel</summary>
           Where: fcp_2_PreprocessingICA in setting up cfg for ft_preprocessing
           <br>
-          Meaning: Specifies which data channels to look at: (1. MEG- replaced by all MEG channels, 2. MEGREF-replaced by all MEG reference channels, 3. REFGRAD, 4. REFMAG)
+          Meaning: Specifies which data channels to look at: (1. MEG- replaced by all MEG channels, 2. MEGREF-replaced by all MEG reference channels, 3. REFGRAD, 4. REFMAG). Can enter multiple as such: [“MEG”, “MEGREF”, “REFGRAD”, “REFMAG”].
         </details>
       </li>
       <!--FILTERING PARAMETERS.DFTFILTER--> 
@@ -300,7 +300,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
           <summary>Bpfreq</summary>
           Where: fcp_2_PreprocessingICA in setting up cfg for ft_preprocessing
           <br>
-          Meaning: [x,y] to specify what frequency band the filter should be
+          Meaning: [x,y] to specify what frequency band the filter should be where x is the lower frequency band, and y is the higher frequency band.
         </details>
       </li>
       <!--FILTERING PARAMETERS.BPFILTORD--> 
@@ -309,7 +309,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
           <summary>Bpfiltord</summary>
           Where: fcp_2_PreprocessingICA in setting up cfg for ft_preprocessing
           <br>
-          Meaning: Specifies the filter order
+          Meaning: Specifies the filter order (e.g. 8)
         </details>
       </li>
       <!--FILTERING PARAMETERS.SAMPLERATE--> 
@@ -318,7 +318,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
           <summary>sampleRate</summary>
           Where: fcp_2_PreprocessingICA for downsampling data AND fcp_4_beamforming to resample the data
           <br>
-          Meaning: Rate at which data is sampled (how many data points per second) 
+          Meaning: Rate at which data is sampled (how many data points per second, e.g. 300) 
         </details>
       </li>
       <!--FILTERING PARAMETERS.CTFLAYOUR--> 
@@ -327,7 +327,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
           <summary>CTFlayout</summary>
           Where: End of fcp_2_5_checkpoint for displaying ica channels function
           <br>
-          Meaning: Indicates which MEG model you’re using (here, the CTF 151 model) so that it can plot results on a 2D image of the head with proper electrode positions
+          Meaning: Indicates which MEG model you’re using (here, the CTF 151 model) so that it can plot results on a 2D image of the head with proper electrode positions (e.g. “CFT151.lay”). 
         </details>
       </li>
  </details>
@@ -337,6 +337,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
 <details>
   <summary>taskFunc</summary>
   Where: fcp_1_Task_Epoching for setting up the cfg for epoching
+  Meaning: Overall, the fields within taskFunc specify the parameters for epoching.
   <br><br>
     <ul>
       <!--TASKFUNC.FUNCTION-->
@@ -345,7 +346,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
           <summary>Function</summary>
           Where: fcp_1_Task_Epoching for setting up the cfg for epoching
           <br>
-          Meaning: Name of a custom task epoching function to parse data into trials (designed for marker epoching)
+          Meaning: Name of a custom task epoching function to parse data into trials (designed for marker epoching). This will likely be “@searchTaskTrialFun” for you.
         </details>
       </li>
       <!--TASKFUNC.TYPE-->
@@ -353,6 +354,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
         <details>
           <summary>Type</summary>
           Where: fcp_1_Task_Epoching for setting up the cfg for epoching
+          Meaning: Indicates the type of function specified in the "Function" field. If using "@searchTaskTrialFun", this field should be entered as "anonymous" to indicate that it is an anonymous type of function (Matlab lingo, see details here: https://www.mathworks.com/help/matlab/matlab_prog/anonymous-functions.html) 
         </details>
       </li>
      <!--TASKFUNC.FILE-->
@@ -383,6 +385,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
 <details>
   <summary>task</summary>
   Where: fcp_1_TaskEpoching and fcp_2_PreprocessingICA
+  Meaning: Overall, the fields within task help specify parameters for epoching and preprocessing.
   <br><br>
     <ul>
       <!--TASK.ISREST-->
@@ -399,48 +402,54 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
         <details>
           <summary>Trialdef</summary>
           Where: fcp_1_Task_Epoching for setting up the cfg for epoching (used in search TaskTrialFun in detail) and Fcp_5_freqanalysis and Fcp_5_task_Connectivity
+          Meaning: Not assigned a specific value, rather it is the umbrella for the fields within it. Sets up parameters for trial definition. 
           <br><br>
             <ul>
               <!--TASK.TRIALDEF.DETAILS--> 
               <li>
               <details>
                 <summary>Details</summary>
-                Where: searchTaskTrialFun
+                Where: searchTaskTrialFun.m
+                Meaning: Not assigned a specific value, rather it is the umbrella for the fields within it. 
                 <br><br>
                 <ul>
                   <!--TASK.TRIALDEF.DETAILS.NAME--> 
                   <li>
                   <details>
                     <summary>Name</summary>
-                    Where: searchTaskTrialFun
+                    Where: searchTaskTrialFun.m
                     <br>  
                   </li>
                   <!--TASK.TRIALDEF.DETAILS.INCLUDEONCE--> 
                   <li>
                   <details>
                     <summary>includeOnce</summary>
-                    Where: searchTaskTrialFun
+                    Where: searchTaskTrialFun.m
+                    Meaning: Specifies additional events that should be included for stats generation. That is if you wish to generate reaction times between the stimulus presentation and markers included in this parameter. Currently must be left as [“”] as this functionality is not supported. 
                     <br>  
                   </li>
                   <!--TASK.TRIALDEF.DETAILS.EXCLUDE--> 
                   <li>
                   <details>
                     <summary>Exclude</summary>
-                    Where: searchTaskTrialFun
+                    Where: searchTaskTrialFun.m
+                    Meaning: Doesn't seem to be legitimately used. Leave as [“”]. 
                     <br>  
                   </li>
                   <!--TASK.TRIALDEF.DETAILS.INCLUDE--> 
                   <li>
                   <details>
                     <summary>Include</summary>
-                    Where: searchTaskTrialFun
+                    Where: searchTaskTrialFun.m
+                    Meaning: Specifies the marker you wish to gain reaction time information for (e.g. “Correct” means you will get the reaction time between stimulus presentation and a correct response).
                     <br>  
                   </li>
                   <!--TASK.TRIALDEF.DETAILS.COUNTONLY--> 
                   <li>
                   <details>
                     <summary>countOnly</summary>
-                    Where: searchTaskTrialFun
+                    Where: searchTaskTrialFun.m
+                    Meaning: “true” or “false” to specify whether you only want information on the number of trials (true for only want number of trials information, false for want more information including reaction times).
                     <br>  
                   </li>
                 </ul>
@@ -450,6 +459,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
               <details>
                <summary>Light</summary>
                Where: Nowhere
+               Meaning: This is a relic from old code. Do not fill this field, it will be removed in future config templates.
                <ul>
                  <!--TASK.TRIALDEF.LIGHT.AVGSTARTTHRESH-->
                  <li>
@@ -465,19 +475,22 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
               <details>
                <summary>Parameters</summary>
                Where: searchTaskTrialFun and fcp_5_freqanalysis and fcp_5_taskconnectivity
+                Meaning: Not assigned a specific value, rather it is the umbrella for the fields within it.
                <ul>
                  <!--TASK.TRIALDEF.PARAMETERS.T0SHIFT--> 
                  <li>
                   <details>
                    <summary>T0shift</summary>
                    Where: searchTaskTrialFun 
+                   Meaning: Specifies the delay time that needs to be corrected for in seconds (e.g. 0.023).
                   </details>
                  </li>
                  <!--TASK.TRIALDEF.PARAMETERS.TEPOCH--> 
                  <li>
                   <details>
                    <summary>tEpoch</summary>
-                   Where: searchTaskTrialFun AND Fcp_5_freqanalysis AND Fcp_5_task_Connectivity when reshaping catmatrix into acceptable format 
+                   Where: searchTaskTrialFun AND Fcp_5_freqanalysis AND Fcp_5_task_Connectivity when reshaping catmatrix into acceptable format.
+                   Meaning: Specifies the epoch time window (e.g. [-2, 2]).
                   </details>
                  </li>
                 </ul>
@@ -487,12 +500,14 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
               <details>
                <summary>Markers</summary>
                Where: fcp_1_TaskEpoching
+               Meaning: Not assigned a specific value, rather it is the umbrella for the fields within it.
                <!--TASK.TRIALDEF.MARKERS.CORRECT--> 
                <ul>
                  <li>
                   <details>
                    <summary>Correct</summary>
                    Where: searchTaskTrialFun 
+                   Meaning: Specifies the markers that mark a correct trials (e.g. [“LeftCorrect”], [“RightCorrect”] or multiple such as [“LeftCorrect”, “RightCorrect”]).
                   </details>
                  </li>
                  <!--TASK.TRIALDEF.MARKERS.INCORRECT--> 
@@ -500,6 +515,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                   <details>
                    <summary>Incorrect</summary>
                    Where: Nowhere
+                   Meaning: This is a relic from old code. Do not fill in this field, it will be deleted from future config templates.
                   </details>
                  </li>
                  <!--TASK.TRIALDEF.MARKERS.T0MARKER--> 
@@ -508,7 +524,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                    <summary>T0marker</summary>
                    Where: fcp_1_TaskEpoching when t0 markers are grabbed (the plotTriggers function) AND search TaskTrialFun
                    <br>
-                   Meaning: Specifies the event type to epoch around (eg. OfflneLightOn, LeftButtonPress, etc.)
+                   Meaning: Specifies the event type to epoch around. This will be the marker that define t=0 of each trigger, that is the presentation trigger (eg. “OfflneLightOn”, “LeftButtonPress”, etc.)
                   </details>
                  </li>
                  <!--TASK.TRIALDEF.MARKERS.NEWTRIG--> 
@@ -516,6 +532,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                   <details>
                    <summary>newTrig</summary>
                    Where: Nowhere
+                   Meaning: This is a relic from old code. Do not fill in this field, it will be deleted from future config templates.
                   </details>
                  </li></ul>
               </details>
@@ -528,6 +545,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
 <details>
   <summary>Beamforming</summary>
   Where: Fcp_4_beamforming 
+  Meaning: Not assigned a specific value, rather it is the umbrella for the fields within it. 
   <br><br>
     <ul>
       <!--BEAMFORMING.HEADMODEL--> 
@@ -535,6 +553,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
         <details>
           <summary>Headmodel</summary>
           Where: Fcp_4_beamforming 
+          Meaning: Not assigned a specific value, rather it is the umbrella for the fields within it. 
           <ul>
           <!--BEAMFORMING.HEADMODEL.METHOD--> 
           <li>
@@ -542,7 +561,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
               <summary>Method</summary>
               Where: Fcp_4_beamforming when setting up cf to prepare the T1 head model AND participant specific head models 
               <br>
-              Meaning: Specifies what form the head model should be (e.g. single shell)
+              Meaning: Specifies what form the head model should be (e.g. "singleshell")
             </details>
           </li>
           <!--BEAMFORMING.HEADMODEL.UNITS--> 
@@ -561,6 +580,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
         <details>
           <summary>Template</summary>
           Where: Fcp_4_beamforming when constructing the grid for the T1 template model 
+          Meaning: Not assigned a specific value, rather it is the umbrella for the fields within it. 
           <ul>
           <!--BEAMFORMING.TEMPLATE.GRID--> 
           <li>
@@ -573,6 +593,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                   <details>
                     <summary>Resolution</summary>
                     Where: Fcp_4_beamforming when constructing the grid for the T1 template model 
+                    Meaning: Not assigned a specific value, rather it is the umbrella for the fields within it. 
                   </details>
                 </li>
                 <!--BEAMFORMING.TEMPLATE.TIGHT--> 
@@ -580,6 +601,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                   <details>
                     <summary>Tight</summary>
                     Where: Fcp_4_beamforming when constructing the grid for the T1 template model 
+                    Meaning: "yes" or "no" 
                   </details>
                </li>
                <!--BEAMFORMING.TEMPLATE.TINWARDSHIFT--> 
@@ -587,6 +609,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                   <details>
                     <summary>Inwardshift</summary>
                     Where: Fcp_4_beamforming when constructing the grid for the T1 template model 
+                    Meaning: Number that defines how much the innermost surface should be moved inward to constrain sources to be considered inside the source compartment (default = 0
                   </details>
                 </li></ul>
             </details>
@@ -596,6 +619,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
             <details>
               <summary>Coordsys</summary>
               Where: Fcp_4_beamforming when loading T1 template
+              Meaning: The coordinate system that is used, e.g. “spm”.
             </details>
          </li></ul>
         </details>
@@ -605,6 +629,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
         <details>
           <summary>Atlas</summary>
           Where: Fcp_4_beamforming
+          Meaning: Not assigned a specific value, rather it is the umbrella for the fields within it. 
           <ul>
           <!--BEAMFORMING.ATLAS.FILEPATH--> 
           <li>
@@ -612,14 +637,15 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
               <summary>Filepath</summary>
               Where: Fcp_4_beamforming just after we perform actual beamforming 
               <br>
-              Meaning: Specifies filepath to the atlas we wish to project on
+              Meaning: Specifies filepath to the atlas we wish to project on (e.g. “/template/atlas/aal/ROI_MNI_V4.nii”).
             </details>
           </li>
           <!--BEAMFORMING.ATLAS.INPUTCOORD--> 
           <li>
             <details>
               <summary>Inputcoord</summary>
-              Where: Fcp_4_beamforming for visualization of the T1 segmented head model (to check for alignment with grid) 
+              Where: Fcp_4_beamforming for visualization of the T1 segmented head model (to check for alignment with grid)
+              Meaning: e.g. “mni”
             </details>
           </li></ul>
         </details>
@@ -629,26 +655,40 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
         <details>
           <summary>checkMRIvolumes</summary>
           Where: Fcp_4_beamforming for visualization of participant’s segmented head model (to check for alignment)
+          Meaning: Not assigned a specific value, rather it is the umbrella for the fields within it. 
           <ul>
           <!--BEAMFORMING.CHECKMRIVOLUMES.METHOD--> 
           <li>
             <details>
               <summary>Method</summary>
-              Where: Fcp_4_beamforming for visualization of participant’s segmented head model (to check for alignment)
+              Where: Fcp_4_beamforming for visualization of participant’s segmented head model (to check for alignment). Only used if code for the visualization of segmented head model is uncommented.
+              Meaning: Specifies plotting method. Options are presented below though we tend to use “slice”:
+- “slice” (plots the data on a number of slices in the same plane)
+- “ortho” (plots the data on three orthogonal slices)
+- “surface” (plots the data on a 3D brain surface)
+- “glassbrain” (plots a max-projection through the brain)
+- “vertex” (plots the grid points or vertices scaled according to the functional value)
+- “cloud” (plot the data as clouds, spheres, or points scaled according to the functional value).
             </details>
           </li>
           <!--BEAMFORMING.CHECKMRIVOLUMES.SLIDESDIM--> 
           <li>
             <details>
               <summary>Slidesdim</summary>
-              Where: Fcp_4_beamforming for visualization of participant’s segmented head model (to check for alignment)
+              Where: Fcp_4_beamforming for visualization of participant’s segmented head model (to check for alignment). Only used if code for the visualization of segmented head model is uncommented.
+              Meaning: Only used when “method” is set to “slice”. This specifies the dimension to slice on. Options are: 
+1 (x-axis)
+2 (y-axis) 
+3 (z-axis) 
+(default = 3)
             </details>
           </li>
           <!--BEAMFORMING.CHECKMRIVOLUMES.NSLICES--> 
           <li>
             <details>
               <summary>Nslices</summary>
-              Where: Fcp_4_beamforming for visualization of participant’s segmented head model (to check for alignment)
+              Where: Fcp_4_beamforming for visualization of participant’s segmented head model (to check for alignment). Only used if code for the visualization of segmented head model is uncommented.
+              Meaning: Only used when “method” is set to “slice”. This will specify the number of slices (default = 20).
             </details>
           </li>
           <!--BEAMFORMING.CHECKMRIVOLUMES.FUNPARAMETER--> 
@@ -657,8 +697,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
               <summary>Funparameter</summary>
               Where: Nowhere
               <br>
-              Meaning: Functional parameter set to be ‘power’, which indicates what to plot on the anatomical data
-            </details>
+              Meaning: Relic from old code. Do not fill this in, it will be deleted from future config templates.
           </li></ul>
         </details>
        </li>
@@ -667,27 +706,30 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
         <details>
           <summary>Subj</summary>
           Where: Fcp_4_beamforming to prepare the subject specific source model (with reference to the T1 template model)
+          Meaning: Not assigned a specific value, rather it is the umbrella for the fields within it. 
           <ul>
           <!--BEAMFORMING.SUBJ.GRID--> 
           <li>
             <details>
               <summary>Grid</summary>
               Where: Fcp_4_beamforming to prepare the subject specific source model (with reference to the T1 template model)
+              Meaning: Not assigned a specific value, rather it is the umbrella for the fields within it. 
               <ul>
               <!--BEAMFORMING.SUBJ.GRID.WARPMNI-->
               <li>
                 <details>
                   <summary>Warpmni</summary>
-                  Where: Fcp_4_beamforming to prepare the subject specific source model (with reference to the T1 template model)
+                  Where: Fcp_4_beamforming to prepare the subject specific source model (with reference to the T1 template model).
                   <br>
-                  Meaning: “Yes” or “no” to specify whether we want to warp the model to the T1 model (which acts as a control to normalize across all participants) 
+                  Meaning: “Yes” or “no” to specify whether we want to warp the model to the T1 model (which acts as a control to normalize across all participants).
                 </details>
               </li>
               <!--BEAMFORMING.SUBJ.GRID.NONLINEAR-->
               <li>
                 <details>
                   <summary>Nonlinear</summary>
-                  Where: Fcp_4_beamforming to prepare the subject specific source model (with reference to the T1 template model)
+                  Where: Fcp_4_beamforming to prepare the subject specific source model (with reference to the T1 template model).
+                  Meaning: “Yes” or “no” to indicate whether non-linear normalization should be used.
                 </details>
               </li>
               <!--BEAMFORMING.SUBJ.GRID.UNIT-->
@@ -709,7 +751,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
           <summary>Leadfield</summary>
           Where: Fcp_4_beamforming to compute leadfield 
           <br>
-          Meaning: Computes leadfield used for each participant 
+          Meaning: Not assigned a specific value, rather it is the umbrella for the fields within it which specify parameters for computing the leadfield used for each participant. 
           <ul>
           <!--BEAMFORMING.LEADFIELD.REDUCERANK--> 
           <li>
@@ -736,12 +778,14 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
         <details>
           <summary>TimeDomain</summary>
           Where: Fcp_4_beamforming to compute the covariance matrix
+          Meaning: Not assigned a specific value, rather it is the umbrella for the fields within it. 
           <ul>
            <!--BEAMFORMING.TIMEDOMAIN.COVARIANCE--> 
             <li>
               <details>
                 <summary>Covariance</summary>
                 Where: Fcp_4_beamforming to compute the covariance matrix
+                Meaning: "Yes” or “no” to specify if a covariance matrix should be computed.
               </details>
              </li>
              <!--BEAMFORMING.TIMEDOMAIN.COVARIANCEWINDOW--> 
@@ -749,13 +793,15 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
               <details>
                 <summary>Covariancewindow</summary>
                 Where: Fcp_4_beamforming to compute the covariance matrix
+                Meaning: Specificies window length for covariance matrix computation. Options include: [start end] in seconds or “all”’, “miniperiod”, “maxperiod”, “prestim”, “postim”. See documentation on ft_timelockanalysis (https://www.fieldtriptoolbox.org/reference/ft_timelockanalysis/) for detail.
               </details>
              </li>
              <!--BEAMFORMING.TIMEDOMAIN.VARTRLLENGTH--> 
             <li>
               <details>
                 <summary>Vartrllength</summary>
-                Where: Fcp_4_beamforming to compute the covariance matrix
+                Where: Nowhere
+                Meaning: Relic from old code. Do not fill this in, it will be deleted from future config templates.
               </details>
              </li>
              <!--BEAMFORMING.TIMEDOMAIN.PROJECTMOM--> 
@@ -764,7 +810,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                 <summary>Projectmom</summary>
                 Where: Fcp_4_beamforming just after we perform actual beamforming 
                 <br>
-                Meaning: Projects data to the dominant eigenvector so we have one resulting timeseries per source reflecting overall change in activity. Else, there would be reconstructed source data in three orientations.
+                Meaning: Projects data to the dominant eigenvector so we have one resulting timeseries per source reflecting overall change in activity. Else, there would be reconstructed source data in three orientations. Options are “yes” or “no”.
               </details>
              </li></ul>
         </details>
@@ -774,6 +820,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
         <details>
           <summary>Options</summary>
           Where: Fcp_4_beamforming
+          Meaning: Not assigned a specific value, rather it is the umbrella for the fields within it. 
           <ul>
            <!--BEAMFORMING.OPTIONS.KEEPTRIALS--> 
             <li>
@@ -808,7 +855,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
           <summary>Method</summary>
           Where: Fcp_4_beamforming just before we perform actual beamforming 
           <br>
-          Meaning: Specifies what method we want to use to perform the beamforming 
+          Meaning: Specifies what method we want to use to perform the beamforming e.g. “lcmv”.
         </details>
       </li>
       <!--BEAMFORMING.REP_TIMESERIES-->
@@ -827,6 +874,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
 <details>
 <summary>Connectivity</summary>
 Where: Fcp_5_task_Connectivity
+Meaning: Not assigned a specific value, rather it is the umbrella for the fields within it. 
 <br><br>
 <ul>
   <!--CONNECTIVITY.METHOD-->
@@ -844,7 +892,7 @@ Where: Fcp_5_task_Connectivity
       <summary>Filt_freqs</summary>
       Where: Fcp_5_task_Connectivity
       <br>
-      Meaning: Specifies the various frequency bands (theta, alpha, beta, gamma, hi-gamma)
+      Meaning: Specifies the various frequency bands (e.g. [4,7] for theta, [8,12] for alpha, etc… Can enter multiple frequency bands as such: [ [4,7], [8,12], [13,29], … ].
     </details>
   </li>
   <!--CONNECTIVITY.COLLAPSEBAND-->
