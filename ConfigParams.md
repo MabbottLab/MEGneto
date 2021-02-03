@@ -662,13 +662,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
             <details>
               <summary>Method</summary>
               Where: Fcp_4_beamforming for visualization of participant’s segmented head model (to check for alignment). Only used if code for the visualization of segmented head model is uncommented.
-              Meaning: Specifies plotting method. Options are presented below though we tend to use “slice”:
-- “slice” (plots the data on a number of slices in the same plane)
-- “ortho” (plots the data on three orthogonal slices)
-- “surface” (plots the data on a 3D brain surface)
-- “glassbrain” (plots a max-projection through the brain)
-- “vertex” (plots the grid points or vertices scaled according to the functional value)
-- “cloud” (plot the data as clouds, spheres, or points scaled according to the functional value).
+              Meaning: Specifies plotting method. Options are presented below though we tend to use “slice”: (1) “slice” (plots the data on a number of slices in the same plane). (2) “ortho” (plots the data on three orthogonal slices). (3) “surface” (plots the data on a 3D brain surface). (4) “glassbrain” (plots a max-projection through the brain). (5) “vertex” (plots the grid points or vertices scaled according to the functional value). (6) “cloud” (plot the data as clouds, spheres, or points scaled according to the functional value).
             </details>
           </li>
           <!--BEAMFORMING.CHECKMRIVOLUMES.SLIDESDIM--> 
@@ -676,11 +670,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
             <details>
               <summary>Slidesdim</summary>
               Where: Fcp_4_beamforming for visualization of participant’s segmented head model (to check for alignment). Only used if code for the visualization of segmented head model is uncommented.
-              Meaning: Only used when “method” is set to “slice”. This specifies the dimension to slice on. Options are: 
-1 (x-axis)
-2 (y-axis) 
-3 (z-axis) 
-(default = 3)
+              Meaning: Only used when “method” is set to “slice”. This specifies the dimension to slice on. Options are: 1 (x-axis). 2 (y-axis). 3 (z-axis) . The default is 3.
             </details>
           </li>
           <!--BEAMFORMING.CHECKMRIVOLUMES.NSLICES--> 
