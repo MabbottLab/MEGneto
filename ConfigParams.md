@@ -668,7 +668,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
           <!--BEAMFORMING.CHECKMRIVOLUMES.SLIDESDIM--> 
           <li>
             <details>
-              <summary>Slidesdim</summary>
+              <summary>Slicesdim</summary>
               Where: Fcp_4_beamforming for visualization of participant’s segmented head model (to check for alignment). Only used if code for the visualization of segmented head model is uncommented.
               Meaning: Only used when “method” is set to “slice”. This specifies the dimension to slice on. Options are: 1 (x-axis). 2 (y-axis). 3 (z-axis) . The default is 3.
             </details>
