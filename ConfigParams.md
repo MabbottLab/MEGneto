@@ -596,6 +596,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
         <details>
           <summary>Template</summary>
           Where: Fcp_4_beamforming when constructing the grid for the T1 template model 
+          <br>
           Meaning: Not assigned a specific value, rather it is the umbrella for the fields within it. 
           <ul>
           <!--BEAMFORMING.TEMPLATE.GRID--> 
@@ -603,13 +604,16 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
             <details>
               <summary>Grid</summary>
               Where: Fcp_4_beamforming when constructing the grid for the T1 template model 
+              <br>
+              Meaning: Not assigned a specific value, rather it is the umbrella for the fields within it. 
               <ul>
                 <!--BEAMFORMING.TEMPLATE.GRID.RESOLUTION--> 
                 <li>
                   <details>
                     <summary>Resolution</summary>
                     Where: Fcp_4_beamforming when constructing the grid for the T1 template model 
-                    Meaning: Not assigned a specific value, rather it is the umbrella for the fields within it. 
+                    <br>
+                    Meaning: Number of the resolution of the template MNI grid, define in mm (e.g. 1)
                   </details>
                 </li>
                 <!--BEAMFORMING.TEMPLATE.TIGHT--> 
@@ -617,6 +621,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                   <details>
                     <summary>Tight</summary>
                     Where: Fcp_4_beamforming when constructing the grid for the T1 template model 
+                    <br>
                     Meaning: "yes" or "no" 
                   </details>
                </li>
@@ -625,6 +630,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                   <details>
                     <summary>Inwardshift</summary>
                     Where: Fcp_4_beamforming when constructing the grid for the T1 template model 
+                    <br>
                     Meaning: Number that defines how much the innermost surface should be moved inward to constrain sources to be considered inside the source compartment (default = 0
                   </details>
                 </li></ul>
@@ -635,6 +641,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
             <details>
               <summary>Coordsys</summary>
               Where: Fcp_4_beamforming when loading T1 template
+              <br>
               Meaning: The coordinate system that is used, e.g. “spm”.
             </details>
          </li></ul>
@@ -645,6 +652,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
         <details>
           <summary>Atlas</summary>
           Where: Fcp_4_beamforming
+          <br>
           Meaning: Not assigned a specific value, rather it is the umbrella for the fields within it. 
           <ul>
           <!--BEAMFORMING.ATLAS.FILEPATH--> 
@@ -661,6 +669,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
             <details>
               <summary>Inputcoord</summary>
               Where: Fcp_4_beamforming for visualization of the T1 segmented head model (to check for alignment with grid)
+              <br>
               Meaning: e.g. “mni”
             </details>
           </li></ul>
@@ -671,6 +680,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
         <details>
           <summary>checkMRIvolumes</summary>
           Where: Fcp_4_beamforming for visualization of participant’s segmented head model (to check for alignment)
+          <br>
           Meaning: Not assigned a specific value, rather it is the umbrella for the fields within it. 
           <ul>
           <!--BEAMFORMING.CHECKMRIVOLUMES.METHOD--> 
@@ -678,6 +688,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
             <details>
               <summary>Method</summary>
               Where: Fcp_4_beamforming for visualization of participant’s segmented head model (to check for alignment). Only used if code for the visualization of segmented head model is uncommented.
+              <br>
               Meaning: Specifies plotting method. Options are presented below though we tend to use “slice”: (1) “slice” (plots the data on a number of slices in the same plane). (2) “ortho” (plots the data on three orthogonal slices). (3) “surface” (plots the data on a 3D brain surface). (4) “glassbrain” (plots a max-projection through the brain). (5) “vertex” (plots the grid points or vertices scaled according to the functional value). (6) “cloud” (plot the data as clouds, spheres, or points scaled according to the functional value).
             </details>
           </li>
@@ -686,6 +697,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
             <details>
               <summary>Slicesdim</summary>
               Where: Fcp_4_beamforming for visualization of participant’s segmented head model (to check for alignment). Only used if code for the visualization of segmented head model is uncommented.
+              <br>
               Meaning: Only used when “method” is set to “slice”. This specifies the dimension to slice on. Options are: 1 (x-axis). 2 (y-axis). 3 (z-axis) . The default is 3.
             </details>
           </li>
@@ -694,6 +706,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
             <details>
               <summary>Nslices</summary>
               Where: Fcp_4_beamforming for visualization of participant’s segmented head model (to check for alignment). Only used if code for the visualization of segmented head model is uncommented.
+              <br>
               Meaning: Only used when “method” is set to “slice”. This will specify the number of slices (default = 20).
             </details>
           </li>
@@ -712,6 +725,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
         <details>
           <summary>Subj</summary>
           Where: Fcp_4_beamforming to prepare the subject specific source model (with reference to the T1 template model)
+          <br>
           Meaning: Not assigned a specific value, rather it is the umbrella for the fields within it. 
           <ul>
           <!--BEAMFORMING.SUBJ.GRID--> 
@@ -719,6 +733,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
             <details>
               <summary>Grid</summary>
               Where: Fcp_4_beamforming to prepare the subject specific source model (with reference to the T1 template model)
+              <br>
               Meaning: Not assigned a specific value, rather it is the umbrella for the fields within it. 
               <ul>
               <!--BEAMFORMING.SUBJ.GRID.WARPMNI-->
@@ -735,6 +750,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                 <details>
                   <summary>Nonlinear</summary>
                   Where: Fcp_4_beamforming to prepare the subject specific source model (with reference to the T1 template model).
+                  <br>
                   Meaning: “Yes” or “no” to indicate whether non-linear normalization should be used.
                 </details>
               </li>
@@ -784,6 +800,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
         <details>
           <summary>TimeDomain</summary>
           Where: Fcp_4_beamforming to compute the covariance matrix
+          <br>
           Meaning: Not assigned a specific value, rather it is the umbrella for the fields within it. 
           <ul>
            <!--BEAMFORMING.TIMEDOMAIN.COVARIANCE--> 
@@ -791,6 +808,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
               <details>
                 <summary>Covariance</summary>
                 Where: Fcp_4_beamforming to compute the covariance matrix
+                <br>
                 Meaning: "Yes” or “no” to specify if a covariance matrix should be computed.
               </details>
              </li>
@@ -799,6 +817,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
               <details>
                 <summary>Covariancewindow</summary>
                 Where: Fcp_4_beamforming to compute the covariance matrix
+                <br>
                 Meaning: Specificies window length for covariance matrix computation. Options include: [start end] in seconds or “all”’, “miniperiod”, “maxperiod”, “prestim”, “postim”. See documentation on ft_timelockanalysis (https://www.fieldtriptoolbox.org/reference/ft_timelockanalysis/) for detail.
               </details>
              </li>
@@ -807,6 +826,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
               <details>
                 <summary>Vartrllength</summary>
                 Where: Nowhere
+                <br>
                 Meaning: Relic from old code. Do not fill this in, it will be deleted from future config templates.
               </details>
              </li>
@@ -826,6 +846,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
         <details>
           <summary>Options</summary>
           Where: Fcp_4_beamforming
+          <br>
           Meaning: Not assigned a specific value, rather it is the umbrella for the fields within it. 
           <ul>
            <!--BEAMFORMING.OPTIONS.KEEPTRIALS--> 
