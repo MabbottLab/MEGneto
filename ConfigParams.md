@@ -613,7 +613,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                     <summary>Resolution</summary>
                     Where: Fcp_4_beamforming when constructing the grid for the T1 template model 
                     <br>
-                    Meaning: Number of the resolution of the template MNI grid, define in mm (e.g. 1)
+                    Meaning: Number of the resolution of the template MNI grid, defined in mm (e.g. 1)
                   </details>
                 </li>
                 <!--BEAMFORMING.TEMPLATE.TIGHT--> 
@@ -631,7 +631,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                     <summary>Inwardshift</summary>
                     Where: Fcp_4_beamforming when constructing the grid for the T1 template model 
                     <br>
-                    Meaning: Number that defines how much the innermost surface should be moved inward to constrain sources to be considered inside the source compartment (default = 0
+                    Meaning: Number that defines how much the innermost surface should be moved inward to constrain sources to be considered inside the source compartment (default = 0)
                   </details>
                 </li></ul>
             </details>
