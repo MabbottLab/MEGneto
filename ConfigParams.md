@@ -402,6 +402,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
         <details>
           <summary>Trialdef</summary>
           Where: fcp_1_Task_Epoching for setting up the cfg for epoching (used in search TaskTrialFun in detail) and Fcp_5_freqanalysis and Fcp_5_task_Connectivity
+          <br>
           Meaning: Not assigned a specific value, rather it is the umbrella for the fields within it. Sets up parameters for trial definition. 
           <br><br>
             <ul>
@@ -410,6 +411,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
               <details>
                 <summary>Details</summary>
                 Where: searchTaskTrialFun.m
+                <br>
                 Meaning: Not assigned a specific value, rather it is the umbrella for the fields within it. 
                 <br><br>
                 <ul>
@@ -425,6 +427,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                   <details>
                     <summary>includeOnce</summary>
                     Where: searchTaskTrialFun.m
+                    <br>
                     Meaning: Specifies additional events that should be included for stats generation. That is if you wish to generate reaction times between the stimulus presentation and markers included in this parameter. Currently must be left as [“”] as this functionality is not supported. 
                     <br>  
                   </li>
@@ -433,6 +436,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                   <details>
                     <summary>Exclude</summary>
                     Where: searchTaskTrialFun.m
+                    <br>
                     Meaning: Doesn't seem to be legitimately used. Leave as [“”]. 
                     <br>  
                   </li>
@@ -441,6 +445,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                   <details>
                     <summary>Include</summary>
                     Where: searchTaskTrialFun.m
+                    <br>
                     Meaning: Specifies the marker you wish to gain reaction time information for (e.g. “Correct” means you will get the reaction time between stimulus presentation and a correct response).
                     <br>  
                   </li>
@@ -449,6 +454,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                   <details>
                     <summary>countOnly</summary>
                     Where: searchTaskTrialFun.m
+                    <br>
                     Meaning: “true” or “false” to specify whether you only want information on the number of trials (true for only want number of trials information, false for want more information including reaction times).
                     <br>  
                   </li>
@@ -459,6 +465,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
               <details>
                <summary>Light</summary>
                Where: Nowhere
+               <br>
                Meaning: This is a relic from old code. Do not fill this field, it will be removed in future config templates.
                <ul>
                  <!--TASK.TRIALDEF.LIGHT.AVGSTARTTHRESH-->
@@ -475,13 +482,15 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
               <details>
                <summary>Parameters</summary>
                Where: searchTaskTrialFun and fcp_5_freqanalysis and fcp_5_taskconnectivity
-                Meaning: Not assigned a specific value, rather it is the umbrella for the fields within it.
+               <br>
+               Meaning: Not assigned a specific value, rather it is the umbrella for the fields within it.
                <ul>
                  <!--TASK.TRIALDEF.PARAMETERS.T0SHIFT--> 
                  <li>
                   <details>
                    <summary>T0shift</summary>
                    Where: searchTaskTrialFun 
+                   <br>
                    Meaning: Specifies the delay time that needs to be corrected for in seconds (e.g. 0.023).
                   </details>
                  </li>
@@ -490,6 +499,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                   <details>
                    <summary>tEpoch</summary>
                    Where: searchTaskTrialFun AND Fcp_5_freqanalysis AND Fcp_5_task_Connectivity when reshaping catmatrix into acceptable format.
+                   <br>
                    Meaning: Specifies the epoch time window (e.g. [-2, 2]).
                   </details>
                  </li>
@@ -500,6 +510,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
               <details>
                <summary>Markers</summary>
                Where: fcp_1_TaskEpoching
+               <br>
                Meaning: Not assigned a specific value, rather it is the umbrella for the fields within it.
                <!--TASK.TRIALDEF.MARKERS.CORRECT--> 
                <ul>
@@ -507,6 +518,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                   <details>
                    <summary>Correct</summary>
                    Where: searchTaskTrialFun 
+                   <br>
                    Meaning: Specifies the markers that mark a correct trials (e.g. [“LeftCorrect”], [“RightCorrect”] or multiple such as [“LeftCorrect”, “RightCorrect”]).
                   </details>
                  </li>
@@ -515,6 +527,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                   <details>
                    <summary>Incorrect</summary>
                    Where: Nowhere
+                   <br>
                    Meaning: This is a relic from old code. Do not fill in this field, it will be deleted from future config templates.
                   </details>
                  </li>
@@ -532,6 +545,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                   <details>
                    <summary>newTrig</summary>
                    Where: Nowhere
+                   <br>
                    Meaning: This is a relic from old code. Do not fill in this field, it will be deleted from future config templates.
                   </details>
                  </li></ul>
@@ -545,6 +559,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
 <details>
   <summary>Beamforming</summary>
   Where: Fcp_4_beamforming 
+  <br>
   Meaning: Not assigned a specific value, rather it is the umbrella for the fields within it. 
   <br><br>
     <ul>
@@ -553,6 +568,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
         <details>
           <summary>Headmodel</summary>
           Where: Fcp_4_beamforming 
+          <br>
           Meaning: Not assigned a specific value, rather it is the umbrella for the fields within it. 
           <ul>
           <!--BEAMFORMING.HEADMODEL.METHOD--> 
