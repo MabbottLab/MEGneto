@@ -26,7 +26,7 @@ Meaning: Email address to which to send pipeline’s progress updates contained 
           <summary>Period</summary>
           Where: fcp_1_RestingStateEpoching, line 97.
           <br>
-          Meaning: Indicates epoch length for epoching resting state data (deafault = 30).
+          Meaning: Indicates epoch length for epoching resting state data (default = 30).
         </details>
       </li>
       <!--EPOCHING.TOTALTIME--> 
