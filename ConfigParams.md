@@ -155,7 +155,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                       <summary>Boxcar</summary>
                       Where: fcp_1_TaskEpoching in artifact detection, setting up the cfg to call “ft_artifact_muscle” 
                       <br>
-                      Meaning: Specifies window length for the moving average filter. Also known as a boxcar car smoothing kernel or sliding average (aka window length, e.g. 0.2)
+                      Meaning: Specifies window length (time window) for the moving average filter. Also known as a boxcar car smoothing kernel or sliding average (aka window length, e.g. 0.2).
                     </details>
                   </li>
                   <!--CLEANING OPTIONS.ARTIFACT.MUSCLE.CUTOFF--> 
@@ -164,7 +164,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                       <summary>Cutoff</summary>
                       Where: fcp_1_TaskEpoching in artifact detection, setting up the cfg to call “ft_artifact_muscle”
                       <br>
-                      Meaning: Specifies frequency at which to cut off the signal (e.g. 30)
+                      Meaning: Specifies frequency at which to cut off the signal (e.g. 30). This depends on if you are interested in alpha or gamma band activity or a wider range as in evoked activity.
                     </details>
                   </li>
                   <!--CLEANING OPTIONS.ARTIFACT.MUSCLE.TRLPADDING--> 
@@ -212,7 +212,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
                         <summary>Cutoff</summary>
                         Where: fcp_1_TaskEpoching in artifact detection
                         <br>
-                        Meaning: Cutoff frequency indicating at what point the signal should be classified as a jump artifact (e.g. 35)
+                        Meaning: Cutoff frequency indicating at what point the signal should be classified as a jump artifact (e.g. 35). This depends on if you are interested in alpha or gamma band activity or a wider range as in evoked activity. 
                       </details>
                     </li>
                 </ul>
@@ -282,7 +282,7 @@ Meaning: Email address to which to send pipeline’s progress updates (contained
           <summary>Dftfreq</summary>
           Where: fcp_2_PreprocessingICA in setting up cfg for ft_preprocessing
           <br>
-          Meaning: Indicates whether the frequency to filter out is 50 or 60Hz 
+          Meaning: Indicates whether the power-line frequency to filter out is 50 or 60Hz and its harmonic frequency, which is next multiple of the power-line frequency (e.g. [60;120]).
         </details>
       </li>
       <!--FILTERING PARAMETERS.BPFILTER--> 
