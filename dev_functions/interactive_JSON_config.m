@@ -28,8 +28,9 @@ function interactive_JSON_config(paths, megneto_path)
 
 %% Load in the blank config template
 empty_config = fullfile(megneto_path, '/configs/empty_config.json');
-jsonText = fileread(empty_config);
-decode = jsondecode(jsonText);
+% jsonText = fileread(empty_config);
+% decode = jsondecode(jsonText);
+decode = loadjson(empty_config);
 
 %% Filling in sections of the config file
 %% config.contact and config.epoching
@@ -62,7 +63,7 @@ cleaningoptions_prompt = {'Enter 0 (no) or 1 (yes) to indicate if artifact detec
 cleaningoptions_dlgtitle = 'Part 2 of 10: config.cleaningoptions';
 dims = [1, 70];
 
-cleaningoptions_definput = {'1', 'yes','[110;140]', '8', 'but', 'yes', '0.2',...
+cleaningoptions_definput = {'1', 'yes','[110,140]', '8', 'but', 'yes', '0.2',...
             '30', '0.5'};
         
 cleaningoptions_answer = inputdlg(cleaningoptions_prompt, cleaningoptions_dlgtitle, dims, cleaningoptions_definput);
@@ -113,7 +114,7 @@ filteringParams_dlgtitle = 'Part 4 of 10: config.filteringParameters"';
 dims = [1, 70];
 
 filteringParams_definput = {'MEG, MEGREF, REFGRAD, REFMAG',...
-'yes', '[60;120]', 'yes', '[1;150]', '5', '300', 'CTF151.lay'};
+'yes', '[60,120]', 'yes', '[1,150]', '5', '300', 'CTF151.lay'};
 
 filteringParams_answer = inputdlg(filteringParams_prompt, filteringParams_dlgtitle, dims, filteringParams_definput);
 
@@ -162,7 +163,7 @@ task_dlgtitle = 'Part 6 of 10: config.task';
 dims = [1, 70];
 
 task_definput = {'0', 'Correct', '', '', 'Correct', 'false',...
-'0.023', '[-2.0;2.0]', 'LeftCorrect, RightCorrect', 'OfflineLightOn'};
+'0.023', '[-2.0, 2.0]', 'LeftCorrect, RightCorrect', 'OfflineLightOn'};
         
 task_answer = inputdlg(task_prompt, task_dlgtitle, dims, task_definput);
 
@@ -193,7 +194,7 @@ beamforming_dlgtitle = 'Part 7 of 10: config.beamforming';
 dims = [1, 70];
 
 beamforming_definput = {'singleshell', 'cm', '1', 'yes', '-0.8', 'spm',... 
-'/template/atl[firstname.lastname@sickkids.ca]gas/aal/ROI_MNI_V4.nii', 'mni', 'slice', '2'};
+'/template/atlas/aal/ROI_MNI_V4.nii', 'mni', 'slice', '2'};
         
 beamforming_answer = inputdlg(beamforming_prompt, beamforming_dlgtitle, dims, beamforming_definput); 
 
@@ -232,7 +233,7 @@ decode.config.beamforming.subj.grid.unit = beamforming2_answer{4};
 decode.config.beamforming.leadfield.normalize = beamforming2_answer{5};
 decode.config.beamforming.timeDomain.covariance = beamforming2_answer{6};
 decode.config.beamforming.timeDomain.covariancewindow = beamforming2_answer{7};
-decode.config.beamforming.timeDomain.projectmom = str2double(beamforming2_answer{8});
+decode.config.beamforming.timeDomain.projectmom = beamforming2_answer{8};
 
 %% config.beamforming part 3
 beamforming3_prompt = {'Enter yes or no to specify if trials should be separated',...
@@ -269,135 +270,8 @@ decode.config.connectivity.method = connectivity_answer{1};
 decode.config.connectivity.filt_freqs = str2num(connectivity_answer{2});
 decode.config.connectivity.collapse_band = connectivity_answer{3};
 
-%% encode the json into proper format 
-encode = jsonencode(decode);
-
-%% add spacing and indendation 
-encode = strrep(encode, '{}', sprintf('[{}]')); % for taskFunc.workspace (untouched by user) 
-encode = strrep(encode, '[{', sprintf('[\n\t\t\t\t{'));
-encode = strrep(encode, '}]', sprintf('}\n\t\t\t]'));
-encode = strrep(encode, '[[', sprintf('[\n\t['));
-encode = strrep(encode, ']]', sprintf(']\n\t]'));
-encode = strrep(encode, '"," ', sprintf('", "'));
-encode = strrep(encode, ':{', sprintf(':{\n\t'));
-encode = strrep(encode, '],', sprintf('],\n\t'));
-encode = strrep(encode, '},', sprintf('},\n\t'));
-encode = strrep(encode, ':', '  : ');
-encode = strrep(encode, ',"', sprintf(',\n\t"'));
-encode = strrep(encode, '{"', sprintf('{\n\t"'));
-
-%% tabbing specific fields
-%% section 1: contact/epoching
-encode = strrep(encode, '"contact', sprintf('\t"contact'));
-encode = strrep(encode, '"epoching', sprintf('\t"epoching'));
-encode = strrep(encode, '"period', sprintf('\t\t"period'));
-encode = strrep(encode, '"headMotion', sprintf('\t\t"headMotion'));
-encode = strrep(encode, '"thr', sprintf('\t\t\t"thr'));
-
-%% section 2: cleaningOptions
-encode = strrep(encode, '"cleaningOptions', sprintf('\t"cleaningOptions'));
-encode = strrep(encode, '"artifact', sprintf('\t\t\"artifact'));
-encode = strrep(encode, '"detection', sprintf('\t\t\t"detection'));
-encode = strrep(encode, '"muscle', sprintf('\t\t\t"muscle'));
-encode = strrep(encode, '"bp', sprintf('\t\t\t\t"bp'));
-encode = strrep(encode, '"hilber', sprintf('\t\t\t\t"hilbert'));
-encode = strrep(encode, '"boxcar', sprintf('\t\t\t\t"boxcar'));
-encode = strrep(encode, '"cutoff', sprintf('\t\t\t\t"cutoff'));
-encode = strrep(encode, '"trl', sprintf('\t\t\t\t"trl'));
-encode = strrep(encode, '"flt', sprintf('\t\t\t\t"flt'));
-encode = strrep(encode, '"artpadding', sprintf('\t\t\t\t"artpadding'));
-encode = strrep(encode, '"jump', sprintf('\t\t\t"jump'));
-encode = strrep(encode, '"icaClean', sprintf('\t\t\t"icaClean'));
-%fid = fopen('Testing.json', 'w');
-encode = strrep(encode, '"rmNoisyTrials', sprintf('\t\t\t"rmNoisyTrials'));
-encode = strrep(encode, '"rmBadChannels', sprintf('\t\t"rmBadChannels'));
-
-%fid = fopen('Testing.json', 'w');
-%% section 3: filteringParameters
-encode = strrep(encode, '"filteringParameters', sprintf('\t"filteringParameters'));
-encode = strrep(encode, '"channel', sprintf('\t\t\t\t"channel'));
-%fid = fopen('Testing.json', 'w');
-encode = strrep(encode, '"dft', sprintf('\t\t\t\t"dft'));
-encode = strrep(encode, '"sampleRate', sprintf('\t\t\t\t"sampleRate'));
-encode = strrep(encode, '"CTFlayout', sprintf('\t\t\t\t"CTFlayout'));
-%fid = fopen('Testing.json', 'w'););
-
-%% section 4: taskFunc
-encode = strrep(encode, '"taskFunc', sprintf('\t"taskFunc'));
-encode = strrep(encode, '"function', sprintf('\t\t"function'));
-encode = strrep(encode, '"type', sprintf('\t\t"type'));
-encode = strrep(encode, '"file"', sprintf('\t\t"file"'));
-encode = strrep(encode, '"workspace', sprintf('\t\t"workspace'));
-encode = strrep(encode, '"within_file_path', sprintf('\t\t"within_file_path'));
-
-%% section 5: task
-encode = strrep(encode, '"task"', sprintf('\t"task"'));
-encode = strrep(encode, '"isRest', sprintf('\t\t"isRest'));
-encode = strrep(encode, '"trialdef', sprintf('\t\t"trialdef'));
-encode = strrep(encode, '"details', sprintf('\t\t\t"details'));
-encode = strrep(encode, '"name', sprintf('\t\t\t\t"name'));
-encode = strrep(encode, '"include', sprintf('\t\t\t\t"include'));
-encode = strrep(encode, '"exclude', sprintf('\t\t\t\t"exclude'));
-encode = strrep(encode, '"count', sprintf('\t\t\t\t"count'));
-encode = strrep(encode, '"parameters', sprintf('\t\t\t"parameters'));
-encode = strrep(encode, '"t0shift', sprintf('\t\t\t\t"t0shift'));
-encode = strrep(encode, '"tEpoch', sprintf('\t\t\t\t"tEpoch'));
-encode = strrep(encode, '"markers', sprintf('\t\t\t"markers'));
-encode = strrep(encode, '"Correct"  :', sprintf('\t\t\t\t"Correct"  :'));
-encode = strrep(encode, '"t0marker"', sprintf('\t\t\t\t"t0marker"'));
-
-%% section 6: beamforming
-encode = strrep(encode, '"beamforming', sprintf('\t"beamforming'));
-encode = strrep(encode, '"headmodel', sprintf('\t\t"headmodel'));
-encode = strrep(encode, '"method', sprintf('\t\t"method')); % ISSUE %
-encode = strrep(encode, '"units"', sprintf('\t\t\t"units"'));
-encode = strrep(encode, '"template', sprintf('\t\t"template'));
-encode = strrep(encode, '"grid', sprintf('\t\t\t"grid'));
-encode = strrep(encode, '"resolution', sprintf('\t\t\t\t"resolution'));
-encode = strrep(encode, '"tight', sprintf('\t\t\t\t"tight'));
-encode = strrep(encode, '"inward', sprintf('\t\t\t\t"inward'));
-encode = strrep(encode, '"coordsys', sprintf('\t\t\t"coordsys'));
-encode = strrep(encode, '"atlas', sprintf('\t\t"atlas'));
-encode = strrep(encode, '"filepath', sprintf('\t\t\t"filepath'));
-
-encode = strrep(encode, '"inputcoord', sprintf('\t\t\t"inputcoord'));
-encode = strrep(encode, '"checkMRI', sprintf('\t\t"checkMRI'));
-encode = strrep(encode, '"slices', sprintf('\t\t\t"slices'));
-encode = strrep(encode, '"nslices', sprintf('\t\t\t"nslices'));
-
-encode = strrep(encode, '"subj', sprintf('\t\t"subj'));
-encode = strrep(encode, '"warpmni', sprintf('\t\t\t\t"warpmni'));
-encode = strrep(encode, '"nonlinear', sprintf('\t\t\t\t"nonlinear'));
-encode = strrep(encode, '"unit"', sprintf('\t\t\t\t"unit"'));
-
-encode = strrep(encode, '"leadfield', sprintf('\t\t"leadfield'));
-encode = strrep(encode, '"normalize', sprintf('\t\t\t"normalize'));
-encode = strrep(encode, '"timeDomain', sprintf('\t\t"timeDomain'));
-
-encode = strrep(encode, '"covariance', sprintf('\t\t\t"covariance'));
-encode = strrep(encode, '"vartrl', sprintf('\t\t\t"vartrl'));
-encode = strrep(encode, '"projectmom', sprintf('\t\t\t"projectmom'));
-encode = strrep(encode, '"options', sprintf('\t\t"options'));
-encode = strrep(encode, '"keep', sprintf('\t\t\t"keep'));
-encode = strrep(encode, '"rawtrial', sprintf('\t\t\t"rawtrial'));
-encode = strrep(encode, '"rep_timeseries', sprintf('\t\t"rep_timeseries'));
-
-%% section 7: connectivity
-encode = strrep(encode, '"connectivity', sprintf('\t"connectivity'));
-encode = strrep(encode, '"filt_freqs', sprintf('\t\t"filt_freqs'));
-encode = strrep(encode, '"collapse_band', sprintf('\t\t"collapse_band'));
-
-%% dealing with special cases
-% method: first two methods are indentend 3 times, last two are twice
-% locations = strfind(encode, '"method"');
-% newStr = regexprep('"', '"', '\t"');
-
-%% save encode to correct location under correct name
-% Write to a json file
-fid = fopen(paths.mainconf, 'w');
-fprintf(fid, '%s', encode);
-fclose(fid);
-
+%% save json file
+save_to_json(decode, paths.mainconf, true);
 
 
 
