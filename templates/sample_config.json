@@ -105,7 +105,6 @@
 		"timeDomain" : {
 			"covariance" : "yes",
 			"covariancewindow" : "all",
-			"vartrllength" : 2, 
 			"projectmom" : "yes"
 		},
 		"options" : {

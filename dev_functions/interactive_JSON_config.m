@@ -37,7 +37,7 @@ contact_epoching_prompt = {'Enter contact email', ...
 'Enter epoching period for resting state data',... 
 'Enter threshold for headmotion'};
 
-contact_epoching_dlgtitle = 'config.contact and config.epoching';
+contact_epoching_dlgtitle = 'Part 1 of 10: config.contact and config.epoching';
 dims = [1, 70];
 
 contact_epoching_definput = {'firstname.lastname@sickkids.ca', '30', '10'};
@@ -59,7 +59,7 @@ cleaningoptions_prompt = {'Enter 0 (no) or 1 (yes) to indicate if artifact detec
 'Enter the cut off frequency for muscle artifact cleaning'...
 'Enter desired time length for trial padding'};
 
-cleaningoptions_dlgtitle = 'config.cleaningoptions';
+cleaningoptions_dlgtitle = 'Part 2 of 10: config.cleaningoptions';
 dims = [1, 70];
 
 cleaningoptions_definput = {'1', 'yes','[110;140]', '8', 'but', 'yes', '0.2',...
@@ -85,7 +85,7 @@ cleaningoptions2_prompt = {'Enter desired time length for filter padding'...
 'Enter 0 (no) or 1 (yes) to indicate if noisy trials should be removed'...
 'Enter 0 (no) or 1 (yes) to indicate if bad trials should be removed'};
 
-cleaningoptions2_dlgtitle = 'config.cleaningoptions';
+cleaningoptions2_dlgtitle = 'Part 3 of 10: config.cleaningoptions';
 dims = [1, 70];
 
 cleaningoptions2_definput = {'0.1', '0.1', '35', '1', '1', '1'};
@@ -109,7 +109,7 @@ filteringParams_prompt = {'Specify which data channel to analyse for MEG data',.
  'Enter the sampling rate of the data',...
  'Enter the MEG model'};
 
-filteringParams_dlgtitle = 'config.filteringParameters';
+filteringParams_dlgtitle = 'Part 4 of 10: config.filteringParameters"';
 dims = [1, 70];
 
 filteringParams_definput = {'MEG, MEGREF, REFGRAD, REFMAG',...
@@ -134,7 +134,7 @@ taskFunc_prompt = {'Enter the name of the function used to parse data into trial
 % ISSUE: removed "workspace" field as it is unclear what it is & due to its
 % struct nature
 
-taskFunc_dlgtitle = 'config.taskFunc';
+taskFunc_dlgtitle = 'Part 5 of 10: config.taskFunc';
 dims = [1, 70];
 
 taskFunc_definput = {'@searchTaskTrialFun', 'anonymous', '', '__base_function'};
@@ -158,7 +158,7 @@ task_prompt = {'Enter 0 (no) or 1 (yes) to specify if there is rest data', ...
 'Specify markers that distinguish a correct trial',...
 'Specify the presentation stimulus marker'};
 
-task_dlgtitle = 'config.task';
+task_dlgtitle = 'Part 6 of 10: config.task';
 dims = [1, 70];
 
 task_definput = {'0', 'Correct', '', '', 'Correct', 'false',...
@@ -177,7 +177,7 @@ decode.config.task.trialdef.parameters.tEpoch = str2num(task_answer{8});
 decode.config.task.trialdef.markers.Correct = split(task_answer{9}, ',');
 decode.config.task.trialdef.markers.t0marker = task_answer{10};
 
-%% config.beamformin[firstname.lastname@sickkids.ca]g
+%% config.beamforming
 beamforming_prompt = {'Specify the headmodel form',...
 'Specify the headmodel units',...
 'Specify the template MNI grid resolution in mm',...
@@ -187,13 +187,13 @@ beamforming_prompt = {'Specify the headmodel form',...
 'Specify the atlas filepath',...
 'Specify the input coordinate',... % need clarity
 'Specify the plotting method of MRI volumes',...
-'Specify the dimension to slice on if the plotting field method is "slice"'};
+'Specify the d[firstname.lastname@sickkids.ca]gimension to slice on if the plotting field method is "slice"'};
 
-beamforming_dlgtitle = 'config.beamforming';
+beamforming_dlgtitle = 'Part 7 of 10: config.beamforming';
 dims = [1, 70];
 
 beamforming_definput = {'singleshell', 'cm', '1', 'yes', '-0.8', 'spm',... 
-'/template/atlas/aal/ROI_MNI_V4.nii', 'mni', 'slice', '2'};
+'/template/atl[firstname.lastname@sickkids.ca]gas/aal/ROI_MNI_V4.nii', 'mni', 'slice', '2'};
         
 beamforming_answer = inputdlg(beamforming_prompt, beamforming_dlgtitle, dims, beamforming_definput); 
 
@@ -216,13 +216,12 @@ beamforming2_prompt = {'Specify the number of slices if the plotting field metho
 'Enter yes or no to specify whether we want to normalize, which addresses depth bias',...
 'Enter yes or no if a covariance matrix should be computed',...
 'Specify the window length for covariance matrix computation',...
-'Enter vartrllength',... % need to remove from other templates and here!!
 'Enter yes or no to specify if data should be projected to dominant eigenvector'};
 
-beamforming2_dlgtitle = 'config.beamforming';
+beamforming2_dlgtitle = 'Part 8 of 10: config.beamforming';
 dims = [1, 70];
 
-beamforming2_definput = {'20', 'yes', 'yes', 'cm', 'no', 'yes', 'all', '2', 'yes'};
+beamforming2_definput = {'20', 'yes', 'yes', 'cm', 'no', 'yes', 'all', 'yes'};
         
 beamforming2_answer = inputdlg(beamforming2_prompt, beamforming2_dlgtitle, dims, beamforming2_definput); 
 
@@ -233,8 +232,7 @@ decode.config.beamforming.subj.grid.unit = beamforming2_answer{4};
 decode.config.beamforming.leadfield.normalize = beamforming2_answer{5};
 decode.config.beamforming.timeDomain.covariance = beamforming2_answer{6};
 decode.config.beamforming.timeDomain.covariancewindow = beamforming2_answer{7};
-decode.config.beamforming.timeDomain.vartrllength = str2double(beamforming2_answer{8});
-decode.config.beamforming.timeDomain.projectmom = beamforming2_answer{9};
+decode.config.beamforming.timeDomain.projectmom = str2double(beamforming2_answer{8});
 
 %% config.beamforming part 3
 beamforming3_prompt = {'Enter yes or no to specify if trials should be separated',...
@@ -243,7 +241,7 @@ beamforming3_prompt = {'Enter yes or no to specify if trials should be separated
 'Enter beamforming method',...
 'Enter method of generating a representative timeseries'};
 
-beamforming3_dlgtitle = 'config.beamforming';
+beamforming3_dlgtitle = 'Part 9 of 10: config.beamforming';
 dims = [1, 70];
 
 beamforming3_definput = {'yes', 'yes', 'yes', 'lcmv', 'mean'};
@@ -261,7 +259,7 @@ connectivity_prompt = {'Enter the metric for connectivity analysis',...
 'Specify the frequency bands',...
 'Specify the method of generating a representative timeseries for each ROI'};
 
-connectivity_dlgtitle = 'config.connectivity';
+connectivity_dlgtitle = 'Part of 10 of 10: config.connectivity';
 dims = [1, 70];
 
 connectivity_definput = {'wpli_debiased', '[4,7;8,12;13,29;30,59;60,100]', 'max'};
