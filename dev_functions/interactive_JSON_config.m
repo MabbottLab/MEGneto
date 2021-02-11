@@ -316,7 +316,7 @@ encode = strrep(encode, '"channel', sprintf('\t\t\t\t"channel'));
 %fid = fopen('Testing.json', 'w');
 encode = strrep(encode, '"dft', sprintf('\t\t\t\t"dft'));
 encode = strrep(encode, '"sampleRate', sprintf('\t\t\t\t"sampleRate'));
-encode = strrep(encode, '"CTFlayout', sprintf('\t\t\t\t"CTFlayout')
+encode = strrep(encode, '"CTFlayout', sprintf('\t\t\t\t"CTFlayout'));
 %fid = fopen('Testing.json', 'w'););
 
 %% section 4: taskFunc
