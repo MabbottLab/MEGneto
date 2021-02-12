@@ -1,5 +1,8 @@
 function trial_summary = getTrialSummary(paths, num_markers, thresh)
 
+% initialize output file
+getTrialSummary_output.getTrialSummary = 'getTrialSummary.mat';
+
 fcp1_output = loadjson([paths.anout_grp '/fcp1_output.json']);
 ppts = load_participants(paths, 'fcp1');
 ppts = ppts.Var1;
@@ -18,4 +21,9 @@ trial_summary.Properties.VariableNames = ["num_epochs", ...
                                           "hm_removed", ...
                                           "noise_removed", ...
                                           "too_many_removals"];
+
+% save trial_summary
+fprintf('Saving participant trial summary...\n');
+save([paths.anout_grp '/' getTrialSummary_output.getTrialSummary],'trial_summary', '-v7.3')                                      
+       
 end
