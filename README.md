@@ -76,7 +76,8 @@ Output: A struct with output file names, and for each subject: the number of tri
 
 Notes:
 - Ensure that subj_fcp1.csv is populated with the subject IDs of included participants.
-- Prior to running this step, all desired parameters should be defined in the JSON config file. The user should double-check that the JSON config file is populated appropriately, especially if a template JSON was copied over. Information on the meaning of each parameter in the JSON config file can be found in the "ConfigParams.md" document.
+- Prior to running this step, all desired parameters should be defined in the JSON config file. The user should double-check that the JSON config file is populated appropriately, especially if a template JSON was copied over. Information on the meaning of each parameter in the JSON config file can be found in the [Config Params Guide](https://github.com/dunjamatic/MEGneto/blob/configParams/ConfigParams.md).
+
 - At the beginning of this step, a logging file for progress tracking is set up and matching MEG/MRI data is identified.
 - If the user wishes to browse the output of plot_triggers function (a plot), they must indicate “true” for ‘ShowFigure’ when the plot_triggers function is called. By default, this is set to ‘“false”. See the code snippet from fcp_1_taskepoching below for reference.
 ![](images/showFigure_plotTriggers.PNG)
