@@ -28,15 +28,13 @@ function interactive_JSON_config(paths, megneto_path)
 
 %% Load in the blank config template
 empty_config = fullfile(megneto_path, '/configs/empty_config.json');
-% jsonText = fileread(empty_config);
-% decode = jsondecode(jsonText);
-decode = loadjson(empty_config);
+decode       = loadjson(empty_config);
 
 %% Filling in sections of the config file
 %% config.contact and config.epoching
-contact_epoching_prompt = {'Enter contact email', ...
-'Enter epoching period for resting state data',... 
-'Enter threshold for headmotion'};
+contact_epoching_prompt   = {'Enter contact email', ...
+                             'Enter epoching period for resting state data',... 
+                              'Enter threshold for headmotion'};
 
 contact_epoching_dlgtitle = 'Part 1 of 10: config.contact and config.epoching';
 dims = [1, 70];
@@ -45,8 +43,8 @@ contact_epoching_definput = {'firstname.lastname@sickkids.ca', '30', '10'};
         
 contact_epoching_answer = inputdlg(contact_epoching_prompt, contact_epoching_dlgtitle, dims, contact_epoching_definput);
 
-decode.config.contact = {contact_epoching_answer{1}};
-decode.config.epoching.period = str2double(contact_epoching_answer{2}); 
+decode.config.contact                 = {contact_epoching_answer{1}};
+decode.config.epoching.period         = str2double(contact_epoching_answer{2}); 
 decode.config.epoching.headMotion.thr = str2double(contact_epoching_answer{3});
 
 %% config.cleaningoptions 
