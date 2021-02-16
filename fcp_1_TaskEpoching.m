@@ -89,6 +89,18 @@ end
         fcp1_output.group_rmBadChan = 'group_rmBadChan.json';
 
 %% EPOCHING
+
+% Uncomment the following lines (lines 96, 97, 98, 102, 141, 142, 237, 238) 
+% if you would like to generate reaction times for participant button 
+% presses
+% reactionTimeSummary           = table(); % instantiate table
+% reactionTimeSummary.data      = cell(height(subj_match),1);  
+% reactionTimeSummary.Properties.RowNames = subj_match.pid;
+
+% Uncomment the following line to initialize the output file for the
+% reaction time summary table
+% reactionTimeSummary_output.reactionTimeSummary = 'reactionTimeSummary.mat';
+
 for ss = 1:length(subj_match.ds) % for each participant that has both MEG and MRI data
     
     fprintf('\n\n==================================\n...DS_FILE: %s\nSUBJECT: %s\n', ...
@@ -123,6 +135,11 @@ for ss = 1:length(subj_match.ds) % for each participant that has both MEG and MR
     cfg.trialdef    = config.task.trialdef;
     cfg.continuous  = 'yes';
     cfg             = ft_definetrial(cfg); 
+    
+    % Uncomment the following two lines to run the function that generates
+    % a reaction time summary for each participant.
+    % reactionTimeTable = reactionTimes(cfg);
+    % reactionTimeSummary.data{ss} = {reactionTimeTable};
     
     cfg_orig                    = cfg; % keep the original epoched data
     fcp1_output.numtrls{ss,1}   = length(cfg_orig.trl); % record num trials
@@ -215,6 +232,10 @@ for ss = 1:length(subj_match.ds) % for each participant that has both MEG and MR
         right_now(4:6), subj_match.pid{ss})
     close all    
 end % repeat for next participant
+
+% Uncomment the following two lines save a summary of ppt reaction times
+% fprintf('Saving reaction time summary for all ppts...\n');
+% save([paths.anout_grp '/' reactionTimeSummary_output.reactionTimeSummary],'reactionTimeSummary', '-v7.3')
 
 %%% FLAG PARTICIPANTS WITH MANY BAD CHANNELS ------------------------------
 
