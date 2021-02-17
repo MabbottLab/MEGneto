@@ -825,9 +825,7 @@ Meaning: Email address to which to send pipeline’s progress updates contained 
             <li>
               <details>
                 <summary>Vartrllength</summary>
-                Where: Nowhere.
-                <br>
-                Meaning: Relic from old code. Do not fill this in, it will be deleted from future config templates.
+                Where: fcp_4_beamforming prior to computing covariance matrix.
               </details>
              </li>
              <!--BEAMFORMING.TIMEDOMAIN.PROJECTMOM--> 
