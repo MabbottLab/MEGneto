@@ -208,7 +208,8 @@ thresh = 0.05; % significance threshold for the p-value. Default is 0.05,
 bootTestDiffSeeds(paths, seed_regions, freq_band, two_groups, num_bootstraps, thresh)
 
 %% Summary functions
-% includes: inspecting_results, getTrialSummary, getMarkerSummary
+% includes: inspecting_results, getTrialSummary,
+% getMarkerSummary,reactionTimes, trialSummary
 
 %% inspecting_results
 % This function allows the user to analyze the pipeline results by
@@ -246,3 +247,22 @@ getTrialSummary(paths, num_markers, thresh)
 % a cluster which describes redundancies in the markers.
 
 getMarkerSummary(paths)
+
+%% reactionTimes
+% This function extracts participant reaction times (time between stimulus 
+% presentation and button press). Currently, this function is used for the 
+% Speed of Thinking TP & EL dataset.
+
+% This function is run by uncommenting certain lines within
+% fcp_1_TaskEpoching.m. These lines include: 96, 97, 98, 102, 141, 142,
+% 237, 238). Please read the reactionTimes.m file in the dev_functions
+% folder for more details and information on where the output is stored. 
+
+%% trialSummary
+% This function generates a summary of the number of correct trials,
+% incorrect trials and total trials per participant. This function must be
+% run after at least fcp_1. Please read the reactionTimes.m file in the 
+% dev_functions folder for more details and information on where the output 
+% is stored. 
+
+trialSummary(paths)
