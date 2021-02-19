@@ -4,7 +4,7 @@ function trial_summary = trialSummary(paths)
 % incorrect trials and total trials per participant.
 
 % How to use:
-% call the function with the following command in the command line or as
+% call the function with the following command in the command window or as
 % presented in the main_template: trialSummary(paths). This function must
 % be run until at least after fcp_1_TaskEpoching is run.
 
