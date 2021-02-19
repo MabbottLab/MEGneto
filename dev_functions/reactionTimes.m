@@ -1,9 +1,20 @@
 function [reactionTimeTable] = reactionTimes(cfg)
 
+% Decription:
 % reactionTimes is a function that extracts participant reaction
 % times. That is, the time between stimulus presentation and button press.
 % Currently this function is used for the Speed of Thinking TP & EL 
 % dataset.
+
+% How to use:
+% Prior to running fcp_1_TaskEpoching.m, open that file and scroll to the
+% section that begins the Epoching stage (around line 91). Follow the
+% commented instructions which explain which lines you should uncomment to
+% run the reactionTimes function (lines 96, 97, 98, 102, 141, 142, 237,
+% 238). Once all the lines have been uncommented, run the
+% fcp_1_TaskEpoching function as per usual from the main template file. The
+% output file 'reactionTimeSummary.mat' is stored in the analysis folder in
+% group folder.
 
 % INPUTS:
 %   cfg.dataset                     - path to CTF dataset
