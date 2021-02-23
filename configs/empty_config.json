@@ -102,7 +102,7 @@
 		"timeDomain" : {
 			"covariance" : "",
 			"covariancewindow" : "",
-			"vartrllength" : null, 
+			"vartrllength" : "",
 			"projectmom" : ""
 		},
 		"options" : {

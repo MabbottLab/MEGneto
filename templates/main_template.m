@@ -58,6 +58,16 @@ paths = loadjson(strcat(project_path, '/analysis/', analysis_name, '/config/path
 overwrite = false; % set to true if path set up for the same analysis should be re-done
 paths = megne2setup(project_path, analysis_name, rawdata_path, mri_path, overwrite);
 
+%% Interaction JSON config file
+% Prior to running through the first step of the pipeline, users must
+% define all relevant parameters in the JSON config file. To facilitate
+% this process, the interative_JSON_config function will guide users
+% through the process of populating this guide. For more detail on the
+% meaning of each parameter, please reference the "ConfigParams.md"
+% document in the MEGneto repository on the Mabbott Lab GitHub.
+
+interactive_JSON_config(paths, megneto_path) % run the interactive config function
+
 %% fcp_1: task epoching, jump/muscle artifact detection, bad channel detection
 % This step will epoch MEG data into trials based on desired markers,
 % detect and reject trials with excessive head motion and muscle/jump
