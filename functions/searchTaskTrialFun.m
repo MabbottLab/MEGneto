@@ -10,7 +10,6 @@ function [trl, eventslist] = searchTaskTrialFun(cfg)
 %   cfg.trialdef.parameters.t0shift    - time in seconds to offset t0marker (presentation delay)
 %   cfg.trialdef.details.trigger    - name of trigger
 %   cfg.trialdef.details.include    - what other trigger to include
-%   cfg.trialdef.details.exclude    - what other trigger to exclude
 %   cfg.traildef.tEpoch     - time window  eg. [-1.5 1.5]
 %
 % OUTPUTS:
@@ -41,12 +40,6 @@ for tt = 1:height(cfg.trialdef.details) % for each condition
     % measure of how many there are?
     if length(cfg.trialdef.details.include{tt}) < 1 % if multiple markers are designated?
         warning('This trialdef function does not support multiple included markers per trial. Use another function or write your own.')
-    end
-    if isempty(cfg.trialdef.details.includeOnce{tt}) 
-        cfg.trialdef.details.includeOnce{tt} = {};
-    end
-    if isempty(cfg.trialdef.details.exclude{tt})
-        cfg.trialdef.details.exclude{tt} = {};
     end
 end
 
@@ -148,7 +141,7 @@ if ~cfg.trialdef.details.countOnly % if you don't want only counts
     trl_tmp(:,4)    = tt;
 
     % combine include once and includes for stats
-    includes        = reshape(cat(2, cfg.trialdef.details.include(tt), cfg.trialdef.details.includeOnce(tt)), [], 1);
+    includes        = reshape(cat(2, cfg.trialdef.details.include(tt)), [], 1);
     includes        = includes(~isempty(includes));
     
     % loop through trials and pull latency
