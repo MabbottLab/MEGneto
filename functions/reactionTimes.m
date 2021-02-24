@@ -132,5 +132,5 @@ end
 for i = 1:height(reactionTimeTable)
     reactionTimeTable.reactionTimes(i) = sampToTime(reactionTimeTable.eventTiming{i} - reactionTimeTable.t0sample(i));
 end 
-  
+
 end

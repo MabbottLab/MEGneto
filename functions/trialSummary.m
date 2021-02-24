@@ -1,4 +1,4 @@
-function trial_summary = trialSummary(paths)
+function trial_summary = trialSummary(paths, excel, excel_path)
 
 % This function generates a summary of the number of correct trials,
 % incorrect trials and total trials per participant.
@@ -8,11 +8,17 @@ function trial_summary = trialSummary(paths)
 % presented in the main_template: trialSummary(paths). This function must
 % be run until at least after fcp_1_TaskEpoching is run.
 
-% INPUT: paths
+% INPUT: 
+% paths        = standard paths input to all steps of the pipeline
+% excel        = 0 or 1 to specify if you wish to generate an excel file 
+%                with the output data (0 = no, 1 = yes)
+% excel_path   = full path of desired ecel file output 
+%                (e.g. '/home/username/trial_summary.xlsx')
 
 % OUTPUT: a table structure with the rows representing participants and
 % columns representing the total number of trials, total number of correct
 % trials, and total number of incorrect trials. 
+% Additional output: if specified, an excel version of the output data.
 
 %% SETUP
 % load config JSON with analysis parameters
@@ -54,5 +60,11 @@ trial_summary.Properties.VariableNames = ["total_trials", ...
 %% SAVING OUTPUT
 fprintf('Saving participant trial summary...\n');
 save([paths.anout_grp '/' trialSummary_output.ppt_trial_summary],'trial_summary', '-v7.3')
+
+%% EXCEL FILES
+if excel == 1
+    writetable(trial_summary, excel_path, 'WriteRowNames', true)
+end
+
 end
                               
