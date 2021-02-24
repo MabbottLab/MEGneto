@@ -5,15 +5,16 @@ This functional connectivity pipeline (fcp) is built on MATLAB using the FieldTr
 - [System Requirements](#system-requirements)
 - [Installation Guide](#installation-guide)
 - [How to Use](#how-to-use)
-   1. [Common terms](#commonterms)
-   2. [Initial Setup](#initial-setup)
-   3. [Epoching](#epoching)
-   4. [Preprocessing](#preprocessing)
-   5. [ICA Checkpoint](#ica-checkpoint)
-   6. [Channel Repair](#channel-repair)
-   7. [Beamforming](#beamforming)
-   8. [Frequency Analysis](#frequency-analysis)
-   9. [Functional Connectivity](#functional-connectivity)
+   1. [Common terms](#common-terms)
+   2. [JSON Config Setup](#json-config-setup)
+   3. [Initial Setup](#initial-setup)
+   4. [Epoching](#epoching)
+   5. [Preprocessing](#preprocessing)
+   6. [ICA Checkpoint](#ica-checkpoint)
+   7. [Channel Repair](#channel-repair)
+   8. [Beamforming](#beamforming)
+   9. [Frequency Analysis](#frequency-analysis)
+   10. [Functional Connectivity](#functional-connectivity)
 - [Credits](#credits)
 - [On Downsampling](#on-downsampling)
 - [Supplementary Reading Material](#supplementary-reading-material)
@@ -66,6 +67,10 @@ See also:
 - `Path_generation.m` to generate path locations
 - `Path_check.m` to check that all paths are properly initialized
 
+### JSON Config Setup
+Prior to running the first step of the pipeline, the user must ensure that the JSON config file is populated with the desired parameters. `interactive_JSON_config.m` will prompt users to fill this JSON config file through an interactive graphical user interface (GUI). There are 10 total GUI pop ups that resemble that of the image below. The user is repsonsible for filling in each field and sample inputs are presented to the user to demonstrate each field's format (note: the user can leave the sample input as is, if they wish to use that value for their analysis).
+![](images/interactive_config1.PNG)
+
 ### Epoching
 
 `FCP_1_TASKEPOCHING.m` will epoch MEG data into trials depending on the desired marker, detect trials with excessive head motion, muscle/jump artifacts, and bad channels. However, the epoching only rejects trials for excessive head motion and muscle/jump artifacts. Bad channels are detected and recorded, but repaired later on in the pipeline, after the ICA process at the final stage of preprocessing.
@@ -97,7 +102,6 @@ See also:
 - `ft_artifiact_jump` to detect and clean jump artifacts
 - `detectbadchannels` to detect channels that contain poor data
 - `ft_preprocessing` to preprocess data
-
 
 ### Preprocessing
 
