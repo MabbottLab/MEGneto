@@ -431,15 +431,6 @@ Meaning: Email address to which to send pipeline’s progress updates contained 
                     Meaning: Specifies additional events that should be included for stats generation. That is if you wish to generate reaction times between the stimulus presentation and markers included in this parameter. Currently must be left as [“”] as this functionality is not supported. 
                     <br>  
                   </li>
-                  <!--TASK.TRIALDEF.DETAILS.EXCLUDE--> 
-                  <li>
-                  <details>
-                    <summary>Exclude</summary>
-                    Where: searchTaskTrialFun.m.
-                    <br>
-                    Meaning: Doesn't seem to be legitimately used. Leave as [“”]. 
-                    <br>  
-                  </li>
                   <!--TASK.TRIALDEF.DETAILS.INCLUDE--> 
                   <li>
                   <details>
