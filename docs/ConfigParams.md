@@ -826,6 +826,8 @@ Meaning: Email address to which to send pipeline’s progress updates contained 
               <details>
                 <summary>Vartrllength</summary>
                 Where: fcp_4_beamforming prior to computing covariance matrix.
+                <br>
+                Meaning: Options are 0 (do not accept variable length trials [default]), 1 (accept variable length trials, but only take those trials in which data is present in both the average and the covariance window), or 2 (accept variable length trials, use all available trials the available samples in every trial will be used for the average and covariance computation. Missing values are replaced by NaN and are not included in the computation.).
               </details>
              </li>
              <!--BEAMFORMING.TIMEDOMAIN.PROJECTMOM--> 
