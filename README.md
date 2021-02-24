@@ -68,7 +68,7 @@ See also:
 - `Path_check.m` to check that all paths are properly initialized
 
 ### JSON Config Setup
-Prior to running the first step of the pipeline, the user must ensure that the JSON config file is populated with the desired parameters. `interactive_JSON_config.m` will prompt users to fill this JSON config file through an interactive graphical user interface (GUI). There are 10 total GUI pop ups that resemble that of the image below. The user is repsonsible for filling in each field and sample inputs are presented to the user to demonstrate each field's format (note: the user can leave the sample input as is, if they wish to use that value for their analysis).
+Prior to running the first step of the pipeline, the user must ensure that the JSON config file is populated with their desired parameters. `interactive_JSON_config.m` will prompt users to fill this JSON config file through an interactive graphical user interface (GUI). There are 10 total GUI pop ups that resemble that of the image below. The user is repsonsible for filling in each field and sample inputs are presented to the user to demonstrate each field's format (note: the user can leave the sample input as is, if they wish to use that value for their analysis).
 ![](images/interactive_config1.PNG)
 
 ### Epoching
