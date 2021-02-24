@@ -422,15 +422,6 @@ Meaning: Email address to which to send pipeline’s progress updates contained 
                     Where: searchTaskTrialFun.m.
                     <br>  
                   </li>
-                  <!--TASK.TRIALDEF.DETAILS.INCLUDEONCE--> 
-                  <li>
-                  <details>
-                    <summary>includeOnce</summary>
-                    Where: searchTaskTrialFun.m.
-                    <br>
-                    Meaning: Specifies additional events that should be included for stats generation. That is if you wish to generate reaction times between the stimulus presentation and markers included in this parameter. Currently must be left as [“”] as this functionality is not supported. 
-                    <br>  
-                  </li>
                   <!--TASK.TRIALDEF.DETAILS.INCLUDE--> 
                   <li>
                   <details>
