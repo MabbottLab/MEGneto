@@ -138,8 +138,8 @@ for ss = 1:length(subj_match.ds) % for each participant that has both MEG and MR
     
     % Uncomment the following two lines to run the function that generates
     % a reaction time summary for each participant.
-    % reactionTimeTable = reactionTimes(cfg);
-    % reactionTimeSummary.data{ss} = {reactionTimeTable};
+%     reactionTimeTable = reactionTimes(cfg);
+%     reactionTimeSummary.data{ss} = {reactionTimeTable};
     
     cfg_orig                    = cfg; % keep the original epoched data
     fcp1_output.numtrls{ss,1}   = length(cfg_orig.trl); % record num trials
