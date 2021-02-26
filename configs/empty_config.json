@@ -52,8 +52,6 @@
             "trialdef" : {
                 "details" : {
                     "name" : [""],
-                    "includeOnce" : [""],
-                    "exclude" : [""], 
                     "include" : [""],
                     "countOnly" : null
                 },
