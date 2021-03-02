@@ -7,25 +7,11 @@ function [reactionTimeTable] = reactionTimes(paths)
 % dataset.
 
 % How to use:
-% Prior to running fcp_1_TaskEpoching.m, open that file and scroll to the
-% section that begins the Epoching stage (around line 91). Follow the
-% commented instructions which explain which lines you should uncomment to
-% run the reactionTimes function (lines 96, 97, 98, 102, 141, 142, 237,
-% 238). Once all the lines have been uncommented, run the
-% fcp_1_TaskEpoching function as per usual from the main template file. The
-% output file 'reactionTimeSummary.mat' is stored in the analysis folder in
-% group folder.
+% After running fcp_1_TaskEpoching.m, type reactionTimes(paths) in the
+% command window. The output file 'reactionTimeSummary.mat' is stored in 
+% the analysis folder in group folder.
 
-% INPUTS:
-%   cfg.dataset                     - path to CTF dataset
-%   cfg.trialdef.t0marker           - defines the t = 0 of each trial 
-%                                     (i.e. presentation trigger)
-%   cfg.trialdef.parameters.t0shift - time in seconds to offset t0marker 
-%                                     (presentation delay)
-%   cfg.trialdef.details.trigger    - name of trigger
-%   cfg.trialdef.details.include    - what other trigger to include
-%   cfg.trialdef.details.exclude    - what other trigger to exclude
-%   cfg.traildef.tEpoch             - time window  eg. [-1.5 1.5]
+% INPUTS: paths - the same input as all steps of the pipeline!
 %
 % OUTPUTS: reactionTimeTable 
 %               reactionTimeTable.t0sample       - sample number of stimulus 
