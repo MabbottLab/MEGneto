@@ -65,8 +65,6 @@ prompt{5}     = {'Enter the name of the function used to parse data into trials'
                  'Enter within_file_path'}; 
 prompt{6}     = {'Enter 0 (no) or 1 (yes) to specify if there is rest data', ...
                  'Enter the name of marker to epoch around',...
-                 'Enter the name of marker to include once (leave as blank)',... % need clarity
-                 'Enter name of marker to exclude (leave as blank)',... % need clarity
                  'Enter marker to gain reaction time information on', ... % need clarity
                  'Enter  true or false to specify whether you only want information on the number of trials'...
                  'Specify delay time to correct for',... % need clarity
@@ -106,11 +104,11 @@ definput{1}   = {'firstname.lastname@sickkids.ca', '30', '10'};
 definput{2}   = {'1', 'yes','[110,140]', '8', 'but', 'yes', '0.2', '30',...
                 '0.5'};
 definput{3}   = {'0.1', '0.1', '35', '1', '1', '1'};
-definput{4}   = {'MEG, MEGREF, REFGRAD, REFMAG','yes', '[60,120]', 'yes',...
+definput{4}   = {'MEG,MEGREF,REFGRAD,REFMAG','yes', '[60,120]', 'yes',...
                  '[1,150]', '5', '300', 'CTF151.lay'};
 definput{5}   = {'@searchTaskTrialFun', 'anonymous', '', '__base_function'};
-definput{6}   = {'0', 'Correct', '', '', 'Correct', 'false', '0.023',...
-                 '[-2.0, 2.0]', 'LeftCorrect, RightCorrect',...
+definput{6}   = {'0', 'Correct', 'Correct', 'false', '0.023',...
+                 '[-2.0, 2.0]', 'LeftCorrect,RightCorrect',...
                  'OfflineLightOn'};
 definput{7}   = {'singleshell', 'cm', '1', 'yes', '-0.8', 'spm',...
                  '/template/atlas/aal/ROI_MNI_V4.nii', 'mni', 'slice', '2'};
@@ -176,14 +174,12 @@ for cfg_part = 1:10
         case 6
             decode.config.task.isRest = str2double(answers{1});
             decode.config.task.trialdef.details.name = {answers{2}};
-            decode.config.task.trialdef.details.includeOnce = {answers{3}};
-            decode.config.task.trialdef.details.exclude = {answers{4}};
-            decode.config.task.trialdef.details.include = {answers{5}};
-            decode.config.task.trialdef.details.countOnly = strcmp(answers{6}, 'true');
-            decode.config.task.trialdef.parameters.t0shift = str2double(answers{7});
-            decode.config.task.trialdef.parameters.tEpoch = str2num(answers{8});
-            decode.config.task.trialdef.markers.Correct = split(answers{9}, ',');
-            decode.config.task.trialdef.markers.t0marker = answers{10};
+            decode.config.task.trialdef.details.include = {answers{3}};
+            decode.config.task.trialdef.details.countOnly = strcmp(answers{4}, 'true');
+            decode.config.task.trialdef.parameters.t0shift = str2double(answers{5});
+            decode.config.task.trialdef.parameters.tEpoch = str2num(answers{6});
+            decode.config.task.trialdef.markers.Correct = split(answers{7}, ',');
+            decode.config.task.trialdef.markers.t0marker = answers{8};
         case 7
             decode.config.beamforming.headmodel.method = answers{1};
             decode.config.beamforming.headmodel.units = answers{2};
