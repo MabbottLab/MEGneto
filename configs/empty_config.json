@@ -52,8 +52,6 @@
             "trialdef" : {
                 "details" : {
                     "name" : [""],
-                    "includeOnce" : [""],
-                    "exclude" : [""], 
                     "include" : [""],
                     "countOnly" : null
                 },
@@ -102,7 +100,7 @@
 		"timeDomain" : {
 			"covariance" : "",
 			"covariancewindow" : "",
-			"vartrllength" : null, 
+			"vartrllength" : "",
 			"projectmom" : ""
 		},
 		"options" : {
@@ -110,11 +108,13 @@
 			"keepfilter" : "",
 			"rawtrial" : ""		
 		},
-		"method" : ""
+		"method" : "",
+		"rep_timeseries" : ""
 	},
 	"connectivity" : {
 		"method" : "",
-		"filt_freqs" : [[]]
+		"filt_freqs" : [[]],
+		"collapse_band" : ""
 		}
 	}    
 }

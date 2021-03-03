@@ -1,6 +1,6 @@
 {
     "config" : {
-	"contact" : ["dunja.matic@sickkids.ca"],
+	"contact" : ["firstname.lastname@sickkids.ca"],
         "epoching" : {
             "period" : 30,    
             "headMotion" : {
@@ -55,8 +55,6 @@
             "trialdef" : {
                 "details" : {
                     "name" : ["Correct"],
-                    "includeOnce" : [""],
-                    "exclude" : [""], 
                     "include" : ["Correct"],
                     "countOnly" : false
                 },
@@ -105,7 +103,7 @@
 		"timeDomain" : {
 			"covariance" : "yes",
 			"covariancewindow" : "all",
-			"vartrllength" : 2, 
+			"vartrllength" : 2,
 			"projectmom" : "yes"
 		},
 		"options" : {
@@ -113,7 +111,8 @@
 			"keepfilter" : "yes",
 			"rawtrial" : "yes"		
 		},
-		"method" : "lcmv"
+		"method" : "lcmv",
+		"rep_timeseries" : "mean"
 	},
 	"connectivity" : {
 		"method" : "wpli_debiased",
@@ -123,7 +122,8 @@
 				[13,29],
 				[30,59],
 				[60,100]
-				]
+				],
+		"collapse_band" : "max"
 		}
 	}    
 }

@@ -6,9 +6,15 @@ step        = 'fcp1';
 
 % check for matched MRI and MEG data
 subj_match = ds_pid_match(paths,step);
+ssSubjPath  = @(x) paths.(subj_match.pid{x});
 
+% initialize output files
+getMarkerSummary_output.ppt_marker_summary = 'ppt_marker_summary.mat';
+getMarkerSummary_output.cluster = 'cluster.mat';
 
 %% look across all participants to get master list of marker types
+
+% check whether preprocessed files already exist
 
 parfor ss = 1:length(subj_match.ds) % for each participant
 
@@ -49,8 +55,10 @@ end
 ppt_marker_summary = array2table(ppt_marker_summary);
 ppt_marker_summary.Properties.RowNames = all_types;
 ppt_marker_summary.Properties.VariableNames = subj_match.pid;
-% saved to megneto/analysis
 
+% save ppt_marker_summary
+fprintf('Saving participant marker summary...\n');
+save([paths.anout_grp '/' getMarkerSummary_output.ppt_marker_summary],'ppt_marker_summary', '-v7.3')
 %% which markers are redundant?
     
 parfor ss = 1:length(subj_match.ds) % for each participant
@@ -79,6 +87,9 @@ parfor ss = 1:length(subj_match.ds) % for each participant
         cluster{ss}(1:length(these_markers), samp) = these_markers;
     end
 end
+% save cluster
+fprintf('Saving cluster...\n');
+save([paths.anout_grp '/' getMarkerSummary_output.cluster],'cluster', '-v7.3')
 % this produces a cell array called cluster
 % there's an entry for each participant
 % within each cell for a participant, there is a cluster x sample array

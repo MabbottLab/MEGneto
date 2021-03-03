@@ -1,6 +1,7 @@
 function fcp_5_taskconnectivity(paths)
 
-% FCP_5_TASKCONNECTIVITY estimates functional connectivity. 
+% FCP_5_TASKCONNECTIVITY estimates functional connectivity (i.e., analyzes 
+% the synchrony of signals from two regions). 
 % Currently supports the following connectivity metrics: 
 %       - 'plv' (phase locking value)
 %       - 'pli' (phase lag index)
@@ -15,11 +16,12 @@ function fcp_5_taskconnectivity(paths)
 %                           folders, analysis folders, config files, etc. 
 %
 % OUTPUTS:
-%   adjmat:             participant adj matrix preserving results of each
-%                       trial, saved into individual analysis folder
-%   all_adjmat:         master matrix with all participants adj mats
-%                       nodes x nodes x num_participants x num_freq_bands,
-%                       saved into group analysis folder
+%   conn_mat:             participant connectivity matrix preserving 
+%                         results of each trial, saved into individual 
+%                         analysis folder
+%   all_conn_mat:         master matrix with all participants conn mats
+%                         nodes x nodes x num_participants x num_freq_bands,
+%                         saved into group analysis folder
 %
 % See also: 
 %
@@ -31,10 +33,10 @@ function fcp_5_taskconnectivity(paths)
 %% SET UP LOGGING FILE
 
 right_now = clock;
-log_filename = [paths.conf_dir '/log_' sprintf('%d%d%d', right_now(1:3))];
+log_filename = [paths.conf_dir '/log_' sprintf('%02.f%02.f%02.f', right_now(1:3))];
 diary(log_filename)
 
-fprintf('\n\n%d:%d:%02.f       Now running **%s**.\n', ...
+fprintf('\n\n%02.f:%02.f:%02.f       Now running **%s**.\n', ...
     right_now(4:6), mfilename)
 
 %% SETUP
@@ -58,11 +60,12 @@ ssSubjPath  = @(x) paths.(subj_match.pid{x});
 %% MAKE FILTERS
 
 %%% LOAD SAMPLE PPT -------------------------------------------------------
-load([ssSubjPath(1) '/AAL_beamforming_results'], '-mat') %SB - add cond
+% used to get the sample rate
+load([ssSubjPath(1) '/AAL_beamforming_results.mat'], '-mat') %SB - add cond
 
 %%% MAKE FILTER -----------------------------------------------------------
 maxn = 0;
-for fq = 1:length(config.connectivity.filt_freqs)
+for fq = 1:length(config.connectivity.filt_freqs) % for each frequency band specified in the JSON config file
 
     % calculate filter coefficients
     filtband = config.connectivity.filt_freqs(fq,:);
@@ -86,9 +89,9 @@ fprintf('Max filter length: %d samples = %.4f sec.\n', maxn, maxn/srate);
 
 %% RUN CONNECTIVITY ANALYSIS
 
-% setup band names and master adjacency matrix
+% setup band names and master connectivity matrix
 band_names = ["theta", "alpha", "beta", "lowgamma", "highgamma"];
-all_adjmat = nan(size(catmatrix,3), size(catmatrix,3), ... % num_nodes x num_nodes x ...
+all_conn_mat = nan(size(catmatrix,3), size(catmatrix,3), ... % num_nodes x num_nodes x ...
                 length(subj_match.ds), ...                 % num_subjects x ... 
                 length(config.connectivity.filt_freqs));   % num_freq_bands
 
@@ -97,20 +100,20 @@ all_adjmat = nan(size(catmatrix,3), size(catmatrix,3), ... % num_nodes x num_nod
   
     for ss = 1:length(subj_match.ds)
         right_now = clock;
-        fprintf('%d:%d:%02.f       Working on subject %s!\n', ...
+        fprintf('%02.f:%02.f:%02.f       Working on subject %s!\n', ...
             right_now(4:6), subj_match.pid{ss})
 
 %%% LOAD VIRTUAL SENSOR DATA ----------------------------------------------
-        load([ssSubjPath(ss) '/AAL_beamforming_results'], '-mat'); 
+        load([ssSubjPath(ss) '/AAL_beamforming_results.mat'], '-mat'); 
 
         % define some dimensions
         num_samples = size(catmatrix, 1);
         num_trials  = size(catmatrix, 2);
         num_sources = size(catmatrix, 3);
 
-%%% INITIALIZE PARTICIPANT ADJACENCY MATRIX -------------------------------
+%%% INITIALIZE PARTICIPANT CONNECTIVITY MATRIX -------------------------------
 %   Dimensions = [sources] x [sources] x [freq. band]
-        adjmat  = nan(num_sources, num_sources, length(config.connectivity.filt_freqs)); 
+        conn_mat  = nan(num_sources, num_sources, length(config.connectivity.filt_freqs)); 
         data    = [];
         time_info = config.task.trialdef.parameters.tEpoch;
         for src = 1:num_sources
@@ -129,7 +132,7 @@ all_adjmat = nan(size(catmatrix,3), size(catmatrix,3), ... % num_nodes x num_nod
             %%% FOR EACH AAL NODE/SOURCE
             for kk = 1:num_sources
               % mean center or z-score the timeseries before filtering
-              ts = prefilter(catmatrix(:,tt,kk));          
+              ts = prefilter(catmatrix(:,tt,kk)); % prepared specified portion of catmatrix         
               % filter data, calculate hilbert transform, get instantaneous phase
                 if (max(length(fir_coef{fq})-1,length(1)-1)*3) < length(ts)          
                     data.trial{tt}(kk,:) = filtfilt(fir_coef{fq}, 1, ts);
@@ -141,18 +144,18 @@ all_adjmat = nan(size(catmatrix,3), size(catmatrix,3), ... % num_nodes x num_nod
 
 %%% CALCULATE CONNECTIVITY ------------------------------------------------
             fprintf('Onto the connectivity calculations!\n')
-            cfg             = [];
+            cfg             = []; % set up config for connectivity calculation
             cfg.method      = 'mtmfft';
             cfg.output      = 'powandcsd';
             cfg.channel     = 'all';
             cfg.trials      = 'all';
             cfg.keeptrials  = 'yes';
             cfg.taper       = 'hanning';
-            cfg.foilim      = config.connectivity.filt_freqs(fq,:);
+            cfg.foilim      = config.connectivity.filt_freqs(fq,:); % calculate connectvity
             % GET THE CROSS SPECTRUM
-            freq            = ft_freqanalysis(cfg, data);
+            freq            = ft_freqanalysis(cfg, data); 
 
-            % COMPUTE METRIC
+            % COMPUTE CONNECTIVITY METRIC
             if strcmp(config.connectivity.method, 'pli')
                 % need to trick fieldtrip if we're using PLI, as they don't
                 % have it implemented in their ft_connectivityanalysis
@@ -162,40 +165,40 @@ all_adjmat = nan(size(catmatrix,3), size(catmatrix,3), ... % num_nodes x num_nod
                 conn.cfg           = freq.cfg;
                 conn.plispctrm     = squeeze(abs(mean(sign(freq.crsspctrm), 1)));
             else
-                cfg             = [];
+                cfg             = []; % set up config for computing connectivity metric
                 cfg.method      = config.connectivity.method;
-                conn            = ft_connectivityanalysis(cfg, freq);
+                conn            = ft_connectivityanalysis(cfg, freq); % compute connectivity metric
             end
             
-            % RESHAPE INTO SOURCE X SOURCE ADJ MAT AND STORE
+            % RESHAPE INTO SOURCE X SOURCE CONN MAT AND STORE
             conn            = ft_checkdata(conn, 'cmbrepresentation', 'full');
-            if ~strcmp(config.connectivity.method, 'mean') % default to max across band
-                adjmat(:,:,fq) = squeeze(max(conn.(sprintf('%sspctrm', config.connectivity.method)),[], 3));
+            if ~strcmp(config.connectivity.method, config.connectivity.collapse_band) % default to max across band
+                conn_mat(:,:,fq) = squeeze(max(conn.(sprintf('%sspctrm', config.connectivity.method)),[], 3));
             else % otherwise, use mean
-                adjmat(:,:,fq) = squeeze(mean(conn.(sprintf('%sspctrm', config.connectivity.method)), 3));
+                conn_mat(:,:,fq) = squeeze(mean(conn.(sprintf('%sspctrm', config.connectivity.method)), 3));
             end
           
             fprintf('Done this band. ')
         end % repeat for each frequency band
 
-%%% SAVE PARTICIPANT'S ADJACENCY MATRIX -----------------------------------
+%%% SAVE PARTICIPANT'S CONNECTIVITY MATRIX -----------------------------------
         fprintf('Saving the mat file...\n');
-        save([ssSubjPath(ss) '/fcp_5_adjmat_' config.connectivity.method '.mat'],'adjmat','-mat','-v7.3')
+        save([ssSubjPath(ss) '/fcp_5_conn_mat_' config.connectivity.method '.mat'],'conn_mat','-mat','-v7.3')
 
 %%% CALCULATE AND RECORD AVG ACROSS TRIALS FOR THIS PARTICIPANT
-        all_adjmat(:,:,ss,:) = adjmat;
+        all_conn_mat(:,:,ss,:) = conn_mat;
     end
     
-%%% SAVE MASTER ADJACENCY MATRIX WITH ALL PARTICIPANTS
-save([paths.anout_grp '/fcp_5_allParticipants_adjmats_' config.connectivity.method '.mat'],'all_adjmat','-v7.3');
+%%% SAVE MASTER CONNECTIVITY MATRIX WITH ALL PARTICIPANTS
+save([paths.anout_grp '/fcp_5_allParticipants_conn_mats_' config.connectivity.method '.mat'],'all_conn_mat','-v7.3');
 
 %% turn off diary
 right_now = clock;
-fprintf('%d:%d:%02.f ============== Finished Processing ====================\n', ...
+fprintf('%02.f:%02.f:%02.f ============== Finished Processing ====================\n', ...
     right_now(4:6))
 diary off
 
-%% let the users know
+%% let the users know that connectivity analysis is complete
 sendEmail("connectivity", string(config.contact));
 
 end

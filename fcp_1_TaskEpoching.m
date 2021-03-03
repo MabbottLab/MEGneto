@@ -1,7 +1,10 @@
 function fcp_1_TaskEpoching(paths)
 
 % FCP_1_TASKEPOCHING will epoch MEG data into trials depending on the
-% desired marker, detect and reject muscle/jump artifacts, and 
+% desired marker, detect and reject muscle/jump artifacts, and bad
+% channels. This step will only reject trials with excessive head motion
+% and muscle/jump artifacts. Bad channels are recorded but are repaired
+% later on in the pipeline. 
 % 
 % NOTES:
 %   - Ensure that subj_fcp1.csv is populated with the subject IDs of
@@ -9,6 +12,8 @@ function fcp_1_TaskEpoching(paths)
 %   - Desired parameters should be defined in the JSON config file.
 %   User should double-check that the JSON config file is populated
 %   appropriately, especially if a template JSON was copied over. 
+%   - If the user wishes to browse the plotTriggers output, they must
+%   set 'showFigure' to 'true; when the plotTriggers function is called.
 %
 % INPUTS:
 %   paths               =   struct defining paths to data, participant
@@ -31,8 +36,11 @@ function fcp_1_TaskEpoching(paths)
 %     .bad_chann        = string array; bad channels detected for each 
 %                         participant
 %
-% See also: DS_PID_MATCH, WRITE_MATCH_IF_NOT_EMPTY, PLOTTRIGGERS, 
-%           HEADMOTIONTOOL, DETECTBADCHANNELS
+% See also: DS_PID_MATCH, LOAD_PARTICIPANTS, WRITE_MATCH_IF_NOT_EMPTY, 
+%           CHECK_CSV_HAS_EMPTY, PLOT_TRIGGERS, FT_READ_EVENT, 
+%           FT_DEFINETRIAL, HEADMOTIONTOOL,FT_REJECTARTIFACT,
+%           FT_ARTIFACT_MUSCLE, FT_ARTIFACT_JUMP, DETECTBADCHANNELS,
+%           FT_PREPROCESSING
 
 % Last updated by: Julie Tseng, 2020-01-07
 %   This file is part of MEGneto, see https://github.com/SonyaBells/MEGneto
@@ -41,10 +49,10 @@ function fcp_1_TaskEpoching(paths)
 %% SET UP LOGGING FILE
 
 right_now = clock;
-log_filename = [paths.conf_dir '/log_' sprintf('%d%d%d', right_now(1:3))];
+log_filename = [paths.conf_dir '/log_' sprintf('%02.f%02.f%02.f', right_now(1:3))];
 diary(log_filename)
 
-fprintf('\n\n%d:%d:%02.f       Now running **%s**.\n', ...
+fprintf('\n\n%02.f:%02.f:%02.f       Now running **%s**.\n', ...
     right_now(4:6), mfilename)
 
 %% SETUP: LOAD CONFIG, PARTICIPANTS, CHECK FOR FULL DATASET, OUTPUTS
@@ -81,20 +89,21 @@ end
         fcp1_output.group_rmBadChan = 'group_rmBadChan.json';
 
 %% EPOCHING
-for ss = 1:length(subj_match.ds) % for each participant
+
+for ss = 1:length(subj_match.ds) % for each participant that has both MEG and MRI data
     
     fprintf('\n\n==================================\n...DS_FILE: %s\nSUBJECT: %s\n', ...
         subj_match.ds{ss}, subj_match.pid{ss});
 
 %%% GRAB T0 MARKERS -------------------------------------------------------
     right_now = clock;
-    fprintf('%d:%d:%02.f       Finding t0 markers...\n', right_now(4:6))
+    fprintf('%02.f:%02.f:%02.f       Finding t0 markers...\n', right_now(4:6))
 
     numt0marker = plotTriggers(...
         [paths.rawdata '/' subj_match.ds{ss}], ...               % path to *.ds folder
         config.task.trialdef.markers.t0marker, 'savePath', ...   % consult config for t0 marker definition
         [paths.(subj_match.pid{ss}) '/' fcp1_output.trigger_figure], ... % save marker figure
-        'showFigure', false); % set showFigure to true for debugging
+        'showFigure', false); % set showFigure to true for debugging and viewing the plot 
     
     % if there were less than 5 markers found, throw a warning
     if numt0marker < 5
@@ -107,27 +116,27 @@ for ss = 1:length(subj_match.ds) % for each participant
     
 %%% EPOCHING --------------------------------------------------------------
     right_now = clock;
-    fprintf('%d:%d:%02.f       Epoching into trials...\n', right_now(4:6))
+    fprintf('%02.f:%02.f:%02.f       Epoching into trials...\n', right_now(4:6))
 
-    cfg             = [];
+    cfg             = []; % set up config parameters for ft_definetrial
     cfg.dataset     = [paths.rawdata '/' subj_match.ds{ss}]; 
     cfg.trialfun    = config.taskFunc; 
     cfg.trialdef    = config.task.trialdef;
     cfg.continuous  = 'yes';
-    cfg             = ft_definetrial(cfg);
+    cfg             = ft_definetrial(cfg); 
     
     cfg_orig                    = cfg; % keep the original epoched data
     fcp1_output.numtrls{ss,1}   = length(cfg_orig.trl); % record num trials
 
 %%% HEAD MOTION CORRECTION ------------------------------------------------
     right_now = clock;
-    fprintf('%d:%d:%02.f       Looking for excessive head motion...\n', right_now(4:6))    
+    fprintf('%02.f:%02.f:%02.f       Looking for excessive head motion...\n', right_now(4:6))    
 
     try
-        [~, ~, cfg, grad] = HeadMotionTool('Fieldtrip', cfg, ...
+        [~, ~, cfg, grad] = HeadMotionTool('Fieldtrip', cfg, ... % use the HeadMotionTool to display head movement info and remove bad trials
             'RejectThreshold', config.epoching.headMotion.thr, 'RejectTrials', true, 'CorrectInitial', true, ...
             'SavePictureFile', [paths.(subj_match.pid{ss}) '/' fcp1_output.fig_headmotion],...
-            'GUI', false);
+            'GUI', false); 
     catch
         warning('HeadMotionTool error!\n');
     end
@@ -146,11 +155,12 @@ for ss = 1:length(subj_match.ds) % for each participant
 
 %%% ARTIFACT DETECTION ----------------------------------------------------
     right_now = clock;
-    fprintf('%d:%d:%02.f       Detecting muscle and jump artifacts...\n', right_now(4:6))
+    fprintf('%02.f:%02.f:%02.f       Detecting muscle and jump artifacts...\n', right_now(4:6))
 
-    if config.cleaningOptions.artifact.detection == 1
+    if config.cleaningOptions.artifact.detection == 1 % if user indicated they wish to perform artifact detection
         
         %%% Muscle Artifacts %%%
+        % set up config for muscle artifact detection
         cfg.artfctdef.muscle.bpfilter    = config.cleaningOptions.artifact.muscle.bpfilter;
         cfg.artfctdef.muscle.bpfreq      = config.cleaningOptions.artifact.muscle.bpfreq;
         cfg.artfctdef.muscle.bpfiltord   = config.cleaningOptions.artifact.muscle.bpfiltord;
@@ -161,17 +171,19 @@ for ss = 1:length(subj_match.ds) % for each participant
         cfg.artfctdef.muscle.trlpadding  = config.cleaningOptions.artifact.muscle.trlpadding; 
         cfg.artfctdef.muscle.fltpadding  = config.cleaningOptions.artifact.muscle.fltpadding;
         cfg.artfctdef.muscle.artpadding  = config.cleaningOptions.artifact.muscle.artpadding;
-        [cfg, muscle_artifact]           = ft_artifact_muscle(cfg);
+        [cfg, muscle_artifact]           = ft_artifact_muscle(cfg); % detect muscle artifacts
         
         %%%% Jump Artifacts %%%
+        % set up config for jump artifact detection 
         cfg.artfctdef.jump.cutoff        = config.cleaningOptions.artifact.jump.cutoff;
-        [cfg, jump_artifact]             = ft_artifact_jump(cfg);
+        [cfg, jump_artifact]             = ft_artifact_jump(cfg); % detect jump artifacts
         
 %%% ARTIFACT REJECTION ----------------------------------------------------
+        % set up config for artifact rejection
         cfg.artfctdef.reject             = 'complete'; % remove complete trials
-        cfg                              = ft_rejectartifact(cfg);
-        fcp1_output.noisy_trl{ss,1}      = [muscle_artifact; jump_artifact];
-        fcp1_output.Nremove_trls{ss,1}   = length(cfg.trlold)-length(cfg.trl);
+        cfg                              = ft_rejectartifact(cfg); % reject artifacts
+        fcp1_output.noisy_trl{ss,1}      = [muscle_artifact; jump_artifact]; % record noisy trials
+        fcp1_output.Nremove_trls{ss,1}   = length(cfg.trlold)-length(cfg.trl); % record number of removed trials
     end
     
     % save cleaned data progress
@@ -184,13 +196,13 @@ for ss = 1:length(subj_match.ds) % for each participant
 
 %%% BAD CHANNEL DETECTION -------------------------------------------------
     right_now = clock;
-    fprintf('%d:%d:%02.f       Detecting bad channels...\n', right_now(4:6))
+    fprintf('%02.f:%:02.f%02.f       Detecting bad channels...\n', right_now(4:6))
     
-    cfg             = [];
+    cfg             = []; % set up config for detecting bad channels
     cfg.dataset     = [paths.rawdata '/' subj_match.ds{ss}];
     cfg.bchthr      = 60; % threshold; 75-85 quantile
     cfg.sections    = 3; % divide into 3 sections
-    badChannels     = detectBadChannels(cfg,paths.name);
+    badChannels     = detectBadChannels(cfg,paths.name); % detect bad channels
     
     % record bad channels for that participant
     fcp1_output.bad_chann{ss,1} = badChannels;
@@ -200,7 +212,7 @@ for ss = 1:length(subj_match.ds) % for each participant
 
 %%% CELEBRATORY MESSAGE ---------------------------------------------------
     right_now = clock;
-    fprintf('%d:%d:%02.f       Done subject %s!\n', ...
+    fprintf('%02.f:%02.f:%02.f       Done subject %s!\n', ...
         right_now(4:6), subj_match.pid{ss})
     close all    
 end % repeat for next participant
@@ -218,11 +230,11 @@ save_to_json(fcp1_output, [paths.anout_grp '/fcp1_output.json'], true);
 
 %% turn off diary
 right_now = clock;
-fprintf('%d:%d:%02.f       Done running **%s**.\n', ...
+fprintf('%02.f:%02.f:%02.f       Done running **%s**.\n', ...
     right_now(4:6), mfilename)
 diary off
 
-%% let the users know
+%% let the users know that epoching is complete
 sendEmail("epoching", string(config.contact));
 
 end

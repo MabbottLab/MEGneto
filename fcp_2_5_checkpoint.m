@@ -22,7 +22,8 @@ function fcp_2_5_checkpoint(paths)
 %     .ICA_badcomp      = record of user-specified bad components
 
 %
-% See also: DISP_ICA_CHANS
+% See also: DS_PID_MATCH, WRITE_MATCH_IF_NOT_EMPTY, FT_REJECTCOMPONENT,
+% DISP_ICA_CHANS, FT_DATABROWSER
 
 % Last updated by: Julie Tseng, 2020-01-08
 %   This file is part of MEGneto, see https://github.com/SonyaBells/MEGneto
@@ -32,9 +33,9 @@ function fcp_2_5_checkpoint(paths)
 
 % logging file
 right_now = clock;
-log_filename = [paths.conf_dir '/log_' sprintf('%d%d%d', right_now(1:3))];
+log_filename = [paths.conf_dir '/log_' sprintf('%02.f:%02.f:%02.f', right_now(1:3))];
 diary(log_filename)
-fprintf('\n\n%d:%d:%02.f       Now running **%s**.\n', ...
+fprintf('\n\n%02.f:%02.f:%02.f       Now running **%s**.\n', ...
     right_now(4:6), mfilename)
 
 % load config JSON with analysis parameters
@@ -142,6 +143,7 @@ for ss = rangeOFsubj
         save([ssSubjPath(ss) '/' fcp2_output.preprocessedData_cfg],'data','-v7.3');
         close all
     else % skip = 1, aka no bad components, re-save 
+        fcp2_output.bad_comp{ss,1} = bad_comp; % write "skip" in output to show no bad components were detected
         data            = data_noisecorr;
         save([ssSubjPath(ss) '/' fcp2_output.preprocessedData_cfg],'data','-v7.3');
         close all
@@ -149,7 +151,7 @@ for ss = rangeOFsubj
 
     % save a JSON copy of the components
     right_now = clock;
-    save_to_json(bad_comp, sprintf('%s/ICA_badcomp_%d%d%d_%d%d.json', ...
+    save_to_json(bad_comp, sprintf('%s/ICA_badcomp_%02.f%02.f%02.f_%02.f%02.f.json', ...
         ssSubjPath(ss), right_now(1:5)));
 end
 
@@ -169,7 +171,7 @@ disp('Done.\n')
 %% turn off logging
 
 right_now = clock;
-fprintf('%d:%d:%02.f       Done running **%s**.\n', ...
+fprintf('%02.f:%02.f:%02.f       Done running **%s**.\n', ...
     right_now(4:6), mfilename)
 diary off
 

@@ -5,15 +5,16 @@ This functional connectivity pipeline (fcp) is built on MATLAB using the FieldTr
 - [System Requirements](#system-requirements)
 - [Installation Guide](#installation-guide)
 - [How to Use](#how-to-use)
-   1. [Common terms](#commonterms)
-   2. [Initial Setup](#initial-setup)
-   3. [Epoching](#epoching)
-   4. [Preprocessing](#preprocessing)
-   5. [ICA Checkpoint](#ica-checkpoint)
-   6. [Channel Repair](#channel-repair)
-   7. [Beamforming](#beamforming)
-   8. [Frequency Analysis](#frequency-analysis)
-   9. [Functional Connectivity](#functional-connectivity)
+   1. [Common terms](#common-terms)
+   2. [JSON Config Setup](#json-config-setup)
+   3. [Initial Setup](#initial-setup)
+   4. [Epoching](#epoching)
+   5. [Preprocessing](#preprocessing)
+   6. [ICA Checkpoint](#ica-checkpoint)
+   7. [Channel Repair](#channel-repair)
+   8. [Beamforming](#beamforming)
+   9. [Frequency Analysis](#frequency-analysis)
+   10. [Functional Connectivity](#functional-connectivity)
 - [Credits](#credits)
 - [On Downsampling](#on-downsampling)
 - [Supplementary Reading Material](#supplementary-reading-material)
@@ -66,6 +67,10 @@ See also:
 - `Path_generation.m` to generate path locations
 - `Path_check.m` to check that all paths are properly initialized
 
+### JSON Config Setup
+Prior to running the first step of the pipeline, the user must ensure that the JSON config file is populated with their desired parameters. `interactive_JSON_config.m` will prompt users to fill this JSON config file through an interactive graphical user interface (GUI). There are 10 total GUI pop ups that resemble that of the image below. The user is repsonsible for filling in each field and sample inputs are presented to the user to demonstrate each field's format (note: the user can leave the sample input as is, if they wish to use that value for their analysis).
+![](images/interactive_config1.PNG)
+
 ### Epoching
 
 `FCP_1_TASKEPOCHING.m` will epoch MEG data into trials depending on the desired marker, detect trials with excessive head motion, muscle/jump artifacts, and bad channels. However, the epoching only rejects trials for excessive head motion and muscle/jump artifacts. Bad channels are detected and recorded, but repaired later on in the pipeline, after the ICA process at the final stage of preprocessing.
@@ -98,7 +103,6 @@ See also:
 - `detectbadchannels` to detect channels that contain poor data
 - `ft_preprocessing` to preprocess data
 
-
 ### Preprocessing
 
 `FCP_2_PREPROCESSINGICA.m` will prepare epoched data for ICA preprocessing by downsampling and filtering with 3rd order gradients (derived from measurements taken by gradiometers). If indicated in the config JSON file, ICA will be carried out and the ICA components will be saved. The pipeline will downsample to whatever frequency the user specified in the config JSON.
@@ -121,9 +125,12 @@ See also:
 
 ### ICA Checkpoint
 
-`FCP_2_5_CHECKPOINT.m` is an interactive session that guides the user through inspection of ICA components to identify components associated with artifacts such as heartbeats, blinks, etc. After inspection, the pipeline backprojects ICA components to remove the signal corresponding with the bad ICA components.
+`FCP_2_5_CHECKPOINT.m` is an interactive session that guides the user through inspection of ICA components to identify components associated with artifacts such as heartbeats, blinks, etc. After inspection, the pipeline backprojects ICA components to remove the signal corresponding with the bad ICA components. For help on identifying components containing artifacts, see [ICA Inspection Guide](https://github.com/dunjamatic/MEGneto/blob/icaGuide/ICA%20Inspection%20Guide%20v0.5.pdf).
 
 Output: A struct with file names for the configuration of the preprocessed data, the data noise correlation matrix, and the ICA components and the bad components specified by the user. 
+
+Notes:
+- Prior to running the function, ensure that subj_fcp2_5.csv is populated with the subject IDs of participants you want to include.
 
 See also: 
 - `ds_pid_match` to get the PIDs where there is matching MEG and MRI data
@@ -144,11 +151,12 @@ After browsing the ICA components and noting which ones are bad, the user should
 
 ### Channel Repair
 
-`FCP_3_CHECKPOINT.m` repairs bad channels detected from fcp_1, but we held off on removing until the data had been ICA-cleaned. The channels are repaired by replacing them with a weighted average of neighbouring channels.
+`FCP_3_CHECKPOINT.m` repairs bad channels detected from fcp_1, but we held off on removing until the data had been ICA-cleaned. The channels are repaired by replacing them with a some combination of neighbouring channels (default is 'weighted' average, other options include 'average', 'spline', or 'slap').
 
 Output: *.mat file of fully cleaned data (i.e., removed head motion/muscle and jump artifacts, 3rd order gradients, ICA cleaned data, and repaired bad channels). 
 
 Notes:
+- Prior to running the function, ensure that subj_fcp3.csv is populated with the subject IDs of participants you want to include.
 - Outputs from fcp2 are loaded at the start of this step and a logging file will be set up to keep track of progress. Further, the pipeline will check for matching MEG/MRI data.
 - The output data of this step is in the sensor space MEG data (fully processed).
 
@@ -179,7 +187,8 @@ The following atlases are currently supported:
 - Yeo 17-network parcellation
 - Brainnetome parcellation (although the number of regions here greatly outranks the rank of the sensors)
 
-Note:
+Notes:
+- Prior to running the function, ensure that subj_fcp4.csv is populated with the subject IDs of participants you want to include.
 - At the start of the function, outputs from fcp_3 will be loaded in and a logging file will be set up to keep track of progress. Also, the pipeline will check for matching MEG/MRI data.
 
 See also:
@@ -206,6 +215,7 @@ See also:
 Output: A 4-D matrix containing power spectrum data. Matrix dimensions are [participants] x [regions] x [frequency] x [time]. Users can plot a power spectrum (frequency by time) for a specific region of a given participant’s data by applying a plotting function on a slice of the matrix. 
 
 Notes:
+- Prior to running the function, ensure that subj_fcp5.csv is populated with the subject IDs of participants you want to include.
 - At the start of this step, outputs from fcp_4 will be loaded in and a logging file will be set up to keep track of progress. Also, the pipeline will check for matching MEG/MRI data.
 
 See also: `ft_freqanalysis.m`
@@ -222,7 +232,7 @@ Currently supports the following connectivity metrics:
 - 'wpli_debiased' (as above, but debiased)
 - 'coh' (coherence) The strings listed above should be specified in the config JSON file exactly as presented.
 
-Output: An adjacency matrix for all participants containing region by region by participant by frequency band.
+Output: A connectivity matrix for all participants containing region by region by participant by frequency band.
 
 See also: 
 - `ft_freqanalysis.m` to perform time-frequency and frequency analysis on the time series data 

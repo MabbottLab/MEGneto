@@ -2,7 +2,9 @@ function fcp_2_PreprocessingICA(paths)
 
 % FCP_2_PREPROCESSINGICA will prepare epoched data for ICA preprocessing,
 % then carry out the ICA omitting signal from bad channels. This step also
-% accounts for 3rd order gradients. 
+% accounts for 3rd order gradients. If desired, ICA is carried out and ICA
+% components will be saved. Data is downsampled to a user-specified
+% frequency.
 % 
 % NOTES:
 %   - Check participants who had excessive head motion or excessive numbers
@@ -26,7 +28,8 @@ function fcp_2_PreprocessingICA(paths)
 %     .data_icacomp     = mat file of ICA components
 
 %
-% See also: 
+% See also: DS_PID_MATCH, WRITE_MATCH_IF_NOT_EMPTY, FT_DENOISE_SYNTHETIC,
+% FT_RESAMPLEDATA, FT_SELECTDATA, FT_COMPONENTANALYSIS 
 
 % Last updated by: Julie Tseng, 2020-01-08
 %   This file is part of MEGneto, see https://github.com/SonyaBells/MEGneto
@@ -35,10 +38,10 @@ function fcp_2_PreprocessingICA(paths)
 %% SET UP LOGGING FILE
 
 right_now = clock;
-log_filename = [paths.conf_dir '/log_' sprintf('%d%d%d', right_now(1:3))];
+log_filename = [paths.conf_dir '/log_' sprintf('%02.f:%02.f:%02.f', right_now(1:3))];
 diary(log_filename)
 
-fprintf('\n\n%d:%d:%02.f       Now running **%s**.\n', ...
+fprintf('\n\n%02.f:%02.f:%02.f       Now running **%s**.\n', ...
     right_now(4:6), mfilename)
 
 %% SETUP: LOAD CONFIG, CHECK PPTS, FCP_1 OUTPUT
@@ -76,7 +79,7 @@ fcp1_output     = loadjson([paths.anout_grp '/fcp1_output.json']);
 
 %% PROCESSING
 
-% determine which subjects to process
+% of participants with both MEG and MRI data, determine which subjects to process
 rangeOFsubj = 1:height(subj_match);
 for ss = rangeOFsubj %1:rangeOFsubj
 
@@ -85,7 +88,7 @@ for ss = rangeOFsubj %1:rangeOFsubj
     % check whether preprocessed files already exist
     if ~exist([ssSubjPath(ss) '/' fcp2_output.data_noisecorr], 'file')
         right_now = clock;
-        fprintf('%d:%d:%02.f       Starting preprocessing...\n', right_now(4:6))
+        fprintf('%02.f:%02.f:%02.f       Starting preprocessing...\n', right_now(4:6))
 
     %%% LOAD DATA -------------------------------------------------------------
         % load trial definition
@@ -124,8 +127,9 @@ for ss = rangeOFsubj %1:rangeOFsubj
 
     %%% FILTER DATA -----------------------------------------------------------
         right_now = clock;
-        fprintf('%d:%d:%02.f       Filtering data...\n', right_now(4:6))
-
+        fprintf('%02.f:%02.f:%02.f       Filtering data...\n', right_now(4:6))
+        
+        % set up config for filtering
         cfg.channel     = config.filteringParameters.channel;
         cfg.dftfilter   = config.filteringParameters.dftfilter;
         cfg.dftfreq     = config.filteringParameters.dftfreq;
@@ -133,12 +137,12 @@ for ss = rangeOFsubj %1:rangeOFsubj
         cfg.bpfreq      = config.filteringParameters.bpfreq;
         cfg.bpfiltord   = config.filteringParameters.bpfiltord;
         cfg.continuous  = 'yes';
-        dataFiltered = ft_preprocessing(cfg);
+        dataFiltered = ft_preprocessing(cfg); % filter the data
 
     %%% ACCOUNTING FOR GRADIOMETERS -------------------------------------------
         if exist([ssSubjPath(ss) '/' fcp1_output.grad_cfg] , 'file')
             right_now = clock;
-            fprintf('%d:%d:%02.f       Loading gradiometer config from file...\n', right_now(4:6))
+            fprintf('%02.f:%02.f:%02.f       Loading gradiometer config from file...\n', right_now(4:6))
 
             dataFiltered.grad       = loadjson([ssSubjPath(ss) '/' fcp1_output.grad_cfg]);
             dataFiltered.hdr.grad   = dataFiltered.grad;
@@ -147,19 +151,19 @@ for ss = rangeOFsubj %1:rangeOFsubj
         end
 
         % synthetic 3rd order grads - for noise reduction in CTF no ref channels stored
-        cfg             = [];
+        cfg             = []; % set up config for 3rd order gradient computation
         cfg.gradient    = 'G3BR';
         data_noisecorr  = ft_denoise_synthetic(cfg,dataFiltered);
         
         % Resample all datasets
-        cfg             = [];
+        cfg             = []; % set up config for resampling data
         cfg.resamplefs  = config.filteringParameters.sampleRate;
         cfg.detrend     = 'no';
-        data_resamp     = ft_resampledata(cfg, data_noisecorr);
+        data_resamp     = ft_resampledata(cfg, data_noisecorr); % resample data
         data_noisecorr  = data_resamp;
         clear data_resamp;
 
-        % save data with noise reduction thru 3rd order gradients
+        % save data with noise reduction through 3rd order gradients
         save([ssSubjPath(ss) '/' fcp2_output.data_noisecorr], 'data_noisecorr', '-v7.3')
     else
         fprintf('Preprocessed data already exists! Skipping...\n');
@@ -181,7 +185,7 @@ for ss = rangeOFsubj
     % if you don't want to run ICA
     if config.cleaningOptions.artifact.icaClean == 0
         right_now = clock;
-        fprintf('%d:%d:%02.f       No ICA requested, saving data...\n', right_now(4:6))
+        fprintf('%02.f:%02.f:%02.f       No ICA requested, saving data...\n', right_now(4:6))
 
         % save data file
         data = data_noisecorr;
@@ -191,15 +195,16 @@ for ss = rangeOFsubj
 %%% ICA -------------------------------------------------------------------
     elseif config.cleaningOptions.artifact.icaClean == 1
         right_now = clock;
-        fprintf('%d:%d:%02.f       Running ICA...\n', right_now(4:6))
+        fprintf('%02.f:%02.f:%02.f       Running ICA...\n', right_now(4:6))
 
         % downsample the data to speed up the next step
-        cfg             = [];
+        cfg             = []; % set up config for downsampling
         cfg.resamplefs  = 300;
         cfg.detrend     = 'no';
-        data_resampICA  = ft_resampledata(cfg, data_noisecorr);
+        data_resampICA  = ft_resampledata(cfg, data_noisecorr); % downsample the data
 
         % first, handle bad channels if they exist
+        % need to exclude the bad channels from ICA
         % load info about bad channels
         channel_check = dir([paths.(subj_match.pid{ss}) '/badChannels.json']);
 
@@ -210,15 +215,15 @@ for ss = rangeOFsubj
             data_resampICArmBadCh = ft_selectdata(cfg, data_resampICA);     % select channel data
 
             % Run ICA
-            cfg          = [];
+            cfg          = []; % set up config for ICA
             cfg.channel  = 'MEG';
             cfg.method   = 'fastica'; % default and uses the implementation from EEGLAB
-            comp         = ft_componentanalysis(cfg, data_resampICArmBadCh);
-        else % if there are no bad channels, proceed
-            cfg          = [];
+            comp         = ft_componentanalysis(cfg, data_resampICArmBadCh); % run ICA
+        else % if there are no bad channels, proceed with ICA
+            cfg          = []; % set up config for ICA
             cfg.channel  = 'MEG';
             cfg.method   = 'fastica'; 
-            comp         = ft_componentanalysis(cfg, data_resampICA);
+            comp         = ft_componentanalysis(cfg, data_resampICA); % run ICA
         end
         % save the ICA components
         save([ssSubjPath(ss) '/' fcp2_output.data_icacomp],'comp','-v7.3')
@@ -227,7 +232,7 @@ for ss = rangeOFsubj
     close all
     
     right_now = clock;
-    fprintf('%d:%d:%02.f       Done subject %s!\n', right_now(4:6), subj_match.pid{ss})
+    fprintf('%02.f:%02.f:%02.f       Done subject %s!\n', right_now(4:6), subj_match.pid{ss})
 
 end
 
@@ -236,11 +241,11 @@ save_to_json(fcp2_output,[paths.anout_grp '/fcp2_output.json'])
 
 %% turn off diary
 right_now = clock;
-fprintf('%d:%d:%02.f       Done running **%s**.\n', ...
+fprintf('%02.f:%02.f:%02.f       Done running **%s**.\n', ...
     right_now(4:6), mfilename)
 diary off
 
-%% let the users know
+%% let the users know that ICA is complete
 sendEmail("ICA", string(config.contact));
 
 

@@ -158,6 +158,7 @@ for ii = 1:height(subj)
 end
 
 % create fcp csvs that facilitate participant inclusion/exclusion
+% these files are filled with PIDs by the user prior to each fcp step
 paths_cell = table2cell(paths)';
 csv = ~cellfun(@isempty, (strfind(paths_cell,'csv')));
 csv = paths_cell(csv);
