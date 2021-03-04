@@ -41,6 +41,8 @@ ft_defaults; % allow fieldtrip to run setup
 
 Note that the functions associated with the steps laid out below are found in the top-level MEGneto folder. Any related functions listed below are found in subfolders of the repo (e.g., the `functions` folder). Anything under development is, accordingly, under `dev_functions`. 
 
+Also, please note the naming convention of your MRI files (which must have a .mri extension). These file names should not have more than one underscore or period (i.e., the only period should be the file's extension `.mri`). If there is an underscore, the typical naming convention is `PID_version.mri`. 
+
 ### Common Terms
 
 | Term  | Meaning |
