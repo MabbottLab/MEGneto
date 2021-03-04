@@ -78,7 +78,7 @@ interactive_JSON_config(paths, megneto_path) % run the interactive config functi
 % fid = fopen(paths.subj_fcp1, 'w'); % open subj_fcp1.csv
 % MEG_ds = MEG_ds.name(3:(height(MEG_ds))).'; % isolate only PIDs
 % fprintf(fid, '%s\n', MEG_ds{:}); % write each PID to file
-% fclose(fid) % close the file
+% fclose(fid); % close the file
 
 fcp_1_TaskEpoching(paths) % run first step of the MEG pipeline
 
