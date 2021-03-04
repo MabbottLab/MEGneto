@@ -1,4 +1,4 @@
-function [paths, pids] = path_generation(project_path, analysis_name, rawdata_path, mri_path)
+function [paths, pids] = path_generation(project_path, analysis_name, rawdata_path, mri_path, overwrite)
 
 % PATH_GENERATION sets up the locations of all relevant input files in a 
 % depth-1 table. This struct feeds forward into each fcp_x step. If a paths
@@ -34,7 +34,7 @@ paths.conf_dir = [paths.anhome '/config'];  % specific analysis config files
 paths.paths = [paths.conf_dir '/paths.json']; % location of JSON record of paths struct
 
 % if this paths struct has already been generated before
-if exist(paths.paths, 'file') % then retrieve it and return
+if exist(paths.paths, 'file') && ~overwrite % then retrieve it and return
     warning(['paths.json already exists, retrieving from ' paths.paths]);
     paths = loadjson(paths.paths);
     paths = struct2table(paths);
