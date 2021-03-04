@@ -112,7 +112,7 @@ end
 %% MAKE DIRECTORIES AND PATHS STRUCT
 
 % run path_generation to generate locations
-[paths, subj] = path_generation(project_path, analysis_name, rawdata_path, mri_path);
+[paths, subj] = path_generation(project_path, analysis_name, rawdata_path, mri_path, overwrite);
 
 % FOLDER STRUCTURE
 % project_path
