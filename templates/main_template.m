@@ -58,10 +58,10 @@ paths = loadjson(strcat(project_path, '/analysis/', analysis_name, '/config/path
 overwrite = false; % set to true if path set up for the same analysis should be re-done
 paths = megne2setup(project_path, analysis_name, rawdata_path, mri_path, overwrite);
 
-%% Interaction JSON config file
+%% Interactive JSON config file
 % Prior to running through the first step of the pipeline, users must
 % define all relevant parameters in the JSON config file. To facilitate
-% this process, the interative_JSON_config function will guide users
+% this process, the interactive_JSON_config function will guide users
 % through the process of populating this guide. For more detail on the
 % meaning of each parameter, please reference the "ConfigParams.md"
 % document in the MEGneto repository on the Mabbott Lab GitHub.
