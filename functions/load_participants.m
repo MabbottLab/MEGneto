@@ -4,8 +4,12 @@ function [ participant ] = load_participants( paths, step , prefix )
 if nargin < 3
     prefix = 'subj_';
 end
-participant = readtable(paths.([prefix step]), 'ReadVariableNames', false, 'Delimiter', ',');
-participant = rmmissing(cell2table(cellfun(@(x) x(~isspace(x)), table2cell(participant), 'UniformOutput', false)));
+
+fid = fopen(paths.([prefix step])); % open the file
+participant = textscan(fid, '%s', 'Delimiter', '\n', 'whitespace', ''); % load in text using newline characters as separators
+participant = cell2table(rmmissing(participant{1})); % remove the empty newline and convert to a table
+fclose(fid); % close the file
+
 if isempty(participant)
     error(['No participants specified - please add ds files to ' paths.conf_dir '/' prefix step '.csv']);
 end
