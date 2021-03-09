@@ -41,7 +41,9 @@ ft_defaults; % allow fieldtrip to run setup
 
 Note that the functions associated with the steps laid out below are found in the top-level MEGneto folder. Any related functions listed below are found in subfolders of the repo (e.g., the `functions` folder). Anything under development is, accordingly, under `dev_functions`. 
 
-For an overview of MEGNETO's folder structure, please refer to the imagine below.
+Also, please note the naming convention of your MRI files (which must have a .mri extension). These file names should not have more than one underscore or period (i.e., the only period should be the file's extension `.mri`). If there is an underscore, the typical naming convention is `PID_version.mri`. 
+
+Lastly, for an overview of MEGNETO's folder structure please refer to the image below.
 ![](docs/filefolder_structure.png)
 
 ### Common Terms
@@ -72,6 +74,9 @@ See also:
 
 ### JSON Config Setup
 Prior to running the first step of the pipeline, the user must ensure that the JSON config file is populated with their desired parameters. `interactive_JSON_config.m` will prompt users to fill this JSON config file through an interactive graphical user interface (GUI). There are 10 total GUI pop ups that resemble that of the image below. The user is repsonsible for filling in each field and sample inputs are presented to the user to demonstrate each field's format (note: the user can leave the sample input as is, if they wish to use that value for their analysis).
+
+For more detail on the meaning of each parameter in the JSON Config please see the [Config Params doc](https://github.com/MabbottLab/MEGneto/blob/master/ConfigParams.md).
+
 ![](images/interactive_config1.PNG)
 
 ### Epoching
@@ -128,7 +133,7 @@ See also:
 
 ### ICA Checkpoint
 
-`FCP_2_5_CHECKPOINT.m` is an interactive session that guides the user through inspection of ICA components to identify components associated with artifacts such as heartbeats, blinks, etc. After inspection, the pipeline backprojects ICA components to remove the signal corresponding with the bad ICA components. For help on identifying components containing artifacts, see [ICA Inspection Guide](https://github.com/dunjamatic/MEGneto/blob/icaGuide/ICA%20Inspection%20Guide%20v0.5.pdf).
+`FCP_2_5_CHECKPOINT.m` is an interactive session that guides the user through inspection of ICA components to identify components associated with artifacts such as heartbeats, blinks, etc. After inspection, the pipeline backprojects ICA components to remove the signal corresponding with the bad ICA components. For help on identifying components containing artifacts, see [ICA Inspection Guide](https://github.com/MabbottLab/MEGneto/blob/master/docs/ICA%20Inspection%20Guide%20v1.0.pdf).
 
 Output: A struct with file names for the configuration of the preprocessed data, the data noise correlation matrix, and the ICA components and the bad components specified by the user. 
 

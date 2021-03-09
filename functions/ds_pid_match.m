@@ -3,6 +3,7 @@ function [out, failure] = ds_pid_match(paths,step)
 %PIDs from the MRI files, and outputs a csv with each input DS matched to a
 %participant ID. In cases where there is ambiguity, it asks you to review
 %and correct the matching and returns failure = true
+
 pid = readtable(paths.all_subj_pids);
 pid = pid.pids;
 ds = load_participants(paths, step);
@@ -12,6 +13,19 @@ end
 out.ds = ds.Var1;
 out.pid = cell(height(ds),1);
 failure = false;
+
+if length(pid) < length(out.ds) % check for mismatched MEG/MRI data
+    fprintf('\n\n%s\n', 'Subjects missing MRI files:')
+    TF = contains(out.ds, pid);
+    for i = 1:length(TF)
+        if TF(i) == 0
+            disp(out.ds(i))
+        end
+    end
+    error('The participants above are missing MRI data. Please investigate, edit subj_%s.csv, and re-run %s.', ...
+         step, step)
+end
+
 for ii = 1:height(ds)
     match = cellfun(@(pid) strfind(out.ds{ii},pid), pid, 'UniformOutput', false);
     match = cellfun(@(x) ~isempty(x),match);
