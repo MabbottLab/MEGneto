@@ -43,6 +43,9 @@ Note that the functions associated with the steps laid out below are found in th
 
 Also, please note the naming convention of your MRI files (which must have a .mri extension). These file names should not have more than one underscore or period (i.e., the only period should be the file's extension `.mri`). If there is an underscore, the typical naming convention is `PID_version.mri`. 
 
+Lastly, for an overview of MEGNETO's folder structure please refer to the image below.
+![](docs/filefolder_structure.png)
+
 ### Common Terms
 
 | Term  | Meaning |
