@@ -107,7 +107,7 @@ See also:
 - `headmotiontool` to display head movement information and remove bad trials 
 - `ft_rejectartifact` to remove channels with artifacts
 - `ft_artifact_muscle` to detect and clean artifacts due to muscle movements
-- `ft_artifiact_jump` to detect and clean jump artifacts
+- `ft_artifact_jump` to detect and clean jump artifacts
 - `detectbadchannels` to detect channels that contain poor data
 - `ft_preprocessing` to preprocess data
 
@@ -190,6 +190,7 @@ The following source reconstruction algorithms are currently recommended/support
 - Linear constrained minimum variance (LCMV) beamformer
 
 The following atlases are currently supported:
+- MMP 180 region atlas from Glasser et al.'s multimodal parcellation paper
 - AAL 116 region atlas, but truncated to just regions 1-90 to exclude cerebellar regions
 - Yeo 7-network parcellation into visual, somatomotor, dorsal and ventral attention, default, limbic, frontoparietal
 - Yeo 17-network parcellation
