@@ -61,7 +61,7 @@ ssSubjPath  = @(x) paths.(subj_match.pid{x});
 
 %%% LOAD SAMPLE PPT -------------------------------------------------------
 % used to get the sample rate
-load([ssSubjPath(1) '/AAL_beamforming_results.mat'], '-mat') %SB - add cond
+load([ssSubjPath(1) '/atlas_beamforming_results.mat'], '-mat') %SB - add cond
 
 %%% MAKE FILTER -----------------------------------------------------------
 maxn = 0;
@@ -104,7 +104,7 @@ all_conn_mat = nan(size(catmatrix,3), size(catmatrix,3), ... % num_nodes x num_n
             right_now(4:6), subj_match.pid{ss})
 
 %%% LOAD VIRTUAL SENSOR DATA ----------------------------------------------
-        load([ssSubjPath(ss) '/AAL_beamforming_results.mat'], '-mat'); 
+        load([ssSubjPath(ss) '/atlas_beamforming_results.mat'], '-mat'); 
 
         % define some dimensions
         num_samples = size(catmatrix, 1);
@@ -117,7 +117,7 @@ all_conn_mat = nan(size(catmatrix,3), size(catmatrix,3), ... % num_nodes x num_n
         data    = [];
         time_info = config.task.trialdef.parameters.tEpoch;
         for src = 1:num_sources
-            data.label{src} = sprintf('AAL%d', src);
+            data.label{src} = sprintf('ROI%d', src);
         end
 
 %%% RUN CONNECTIVITY ANALYSIS ---------------------------------------------
@@ -129,7 +129,7 @@ all_conn_mat = nan(size(catmatrix,3), size(catmatrix,3), ... % num_nodes x num_n
           for tt = 1:num_trials
             fprintf('Processing trial %d...\n', tt);
             data.time{tt} = time_info(1):(1/srate):time_info(2);
-            %%% FOR EACH AAL NODE/SOURCE
+            %%% FOR EACH OF THE NODES/SOURCES
             for kk = 1:num_sources
               % mean center or z-score the timeseries before filtering
               ts = prefilter(catmatrix(:,tt,kk)); % prepared specified portion of catmatrix         

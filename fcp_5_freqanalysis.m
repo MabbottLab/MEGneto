@@ -55,7 +55,7 @@ for ss = 1:length(subj_match.ds)
         right_now(4:6), subj_match.pid{ss})
 
 %%% LOAD VIRTUAL SENSOR DATA ----------------------------------------------
-    load([ssSubjPath(ss) '/AAL_beamforming_results.mat'], '-mat'); 
+    load([ssSubjPath(ss) '/atlas_beamforming_results.mat'], '-mat'); 
     
     % define some dimensions
     num_samples = size(catmatrix, 1);
@@ -65,14 +65,14 @@ for ss = 1:length(subj_match.ds)
     data    = [];
     time_info = config.task.trialdef.parameters.tEpoch;
     for src = 1:num_sources
-        data.label{src} = sprintf('AAL%d', src);
+        data.label{src} = sprintf('ROI%d', src);
     end
 
     %%% FOR EACH TRIAL
     for tt = 1:num_trials
     fprintf('Processing trial %d...\n', tt);
     data.time{tt} = time_info(1):(1/srate):time_info(2); % split the time (necessary for subsequent steps)
-    %%% FOR EACH AAL NODE/SOURCE
+    %%% FOR EACH OF THE NODES/SOURCES
         for kk = 1:num_sources
             data.trial{tt}(kk,:) = catmatrix(:,tt,kk); % reformat source space data
         end
