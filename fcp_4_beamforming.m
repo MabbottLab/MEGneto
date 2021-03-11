@@ -22,6 +22,7 @@ function fcp_4_beamforming(paths)
 %       1. AAL 116 atlas (all areas <=90 to exclude cerebellum)
 %       2. Brainnetome atlas
 %       3. Yeo atlas (7 network or 17 network)
+%       4. MMP atlas (Glasser, 2016)
 %
 %
 % INPUTS:
@@ -294,7 +295,7 @@ for ss = rangeOFsubj % for each participant that has matched MEG/MRI data
     cfg.keeptrials       = 'yes';
     projection           = ft_sourcedescriptives(cfg, source_t_trials); % project to dominant orientation
     
-%%% INTERPOLATE AAL ATLAS ONTO VIRTUAL SOURCES ----------------------------
+%%% INTERPOLATE ATLAS ONTO VIRTUAL SOURCES ----------------------------
 
     % setup for atlas interpolation - get coordinates
     sourcemodel.pos = template_grid.pos; 
@@ -364,15 +365,15 @@ for ss = rangeOFsubj % for each participant that has matched MEG/MRI data
 
 %%% SAVE OUTPUT -----------------------------------------------------------
     if isnan(var_explained) % if the variance explained has not been populated, don't save it
-        save([ssSubjPath(ss) '/AAL_beamforming_results.mat'],'catmatrix', 'srate','coords','-mat','-v7.3')
+        save([ssSubjPath(ss) '/atlas_beamforming_results.mat'],'catmatrix', 'srate','coords','-mat','-v7.3')
     else
-        save([ssSubjPath(ss) '/AAL_beamforming_results.mat'],'catmatrix', 'var_explained', 'srate','coords','-mat','-v7.3')
+        save([ssSubjPath(ss) '/atlas_beamforming_results.mat'],'catmatrix', 'var_explained', 'srate','coords','-mat','-v7.3')
     end 
         
 %%% OPTIMIZING RUN SPACE --------------------------------------------------
     clear coords catmatrix srate source_timeseries ...
         atlas sourcemodel source_t_trials projection seg mri data grid hdm ...
-        source_t_avg tlock leadfield aal_node
+        source_t_avg tlock leadfield 
     
     right_now = clock;
     fprintf('%02.f:%02.f:%02.f       Done subject %s!\n', ...
