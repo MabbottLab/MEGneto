@@ -68,7 +68,7 @@ for ss = 1:length(subj_match.ds)
     % collapsed across ROIs if indicated
     if exist('ROIs', 'var')
         catmatrix_collapsed = cellfun(@(x) nanmean(catmatrix(:,:,x), 3), ROIs, 'UniformOutput', false);
-        catmatrix = catmatrix_collapsed; clear catmatrix_collapsed;
+        catmatrix = cat(3, catmatrix_collapsed{:}); clear catmatrix_collapsed;
     end
     num_sources = size(catmatrix, 3);
 
