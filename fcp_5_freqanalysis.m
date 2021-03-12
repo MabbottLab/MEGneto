@@ -1,4 +1,4 @@
-function fcp_5_freqanalysis(paths)
+function fcp_5_freqanalysis(paths, ROIs)
 
 % FCP_5_FREQANALYSIS uses spectral analysis on time-frequency 
 % representations of data to test hypotheses based on spectral power. The 
@@ -55,13 +55,23 @@ for ss = 1:length(subj_match.ds)
         right_now(4:6), subj_match.pid{ss})
 
 %%% LOAD VIRTUAL SENSOR DATA ----------------------------------------------
-    load([ssSubjPath(ss) '/atlas_beamforming_results.mat'], '-mat'); 
+    try
+        load([ssSubjPath(ss) '/atlas_beamforming_results.mat'], '-mat'); 
+    catch
+        load([ssSubjPath(ss) '/AAL_beamforming_results.mat'], '-mat');
+    end
     
     % define some dimensions
     num_samples = size(catmatrix, 1);
     num_trials  = size(catmatrix, 2);
-    num_sources = size(catmatrix, 3);
     
+    % collapsed across ROIs if indicated
+    if exist('ROIs', 'var')
+        catmatrix_collapsed = cellfun(@(x) nanmean(catmatrix(:,:,x), 3), ROIs, 'UniformOutput', false);
+        catmatrix = catmatrix_collapsed; clear catmatrix_collapsed;
+    end
+    num_sources = size(catmatrix, 3);
+
     data    = [];
     time_info = config.task.trialdef.parameters.tEpoch;
     for src = 1:num_sources
