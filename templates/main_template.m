@@ -164,7 +164,7 @@ fcp_5_taskconnectivity(paths);
 % or not ("0"). 
 
 % Don't forget to include a ParticipantCategories.xlsx file in your
-% paths.conf_dir folder. Fill in the variables below which are input to the
+% config folder. Fill in the variables below which are input to the
 % function.
 
 % Specify function inputs
