@@ -95,7 +95,15 @@ fprintf('Max filter length: %d samples = %.4f sec.\n', maxn, maxn/srate);
 
 % setup band names and master connectivity matrix
 band_names = ["theta", "alpha", "beta", "lowgamma", "highgamma"];
-all_conn_mat = nan(size(catmatrix,3), size(catmatrix,3), ... % num_nodes x num_nodes x ...
+
+% get number of ROIs or supra-ROIs
+if exist('ROIs', 'var')
+    num_sources = length(ROIs); % if collapsed
+else
+    num_sources = size(catmatrix, 3); % if not
+end
+
+all_conn_mat = nan(num_sources, num_sources, ... % num_nodes x num_nodes x ...
                 length(subj_match.ds), ...                 % num_subjects x ... 
                 length(config.connectivity.filt_freqs));   % num_freq_bands
 
@@ -123,7 +131,6 @@ all_conn_mat = nan(size(catmatrix,3), size(catmatrix,3), ... % num_nodes x num_n
             catmatrix_collapsed = cellfun(@(x) nanmean(catmatrix(:,:,x), 3), ROIs, 'UniformOutput', false);
             catmatrix = cat(3, catmatrix_collapsed{:}); clear catmatrix_collapsed;
         end
-        num_sources = size(catmatrix, 3);
 
 %%% INITIALIZE PARTICIPANT CONNECTIVITY MATRIX -------------------------------
 %   Dimensions = [sources] x [sources] x [freq. band]
