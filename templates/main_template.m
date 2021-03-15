@@ -174,8 +174,9 @@ conn = NaN; % name of connectivity metric as a character array (must match
 %            the metric outlined in the file name of the connectivity
 %            matrix .mat file). Can take on values including: 
 %            "plv, "pli", "wpli", "wpli_debiased", "coh"
+freq = {};
 
-make_NBS_ready(paths, group_names, conn)
+make_NBS_ready(paths, group_names, conn, freq)
 %% make_BNV_ready
 % This fuction creates *.node and *.edge files for viewing connectivity 
 % results from PLS or NBS on BrainNet Viewer (BNV). 
