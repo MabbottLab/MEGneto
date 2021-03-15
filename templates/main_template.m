@@ -164,8 +164,11 @@ fcp_5_taskconnectivity(paths);
 % or not ("0"). 
 
 % Don't forget to include a ParticipantCategories.xlsx file in your
-% config folder. Fill in the variables below which are input to the
-% function.
+% config folder. An example of this excel sheet with dummy variables
+% is available in the templates folder (note that the column names of this
+% file, in order, represent radiation, sugery, and typical development 
+% controls).
+% Fill in the variables below which are the inputs to the function.
 
 % Specify function inputs
 group_names = NaN; % array of strings, e.g., ["surg", "rad", "control"], 
