@@ -1,5 +1,8 @@
 function [res, rand_diffs] = bootTestDiffSeeds(paths, seed_regions, freq_band, two_groups, num_bootstraps, thresh)
 
+config      = load_config(paths, paths.name);
+config      = config.config;
+
 fprintf("FREQ. BAND: %s\n", freq_band)
 
 if contains(config.beamforming.atlas.filepath, 'mmp') % if MMP glasser atlas
