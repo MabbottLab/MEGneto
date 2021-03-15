@@ -3,16 +3,15 @@ function [res, rand_diffs] = bootTestDiffSeeds(paths, seed_regions, freq_band, t
 fprintf("FREQ. BAND: %s\n", freq_band)
 
 if contains(config.beamforming.atlas.filepath, 'mmp') % if MMP glasser atlas
-        megneto_path        = fileparts(which('fcp_4_beamforming.m'));
-        atlas               = ft_read_atlas([megneto_path '/external/atlas/mmp.mat']);
-    else
-        fullPath                = which('ft_preprocessing.m');
-        [pathstr,~,~]           = fileparts(fullPath);
-        atlas                   = ft_read_atlas([pathstr config.beamforming.atlas.filepath]);
-        if contains(config.beamforming.atlas.filepath, 'aal')
-            atlas.tissuelabel   = atlas.tissuelabel(1:90); % we only want non-cerebellar regions (isolate desired regions)
-            atlas.tissue(atlas.tissue > 90) = 0;
-        end
+    megneto_path        = fileparts(which('fcp_4_beamforming.m'));
+    atlas               = ft_read_atlas([megneto_path '/external/atlas/mmp.mat']);
+else
+    fullPath                = which('ft_preprocessing.m');
+    [pathstr,~,~]           = fileparts(fullPath);
+    atlas                   = ft_read_atlas([pathstr config.beamforming.atlas.filepath]);
+    if contains(config.beamforming.atlas.filepath, 'aal')
+        atlas.tissuelabel   = atlas.tissuelabel(1:90); % we only want non-cerebellar regions (isolate desired regions)
+        atlas.tissue(atlas.tissue > 90) = 0;
     end
 end
 
