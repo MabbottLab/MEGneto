@@ -95,11 +95,11 @@ for ss = 1:length(subj_match.ds)
     cfg.channel     = 'all';
     cfg.trials      = 'all';
     cfg.taper       = 'hanning';
-    cfg.foi         = [2:2:100];        
-    cfg.method = 'mtmconvol';
-    cfg.t_ftimwin = 4 ./cfg.foi;
-    cfg.toi         = -1.5:0.05:1.5; % time of interest    
-    freq = ft_freqanalysis(cfg, data); % perform frequency analysis
+    cfg.foi         = config.freqanalysis.foi; % frequencies of interest
+    cfg.method      = config.freqanalysis.method;
+    cfg.t_ftimwin   = 4 ./cfg.foi;
+    cfg.toi         = config.freqanalysis.toi; % time of interest
+    freq            = ft_freqanalysis(cfg, data); % perform frequency analysis
     
     if ss == 1
         pow_spctrm = NaN(length(subj_match.ds), num_sources, length(cfg.foi), length(cfg.toi)); % set up blank matrix to store power spectrum data
@@ -108,8 +108,8 @@ for ss = 1:length(subj_match.ds)
     %%% baseline correct
     % necessary to control for general/random spikes in power
     cfg                 = []; % set up config for baseline correction
-    cfg.baseline        = [-1.5 -1];
-    cfg.baselinetype    = 'relative';
+    cfg.baseline        = config.freqanalysis.baseline;
+    cfg.baselinetype    = config.freqanalysis.baseline_type;
     freq                = ft_freqbaseline(cfg, freq); % perform baseline correction
 
     pow_spctrm(ss,:,:,:) = freq.powspctrm; % store the participant's power spectrum data
