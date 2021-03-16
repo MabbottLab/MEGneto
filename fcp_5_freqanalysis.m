@@ -43,6 +43,11 @@ config      = load_config(paths, paths.name);
 config      = config.config;
 step        = 'fcp5';
 
+% check is user indicated that time frequency analysis should be performed
+if ~config.freqanalysis.include
+    error("Your input to the JSON config file indicates you do not wish to run fcp_5_freqanalysis. If you wish to run this function, please change the config.freqanalysis.include field to 1.")
+end
+
 % check for matched MRI and MEG data
 subj_match  = ds_pid_match(paths,step);
 ssSubjPath  = @(x) paths.(subj_match.pid{x});

@@ -95,10 +95,12 @@ prompt{9}     = {'Enter yes or no to specify if trials should be separated',...
                  'Enter yes or no to construct a filter from single trials and apply it to single trials',...
                  'Enter beamforming method',...
                  'Enter method of generating a representative timeseries'};
-prompt{10}    = {'Enter the metric for connectivity analysis',...
+prompt{10}    = {'Do you wish to generate functional connectivity results (0 for no, 1 for yes)',...
+                 'Enter the metric for connectivity analysis',...
                  'Specify the frequency bands',...
                  'Specify the method of generating a representative timeseries for each ROI'};
-prompt{11}    = {'Specify the frequencies of interest',...
+prompt{11}    = {'Do you wish to perform time frequency analysis (0 for no, 1 for yes)',...
+                 'Specify the frequencies of interest',...
                  'Specify the method of calculating the spectra',...
                  'Specify the length of the time window'...
                  'Specify baseline time window as [begin end]',...
@@ -119,8 +121,8 @@ definput{7}   = {'singleshell', 'cm', '1', 'yes', '-0.8', 'spm',...
                  '/template/atlas/aal/ROI_MNI_V4.nii', 'mni', 'slice', '2'};
 definput{8}   = {'20', 'yes', 'yes', 'cm', 'no', 'yes', 'all', '2', 'yes'};
 definput{9}   = {'yes', 'yes', 'yes', 'lcmv', 'mean'};
-definput{10}  = {'wpli_debiased', '[4,7;8,12;13,29;30,59;60,100]', 'max'};
-definput{11}  = {'[2:2:100]', 'mtmconvol','-1.5:0.05:1.5', '[-1.5 -1]', 'relative'};
+definput{10}  = {'0', 'wpli_debiased', '[4,7;8,12;13,29;30,59;60,100]', 'max'};
+definput{11}  = {'0', '[2:2:100]', 'mtmconvol','-1.5:0.05:1.5', '[-1.5 -1]', 'relative'};
 
 % titles of dialog boxes
 dlg_title{1}  = 'Part 1 of 11: config.contact and config.epoching';
@@ -215,16 +217,18 @@ for cfg_part = 1:11
             decode.config.beamforming.method = answers{4};
             decode.config.beamforming.rep_timeseries = answers{5};
         case 10
-            decode.config.connectivity.method = answers{1};
-            decode.config.connectivity.filt_freqs = str2num(answers{2});
-            decode.config.connectivity.collapse_band = answers{3};
+            decode.config.connectivity.include = str2num(answers{1});
+            decode.config.connectivity.method = answers{2};
+            decode.config.connectivity.filt_freqs = str2num(answers{3});
+            decode.config.connectivity.collapse_band = answers{4};
           
         case 11
-            decode.config.freqanalysis.foi = str2num(answers{1});
-            decode.config.freqanalysis.method = answers{2};
-            decode.config.freqanalysis.toi = str2num(answers{3});
-            decode.config.freqanalysis.baseline = str2num(answers{4});
-            decode.config.freqanalysis.baseline_type = answers{5};
+            decode.config.freqanalysis.include = str2num(answers{1});
+            decode.config.freqanalysis.foi = str2num(answers{2});
+            decode.config.freqanalysis.method = answers{3};
+            decode.config.freqanalysis.toi = str2num(answers{4});
+            decode.config.freqanalysis.baseline = str2num(answers{5});
+            decode.config.freqanalysis.baseline_type = answers{6};
          
     end 
             
