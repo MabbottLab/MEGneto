@@ -98,6 +98,7 @@ prompt{9}     = {'Enter yes or no to specify if trials should be separated',...
 prompt{10}    = {'Do you wish to generate functional connectivity results (0 for no, 1 for yes)',...
                  'Enter the metric for connectivity analysis',...
                  'Specify the frequency bands',...
+                 'Specify the frequency band  names, in order of the previous field',...
                  'Specify the method of generating a representative timeseries for each ROI'};
 prompt{11}    = {'Do you wish to perform time frequency analysis (0 for no, 1 for yes)',...
                  'Specify the frequencies of interest',...
@@ -121,6 +122,7 @@ definput{7}   = {'singleshell', 'cm', '1', 'yes', '-0.8', 'spm',...
                  '/template/atlas/aal/ROI_MNI_V4.nii', 'mni', 'slice', '2'};
 definput{8}   = {'20', 'yes', 'yes', 'cm', 'no', 'yes', 'all', '2', 'yes'};
 definput{9}   = {'yes', 'yes', 'yes', 'lcmv', 'mean'};
+
 definput{10}  = {'0', 'wpli_debiased', '[4,7;8,12;13,29;30,59;60,100]', 'max'};
 definput{11}  = {'0', '[2:2:100]', 'mtmconvol','-1.5:0.05:1.5', '[-1.5 -1]', 'relative'};
 
@@ -221,7 +223,6 @@ for cfg_part = 1:11
             decode.config.connectivity.method = answers{2};
             decode.config.connectivity.filt_freqs = str2num(answers{3});
             decode.config.connectivity.collapse_band = answers{4};
-          
         case 11
             decode.config.freqanalysis.include = str2num(answers{1});
             decode.config.freqanalysis.foi = str2num(answers{2});
@@ -229,7 +230,6 @@ for cfg_part = 1:11
             decode.config.freqanalysis.toi = str2num(answers{4});
             decode.config.freqanalysis.baseline = str2num(answers{5});
             decode.config.freqanalysis.baseline_type = answers{6};
-         
     end 
             
 end

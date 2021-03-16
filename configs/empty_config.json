@@ -115,6 +115,7 @@
 		"include": null,
 		"method" : "",
 		"filt_freqs" : [[]],
+		"freq_names" : [],
 		"collapse_band" : ""
 	},
 	"freqanalysis": {

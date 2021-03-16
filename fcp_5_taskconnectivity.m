@@ -98,7 +98,7 @@ fprintf('Max filter length: %d samples = %.4f sec.\n', maxn, maxn/srate);
 %% RUN CONNECTIVITY ANALYSIS
 
 % setup band names and master connectivity matrix
-band_names = ["theta", "alpha", "beta", "lowgamma", "highgamma"];
+band_names = config.connectivity.freq_names;
 
 % get number of ROIs or supra-ROIs
 if exist('ROIs', 'var')
@@ -148,7 +148,7 @@ all_conn_mat = nan(num_sources, num_sources, ... % num_nodes x num_nodes x ...
 %%% RUN CONNECTIVITY ANALYSIS ---------------------------------------------
     %%% FOR EACH FREQUENCY BAND
         for fq = 1:length(config.connectivity.filt_freqs) 
-          fprintf('Analyzing the %s band!\n', band_names(fq)); 
+          fprintf('Analyzing the %s band!\n', band_names{fq}); 
           
           %%% FOR EACH TRIAL
           for tt = 1:num_trials
