@@ -97,6 +97,7 @@ prompt{9}     = {'Enter yes or no to specify if trials should be separated',...
                  'Enter method of generating a representative timeseries'};
 prompt{10}    = {'Enter the metric for connectivity analysis',...
                  'Specify the frequency bands',...
+                 'Specify the frequency band  names, in order of the previous field',...
                  'Specify the method of generating a representative timeseries for each ROI'};
 
 % default inputs for the dialog boxes
@@ -114,7 +115,8 @@ definput{7}   = {'singleshell', 'cm', '1', 'yes', '-0.8', 'spm',...
                  '/template/atlas/aal/ROI_MNI_V4.nii', 'mni', 'slice', '2'};
 definput{8}   = {'20', 'yes', 'yes', 'cm', 'no', 'yes', 'all', '2', 'yes'};
 definput{9}   = {'yes', 'yes', 'yes', 'lcmv', 'mean'};
-definput{10}  = {'wpli_debiased', '[4,7;8,12;13,29;30,59;60,100]', 'max'};
+definput{10}  = {'wpli_debiased', '[4,7;8,12;13,29;30,59;60,100]',...
+                 'theta,alpha,beta,lowgamma,highgamma', 'max'};
 
 % titles of dialog boxes
 dlg_title{1}  = 'Part 1 of 10: config.contact and config.epoching';
@@ -210,7 +212,8 @@ for cfg_part = 1:10
         case 10
             decode.config.connectivity.method = answers{1};
             decode.config.connectivity.filt_freqs = str2num(answers{2});
-            decode.config.connectivity.collapse_band = answers{3};
+            decode.config.connectivity.freq_names = split(answers{3}, ',');
+            decode.config.connectivity.collapse_band = answers{4};
     end 
             
 end

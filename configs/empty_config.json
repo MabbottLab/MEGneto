@@ -114,6 +114,7 @@
 	"connectivity" : {
 		"method" : "",
 		"filt_freqs" : [[]],
+		"freq_names" : [],
 		"collapse_band" : ""
 		}
 	}    
