@@ -22,6 +22,7 @@ function fcp_4_beamforming(paths)
 %       1. AAL 116 atlas (all areas <=90 to exclude cerebellum)
 %       2. Brainnetome atlas
 %       3. Yeo atlas (7 network or 17 network)
+%       4. MMP atlas (Glasser, 2016)
 %
 %
 % INPUTS:
@@ -294,18 +295,23 @@ for ss = rangeOFsubj % for each participant that has matched MEG/MRI data
     cfg.keeptrials       = 'yes';
     projection           = ft_sourcedescriptives(cfg, source_t_trials); % project to dominant orientation
     
-%%% INTERPOLATE AAL ATLAS ONTO VIRTUAL SOURCES ----------------------------
+%%% INTERPOLATE ATLAS ONTO VIRTUAL SOURCES ----------------------------
 
-    % setup for AAL interpolation - get coordinates
+    % setup for atlas interpolation - get coordinates
     sourcemodel.pos = template_grid.pos; 
     
     % load atlas
-    fullPath                = which('ft_preprocessing.m');
-    [pathstr,~,~]           = fileparts(fullPath);
-    atlas                   = ft_read_atlas([pathstr config.beamforming.atlas.filepath]);
-    if contains(config.beamforming.atlas.filepath, 'aal')
-        atlas.tissuelabel   = atlas.tissuelabel(1:90); % we only want non-cerebellar regions (isolate desired regions)
-        atlas.tissue(atlas.tissue > 90) = 0;
+    if contains(config.beamforming.atlas.filepath, 'mmp') % if MMP glasser atlas
+        megneto_path        = fileparts(which('fcp_4_beamforming.m'));
+        atlas               = ft_read_atlas([megneto_path '/external/atlas/mmp.mat']);
+    else
+        fullPath                = which('ft_preprocessing.m');
+        [pathstr,~,~]           = fileparts(fullPath);
+        atlas                   = ft_read_atlas([pathstr config.beamforming.atlas.filepath]);
+        if contains(config.beamforming.atlas.filepath, 'aal')
+            atlas.tissuelabel   = atlas.tissuelabel(1:90); % we only want non-cerebellar regions (isolate desired regions)
+            atlas.tissue(atlas.tissue > 90) = 0;
+        end
     end
     atlas           = ft_convert_units(atlas, 'cm'); % convert atlas units to centimeters
 
@@ -318,20 +324,20 @@ for ss = rangeOFsubj % for each participant that has matched MEG/MRI data
     % actual interpolation
     catmatrix      = NaN(length(projection.time), ... % set up empty matrix to store reconstructed timeseries for each trial and region of interest
                          length(projection.trial), ...
-                         length(source_atlas.tissuelabel));   % overall AAL region timeseries across trial
+                         length(source_atlas.tissuelabel));   % over all ROI timeseries across trial
 
     var_explained  = NaN(1, ... % set up empty matrix to store variance explained of first principial component for each trial and region of interest 
                          length(projection.trial), ...
                          length(source_atlas.tissuelabel));
     %%% FOR EACH TRIAL ----------------------------------------------------
     right_now = clock;
-    fprintf('%02.f:%02.f:%02.f       Projecting to AAL sources!\n', ...
+    fprintf('%02.f:%02.f:%02.f       Identifying ROI timeseries!\n', ...
         right_now(4:6))
     
     for t = 1:projection.df
         %%% AND FOR EACH NODE ---------------------------------------------
         for i = 1:max(size(atlas.tissuelabel))
-            % identify source coords that fall within AAL region
+            % identify source coords that fall within ROI
             node                     = find(source_atlas.tissue==i); 
             source_timeseries        = cell2mat(projection.trial(t).mom(node)); % get the timeseries; num_nodes x time
             % ori_region               = cell2mat(projection.trial(t).ori(node)); % orientations; num_nodes x time
@@ -348,7 +354,7 @@ for ss = rangeOFsubj % for each participant that has matched MEG/MRI data
                 % ori_avg(:,t,i) = nanmean(ori_region,1);
             % IF NO SOURCE POINTS W/IN NODE
             else
-                warning('NO NODE %d\n',i);
+                warning('No sources in ROI %s.\n',atlas.tissuelabel{i});
             end
         end
     end
@@ -359,15 +365,15 @@ for ss = rangeOFsubj % for each participant that has matched MEG/MRI data
 
 %%% SAVE OUTPUT -----------------------------------------------------------
     if isnan(var_explained) % if the variance explained has not been populated, don't save it
-        save([ssSubjPath(ss) '/AAL_beamforming_results.mat'],'catmatrix', 'srate','coords','-mat','-v7.3')
+        save([ssSubjPath(ss) '/atlas_beamforming_results.mat'],'catmatrix', 'srate','coords','-mat','-v7.3')
     else
-        save([ssSubjPath(ss) '/AAL_beamforming_results.mat'],'catmatrix', 'var_explained', 'srate','coords','-mat','-v7.3')
+        save([ssSubjPath(ss) '/atlas_beamforming_results.mat'],'catmatrix', 'var_explained', 'srate','coords','-mat','-v7.3')
     end 
         
 %%% OPTIMIZING RUN SPACE --------------------------------------------------
     clear coords catmatrix srate source_timeseries ...
         atlas sourcemodel source_t_trials projection seg mri data grid hdm ...
-        source_t_avg tlock leadfield aal_node
+        source_t_avg tlock leadfield 
     
     right_now = clock;
     fprintf('%02.f:%02.f:%02.f       Done subject %s!\n', ...

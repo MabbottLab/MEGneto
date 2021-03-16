@@ -132,7 +132,7 @@ for ss = rangeOFsubj
 %%% REMOVE BAD COMPONENTS -------------------------------------------------
     if ~skip
         % record bad components
-        fcp2_output.bad_comp{ss,1} = bad_comp;
+        fcp2_output.bad_comp{ss,1} = {subj_match.pid{ss} bad_comp};
 
         % remove the bad components and backproject the data
         cfg             = [];
@@ -143,7 +143,7 @@ for ss = rangeOFsubj
         save([ssSubjPath(ss) '/' fcp2_output.preprocessedData_cfg],'data','-v7.3');
         close all
     else % skip = 1, aka no bad components, re-save 
-        fcp2_output.bad_comp{ss,1} = bad_comp; % write "skip" in output to show no bad components were detected
+        fcp2_output.bad_comp{ss,1} = {subj_match.pid{ss} bad_comp}; % write "skip" in output to show no bad components were detected
         data            = data_noisecorr;
         save([ssSubjPath(ss) '/' fcp2_output.preprocessedData_cfg],'data','-v7.3');
         close all

@@ -1,4 +1,4 @@
-function fcp_5_taskconnectivity(paths)
+function fcp_5_taskconnectivity(paths, ROIs)
 
 % FCP_5_TASKCONNECTIVITY estimates functional connectivity (i.e., analyzes 
 % the synchrony of signals from two regions). 
@@ -61,7 +61,11 @@ ssSubjPath  = @(x) paths.(subj_match.pid{x});
 
 %%% LOAD SAMPLE PPT -------------------------------------------------------
 % used to get the sample rate
-load([ssSubjPath(1) '/AAL_beamforming_results.mat'], '-mat') %SB - add cond
+try
+    load([ssSubjPath(1) '/atlas_beamforming_results.mat'], '-mat');
+catch
+    load([ssSubjPath(1) '/AAL_beamforming_results.mat'], '-mat');
+end
 
 %%% MAKE FILTER -----------------------------------------------------------
 maxn = 0;
@@ -90,8 +94,16 @@ fprintf('Max filter length: %d samples = %.4f sec.\n', maxn, maxn/srate);
 %% RUN CONNECTIVITY ANALYSIS
 
 % setup band names and master connectivity matrix
-band_names = ["theta", "alpha", "beta", "lowgamma", "highgamma"];
-all_conn_mat = nan(size(catmatrix,3), size(catmatrix,3), ... % num_nodes x num_nodes x ...
+band_names = config.connectivity.freq_names;
+
+% get number of ROIs or supra-ROIs
+if exist('ROIs', 'var')
+    num_sources = length(ROIs); % if collapsed
+else
+    num_sources = size(catmatrix, 3); % if not
+end
+
+all_conn_mat = nan(num_sources, num_sources, ... % num_nodes x num_nodes x ...
                 length(subj_match.ds), ...                 % num_subjects x ... 
                 length(config.connectivity.filt_freqs));   % num_freq_bands
 
@@ -104,12 +116,21 @@ all_conn_mat = nan(size(catmatrix,3), size(catmatrix,3), ... % num_nodes x num_n
             right_now(4:6), subj_match.pid{ss})
 
 %%% LOAD VIRTUAL SENSOR DATA ----------------------------------------------
-        load([ssSubjPath(ss) '/AAL_beamforming_results.mat'], '-mat'); 
-
+        try
+            load([ssSubjPath(ss) '/atlas_beamforming_results.mat'], '-mat'); 
+        catch
+            load([ssSubjPath(ss) '/AAL_beamforming_results.mat'], '-mat');
+        end
+    
         % define some dimensions
         num_samples = size(catmatrix, 1);
         num_trials  = size(catmatrix, 2);
-        num_sources = size(catmatrix, 3);
+        
+        % collapse across ROIs if indicated
+        if exist('ROIs', 'var')
+            catmatrix_collapsed = cellfun(@(x) nanmean(catmatrix(:,:,x), 3), ROIs, 'UniformOutput', false);
+            catmatrix = cat(3, catmatrix_collapsed{:}); clear catmatrix_collapsed;
+        end
 
 %%% INITIALIZE PARTICIPANT CONNECTIVITY MATRIX -------------------------------
 %   Dimensions = [sources] x [sources] x [freq. band]
@@ -117,19 +138,19 @@ all_conn_mat = nan(size(catmatrix,3), size(catmatrix,3), ... % num_nodes x num_n
         data    = [];
         time_info = config.task.trialdef.parameters.tEpoch;
         for src = 1:num_sources
-            data.label{src} = sprintf('AAL%d', src);
+            data.label{src} = sprintf('ROI%d', src);
         end
 
 %%% RUN CONNECTIVITY ANALYSIS ---------------------------------------------
     %%% FOR EACH FREQUENCY BAND
         for fq = 1:length(config.connectivity.filt_freqs) 
-          fprintf('Analyzing the %s band!\n', band_names(fq)); 
+          fprintf('Analyzing the %s band!\n', band_names{fq}); 
           
           %%% FOR EACH TRIAL
           for tt = 1:num_trials
             fprintf('Processing trial %d...\n', tt);
             data.time{tt} = time_info(1):(1/srate):time_info(2);
-            %%% FOR EACH AAL NODE/SOURCE
+            %%% FOR EACH OF THE NODES/SOURCES
             for kk = 1:num_sources
               % mean center or z-score the timeseries before filtering
               ts = prefilter(catmatrix(:,tt,kk)); % prepared specified portion of catmatrix         

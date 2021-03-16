@@ -58,10 +58,10 @@ paths = loadjson(strcat(project_path, '/analysis/', analysis_name, '/config/path
 overwrite = false; % set to true if path set up for the same analysis should be re-done
 paths = megne2setup(project_path, analysis_name, rawdata_path, mri_path, overwrite);
 
-%% Interaction JSON config file
+%% Interactive JSON config file
 % Prior to running through the first step of the pipeline, users must
 % define all relevant parameters in the JSON config file. To facilitate
-% this process, the interative_JSON_config function will guide users
+% this process, the interactive_JSON_config function will guide users
 % through the process of populating this guide. For more detail on the
 % meaning of each parameter, please reference the "ConfigParams.md"
 % document in the MEGneto repository on the Mabbott Lab GitHub.
@@ -78,7 +78,7 @@ interactive_JSON_config(paths, megneto_path) % run the interactive config functi
 % fid = fopen(paths.subj_fcp1, 'w'); % open subj_fcp1.csv
 % MEG_ds = MEG_ds.name(3:(height(MEG_ds))).'; % isolate only PIDs
 % fprintf(fid, '%s\n', MEG_ds{:}); % write each PID to file
-% fclose(fid) % close the file
+% fclose(fid); % close the file
 
 fcp_1_TaskEpoching(paths) % run first step of the MEG pipeline
 
@@ -164,8 +164,11 @@ fcp_5_taskconnectivity(paths);
 % or not ("0"). 
 
 % Don't forget to include a ParticipantCategories.xlsx file in your
-% paths.conf_dir folder. Fill in the variables below which are input to the
-% function.
+% config folder. An example of this excel sheet with dummy variables
+% is available in the templates folder (note that the column names of this
+% file, in order, represent radiation, sugery, and typical development 
+% controls).
+% Fill in the variables below which are the inputs to the function.
 
 % Specify function inputs
 group_names = NaN; % array of strings, e.g., ["surg", "rad", "control"], 
@@ -174,8 +177,9 @@ conn = NaN; % name of connectivity metric as a character array (must match
 %            the metric outlined in the file name of the connectivity
 %            matrix .mat file). Can take on values including: 
 %            "plv, "pli", "wpli", "wpli_debiased", "coh"
+freq = {};
 
-make_NBS_ready(paths, group_names, conn)
+make_NBS_ready(paths, group_names, conn, freq)
 %% make_BNV_ready
 % This fuction creates *.node and *.edge files for viewing connectivity 
 % results from PLS or NBS on BrainNet Viewer (BNV). 
