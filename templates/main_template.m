@@ -172,11 +172,11 @@ fcp_5_taskconnectivity(paths);
 
 % Specify function inputs
 group_names = NaN; % array of strings, e.g., ["surg", "rad", "control"], 
-%                   exactly as they appear in folder names 
-conn = NaN; % name of connectivity metric as a character array (must match 
-%            the metric outlined in the file name of the connectivity
-%            matrix .mat file). Can take on values including: 
-%            "plv, "pli", "wpli", "wpli_debiased", "coh"
+%                    exactly as they appear in folder names 
+conn = NaN;        % name of connectivity metric as a character array 
+%                    (must match the metric outlined in the file name of 
+%                    the connectivity matrix .mat file). Can take on values 
+%                    including: "plv, "pli", "wpli", "wpli_debiased", "coh"
 freq = {};
 
 make_NBS_ready(paths, group_names, conn, freq)
@@ -203,23 +203,36 @@ make_BNV_ready(paths, brainnet)
 % and control for Type 1 error.
 
 % Specify function inputs
-seed_regions = [1, 2, 3]; % numeric indices indicating the seed ROIs (e.g. 
-%                           if the AAL atlas is used, the default input 
-%                           [1, 2, 3] corresponds to the following regions 
-%                           ['left precentral gyrus', 'right precentral 
-%                           gyrus', 'left superior frontal gyrus,
-%                           dorsolateral']. Note that for AAL atlas there 
-%                           are 90 regions, so indices should take on 
-%                           values between 1-90). 
-freq_band = 'gamma'; % frequency band of interst (e.g. 'alpha', 'beta', 
-%                      'gamma', 'theta')
-two_groups = false; % true or false to indicate if the function does a Tmax 
-                    % or Fmax analysis. Default is 'false'. 
-num_bootstraps = 1000; % number of desired bootstrap tests.Default is 1000.
-thresh = 0.05; % significance threshold for the p-value. Default is 0.05, 
-%                can be altered to desired threshold by the user.
+seed_regions = [1, 2, 3];             % numeric indices indicating the seed 
+%                                       ROIs (e.g. if the AAL atlas is used, 
+%                                       the default input [1, 2, 3] 
+%                                       corresponds to the following regions 
+%                                       ['left precentral gyrus', 'right 
+%                                       precentral gyrus', 'left superior 
+%                                       frontal gyrus, dorsolateral']. Note 
+%                                       that for AAL atlas there are 90 
+%                                       regions, so indices should take on 
+%                                       values between 1-90). 
+freq_band = 'gamma';                  % frequency band of interst 
+%                                       (e.g. 'alpha', 'beta', 'gamma', 
+%                                       'theta')
+two_groups = false;                   % true or false to indicate if the 
+%                                       function does a Tmax (enter true) 
+%                                       or Fmax analysis (enter false). 
+%                                       Default is 'false'. 
+num_bootstraps = 1000;                % number of desired bootstrap tests. 
+%                                       Default is 1000.
+thresh = 0.05;                        % significance threshold for the 
+%                                       p-value. Default is 0.05, can be 
+%                                       altered to desired threshold 
+%                                       by the user.
+group_names = ["rad", "surg", "tdc"]; % array of strings, e.g., 
+%                                       ["RAD", "SURG", "TDC"], 
+%                                       exactly as they appear in the input
+%                                       for group_names in the make_NBS
+%                                       function.
 
-bootTestDiffSeeds(paths, seed_regions, freq_band, two_groups, num_bootstraps, thresh)
+bootTestDiffSeeds(paths, seed_regions, freq_band, two_groups, num_bootstraps, thresh, group_names)
 
 %% Summary functions
 % includes: inspecting_results, getTrialSummary,
@@ -250,9 +263,9 @@ inspecting_results(paths, name, type)
 
 % Specify function inputs
 num_markers = NaN; % number of events expected 
-                 % (total number of times stimulus is presented)
-thresh = 25; % percentage indicating what percentage of trials removed 
-             % is unacceptable. Here, 25 is the lab's convention.
+                   % (total number of times stimulus is presented)
+thresh = 25;       % percentage indicating what percentage of trials removed 
+                   % is unacceptable. Here, 25 is the lab's convention.
 
 getTrialSummary(paths, num_markers, thresh)
 
