@@ -115,6 +115,13 @@
 		"method" : "",
 		"filt_freqs" : [[]],
 		"collapse_band" : ""
+	},
+	"freqanalysis": {
+		"foi": [],
+		"method": "",
+		"toi": [],
+		"baseline": [],
+		"baseline_type": ""
 		}
 	}    
 }
