@@ -17,9 +17,17 @@ function [res, rand_diffs] = bootTestDiffSeeds(paths, seed_regions, freq_band, t
 %                    analysis, respectively.
 % num_bootstraps:  - number of desired bootstraps.
 % thresh:          - significance threshold for the p-value.
-% group_names:     - array of strings, e.g., ["RAD", "SURG", "TDC"], 
-%                    exactly as they appear in the input for group_names 
-%                    in the make_NBS function. 
+% group_names:      - array of strings, e.g., ["RAD", "SURG", "TDC"], 
+%                     exactly as they appear in the input for group_names 
+%                     in the make_NBS function.
+% collapsed matrix: - note that if the user wishes to perform a T-max
+%                     analsysis, they must include a .xlsx file in the 
+%                     config directory that contains collapsed data from 
+%                     the design matrix (output of make NBS).
+%                     This specifies the two groups that are to be compared 
+%                     in the T-max analysis. A sample file in found in the 
+%                     templates folder. You should name this file 
+%                     collapsed_ParticipantCategories.xlsx.
 
 % OUTPUTS------------------------------------------------------------------
 % res:             - a struct containing the group differences for each

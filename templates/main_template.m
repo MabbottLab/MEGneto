@@ -202,6 +202,14 @@ make_BNV_ready(paths, brainnet)
 % t-test or f-test using the max procedure) to build a null distribution 
 % and control for Type 1 error.
 
+% Note:
+% I you wish to perform a T-max analsysis, tyou must include a .xlsx file
+% in the config directory that contains collapsed data from the design 
+% matrix (output of make NBS). This specifies the two groups that are to 
+% be compared in the T-max analysis. A sample file in found in the 
+% templates folder. You should name this file 
+% collapsed_ParticipantCategories.xlsx.
+
 % Specify function inputs
 seed_regions = [1, 2, 3];             % numeric indices indicating the seed 
 %                                       ROIs (e.g. if the AAL atlas is used, 
