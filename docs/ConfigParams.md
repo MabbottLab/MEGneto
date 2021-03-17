@@ -834,6 +834,15 @@ Where: Fcp_5_taskconnectivity
       <br>
       Meaning: Specifies the names of the frequency bands in the other that they are listed in the previous field (e.g., for example given in the filt_freqs field above, this field would be theta, alpha, beta, lowgamma, highgamma).
     </details>
+  </li>
+  <!--CONNECTIVITY.ROIs-->
+  <li>
+    <details>
+      <summary>ROIs</summary>
+      Where: Fcp_5_taskconnectivity
+      <br>
+      Meaning: Specifies the ROIs which should be collapsed into supra ROIs (in the case of networks). 
+    </details>
   </li></ul>
 </details>
 
@@ -896,6 +905,15 @@ Where: Fcp_5_freqanalysis
       Where: Fcp_5_freqanalysis
       <br>
       Meaning: Specifies the type of baseline (default = 'relative'). Options include 'absolute', 'relative', 'relchange', 'normchange', 'db', 'vssum' or 'zscore'.
+    </details>
+  </li>
+  <!--FREQANALYSIS.ROIs-->
+  <li>
+    <details>
+      <summary>ROIs</summary>
+      Where: Fcp_5_freqanalysis
+      <br>
+      Meaning: Specifies the ROIs which should be collapsed into supra ROIs (in the case of networks). 
     </details>
   </li></ul>
 </details>
