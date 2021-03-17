@@ -164,6 +164,8 @@ fcp_5_taskconnectivity(paths);
 % or not ("0"). This function also outputs a list of participant
 % (ordered_ppt_list.txt) in the analysis folder to inform the user of the
 % design matrix's rows (same order as ppt list prestented in the .txt file).
+% IMPORTANT: the by-frequency output files also have re-arranged
+% participants that match the order of ordered_ppt_list.txt.
 
 % Don't forget to include a ParticipantCategories.xlsx file in your
 % config folder. An example of this excel sheet with dummy variables

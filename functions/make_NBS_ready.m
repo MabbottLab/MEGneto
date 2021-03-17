@@ -16,7 +16,12 @@ function make_NBS_ready(paths, group_names, conn)
 
 % OUTPUT-------------------------------------------------------------------
 % design_matrix.mat:        design matrix for NBS analysis
-% NBS[freq]_datamatrix.mat: data matrices organized by frequency band
+% NBS[freq]_datamatrix.mat: data matrices organized by frequency band.
+%                           Note that the order of participants in these
+%                           output files is re-arranged - it matches the
+%                           order of participants in the design matrix
+%                           which is clarified in the output below
+%                           (ordered_ppt_list.txt).
 % odered_ppt_list.txt:      list of participants in order of the design
 %                           matrix rows for reference purposes
 
