@@ -45,7 +45,7 @@ function [res, rand_diffs] = bootTestDiffSeeds(paths, bootcfg)
 config      = load_config(paths, paths.name);
 config      = config.config;
 
-fprintf("FREQ. BAND: %s\n", freq_band)
+fprintf("FREQ. BAND: %s\n", bootcfg.freq_band)
 
 %% LOAD ATLAS DATA
 if contains(config.beamforming.atlas.filepath, 'mmp') % if MMP glasser atlas
@@ -112,7 +112,7 @@ if size(design_matrix,2) == 2
     NOI_origins = fieldnames(res);
     NOI_connections = cellfun(@(x) ...
                             res.(x).Properties.RowNames(...
-                            res.(x){:,'p_pos'} < thresh | res.(x){:,'p_neg'} < thresh), ...
+                            res.(x){:,'p_pos'} < bootcfg.thresh | res.(x){:,'p_neg'} < bootcfg.thresh), ...
                             NOI_origins, 'UniformOutput', false);
     for i = 1:length(NOI_origins)
         NOIs{i} = find(strcmp(NOI_origins{i}, atlas.tissuelabel(:)));
