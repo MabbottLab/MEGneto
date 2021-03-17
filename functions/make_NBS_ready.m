@@ -16,7 +16,14 @@ function make_NBS_ready(paths, group_names, conn, freq)
 
 % OUTPUT-------------------------------------------------------------------
 % design_matrix.mat:        design matrix for NBS analysis
-% NBS[freq]_datamatrix.mat: data matrices organized by frequency band
+% NBS[freq]_datamatrix.mat: data matrices organized by frequency band.
+%                           Note that the order of participants in these
+%                           output files is re-arranged - it matches the
+%                           order of participants in the design matrix
+%                           which is clarified in the output below
+%                           (ordered_ppt_list.txt).
+% odered_ppt_list.txt:      list of participants in order of the design
+%                           matrix rows for reference purposes
 
 % IMPORTANT: this version assumes that the participant conn_mats only have
 % the first entry of the 3rd dimension (the trials dimension) populated.
@@ -37,11 +44,23 @@ groups = readtable([paths.conf_dir '/ParticipantCategories.xlsx']);
 groups = groups(:,1:numGroups);
 
 groupPLI = cell(1,numGroups); % for each group
+ppt_list = cell(1,numGroups); % to keep track of all ppts
 for gg = 1:numGroups 
     this_ppt_list = rmmissing(groups.(group_names(gg))); % isolate ppt list for this group
     groupPLI{gg} = cellfun(@(x) sprintf('%s/%s/fcp_5_conn_mat_%s.mat', spath, x, conn), ...
                             this_ppt_list, 'UniformOutput', false); % generate filepaths to those folders
+    ppt_list{gg} = this_ppt_list; % add current group's ppt list to over ppt list
 end
+
+ordered_ppt_list = [];
+for i = 1:length(ppt_list)
+    ordered_ppt_list = cat(1, ordered_ppt_list, cell2mat(ppt_list{i}));
+end
+
+% save ordered participant list
+orderedpptlist_output = [spath,'/ordered_ppt_list.txt'];
+dlmwrite(orderedpptlist_output, ordered_ppt_list, '');
+fprintf(['\nParticipant list saved to: ',orderedpptlist_output,'\n\n']);
 
 %% initialize subjects in conditions - load PLI conn. matrix
 

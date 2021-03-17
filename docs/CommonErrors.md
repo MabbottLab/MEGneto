@@ -9,7 +9,7 @@
 
 ### **Error occurrence #1:** During fcp_1, a warning pops up that says “not enough markers found”.
 
-[@DUNJA: INSERT SCREENSHOT HERE]
+![](https://github.com/MabbottLab/MEGneto/blob/master/images/not_enough_markers.PNG)
 
 Why did this occur?
 
@@ -26,7 +26,7 @@ Note: For more information on the JSON config file please navigate to the `Confi
 
 ### Error occurrence #2: Error in load config, parsing config, or recursive json struct.
 
-[@DUNJA: INSERT SCREENSHOT HERE]
+![](https://github.com/MabbottLab/MEGneto/blob/master/images/JSON_population.PNG)
 
 Why did this occur?
 
@@ -42,9 +42,12 @@ Note: For more information on the JSON config file please navigate to the
 ConfigParams.md file for a description of each field.
 Forgetting to populate the subject .CSV files
 
+
+## Forgetting to populate the subject .CSV files
+
 ### Error occurrence : Error using load participants
 
-[@DUNJA: INSERT SCREENSHOT HERE]
+![](https://github.com/MabbottLab/MEGneto/blob/master/images/CSV_population.PNG)
 
 Why did this occur?
 
@@ -67,6 +70,8 @@ excess of bad channels, bad trials, etc.).
 
 ### Error occurrence : Error using ds_pid_match which finds matching MEG and MRI data.
 
+![](https://github.com/MabbottLab/MEGneto/blob/master/images/MEG-MRI_mismatch.PNG)
+
 Why did this occur?
 
 MEGneto requires MRI data to have the .mri extension. If a participant’s MRI data that does not
@@ -81,7 +86,7 @@ that do not have .mri data.
 
 ### Error occurrence: Error occurs in megne2setup’s path generation.
 
-[@DUNJA INSERT SCREENSHOT HERE]
+![](https://github.com/MabbottLab/MEGneto/blob/master/images/naming_convention.PNG)
 
 Why did this occur?
 
