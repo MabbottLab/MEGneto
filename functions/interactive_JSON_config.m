@@ -96,13 +96,15 @@ prompt{10}    = {'Do you wish to generate functional connectivity results (0 for
                  'Enter the metric for connectivity analysis',...
                  'Specify the frequency bands',...
                  'Specify the frequency band  names, in order of the previous field',...
-                 'Specify the method of generating a representative timeseries for each ROI'};
+                 'Specify the method of generating a representative timeseries for each ROI',...
+                 'Specify ROIs you wish to collapse into supra-ROIs'};
 prompt{11}    = {'Do you wish to perform time frequency analysis (0 for no, 1 for yes)',...
                  'Specify the frequencies of interest',...
                  'Specify the method of calculating the spectra',...
                  'Specify the length of the time window'...
                  'Specify baseline time window as [begin end]',...
-                 'Specify the baseline type (absolute, relative, relchange, normchange, db, vssum, zscore)'};
+                 'Specify the baseline type (absolute, relative, relchange, normchange, db, vssum, zscore)',...
+                 'Specify ROIs you wish to collapse into supra-ROIs'};
              
 % default inputs for the dialog boxes
 definput{1}   = {'firstname.lastname@sickkids.ca', '30', '10'};
@@ -120,8 +122,10 @@ definput{7}   = {'singleshell', 'cm', '1', 'yes', '-0.8', 'spm',...
 definput{8}   = {'20', 'yes', 'yes', 'cm', 'no', 'yes', 'all', '2', 'yes'};
 definput{9}   = {'yes', 'yes', 'lcmv', 'mean'};
 definput{10}  = {'0', 'wpli_debiased', '[4,7;8,12;13,29;30,59;60,100]',...
-                 'theta,alpha,beta,lowgamma,highgamma', 'max'};
-definput{11}  = {'0', '[2:2:100]', 'mtmconvol','-1.5:0.05:1.5', '[-1.5 -1]', 'relative'};             
+                 'theta,alpha,beta,lowgamma,highgamma', 'max',...
+                 '[1,2,3];[4];[5,6]'};
+definput{11}  = {'0', '[2:2:100]', 'mtmconvol','-1.5:0.05:1.5',...
+                 '[-1.5 -1]', 'relative', '[1,2,3];[4];[5,6]'};             
 
 % titles of dialog boxes
 dlg_title{1}  = 'Part 1 of 11: config.contact and config.epoching';
@@ -218,13 +222,21 @@ for cfg_part = 1:11
             decode.config.connectivity.filt_freqs = str2num(answers{3});
             decode.config.connectivity.freq_names = split(answers{4}, ',');
             decode.config.connectivity.collapse_band = answers{5};   
+            decode.config.connectivity.ROIs = split(answers{6}, ';');
+            for i = 1:length(decode.config.connectivity.ROIs)
+                decode.config.connectivity.ROIs{i} = str2num(decode.config.connectivity.ROIs{i});
+            end
         case 11
             decode.config.freqanalysis.include = str2num(answers{1});
             decode.config.freqanalysis.foi = str2num(answers{2});
             decode.config.freqanalysis.method = answers{3};
             decode.config.freqanalysis.toi = str2num(answers{4});
             decode.config.freqanalysis.baseline = str2num(answers{5});
-            decode.config.freqanalysis.baseline_type = answers{6}; 
+            decode.config.freqanalysis.baseline_type = answers{6};
+            decode.config.freqanalysis.ROIs = split(answers{7}, ';');
+            for i = 1:length(decode.config.freqanalysis.ROIs)
+                decode.config.freqanalysis.ROIs{i} = str2num(decode.config.freqanalysis.ROIs{i});
+            end   
     end 
             
 end
