@@ -1,7 +1,7 @@
 function [res, rand_diffs] = bootTestDiffSeeds(paths, seed_regions, freq_band, two_groups, num_bootstraps, thresh, group_names)
 % This function performs permutation-based significance testing (via 
-% t-test or f-test using the max procedure) to build a null distribution 
-% and control for Type 1 error.
+% t-test for 2 groups or f-test for >2 groups using the max procedure) 
+% to build a null distribution and control for Type 1 error.
 
 % INPUTS-------------------------------------------------------------------
 % paths:           - variable containing paths to analysis and data
@@ -20,19 +20,25 @@ function [res, rand_diffs] = bootTestDiffSeeds(paths, seed_regions, freq_band, t
 % group_names:      - array of strings, e.g., ["RAD", "SURG", "TDC"], 
 %                     exactly as they appear in the input for group_names 
 %                     in the make_NBS function.
-% collapsed matrix: - a note on T-max analysis extra input:
-% If you wish to perform a T-max analsysis, you must include a .xlsx file
-% with two group that will be compared in the T-max analysis for 
-% differences. You may use the make_NBS function to prepare this file
-% where your input to make_NBS (the ParticipantCategories.xlsx) should have
-% two groups you wish to include (e.g. "control" and "surg") and the
-% participant IDs that fall under each group. 
-
+%
 % OUTPUTS------------------------------------------------------------------
 % res:             - a struct containing the group differences for each
-%                    region of interest. p-pos, p-neg and
+%                    region of interest. 
+%                    > .p_pos and p_neg represent the proportion of null 
+%                      values found above/below the observed statistic
+%                    > observed_difference is the actual t- or f-statistic
+%                      of the group difference
 %                    observed-differences are listed for each. 
 % rand_diffs:      - the null distribution 
+%
+% NOTES--------------------------------------------------------------------
+% This function automatically runs a T-max or F-max permutation test based
+% on the number of columns (i.e., groups) in the design matrix. 
+%
+% If you have more than two groups, but want to run a comparison between 
+% two groups, you should make a collapsed ParcipantCategories.xlsx sheet
+% and re-run make_NBS_ready.m to generate a 2-group design matrix and 
+% 2-group data matrices. 
 
 %% LOAD CONFIG
 config      = load_config(paths, paths.name);
