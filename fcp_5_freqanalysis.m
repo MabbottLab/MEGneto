@@ -1,4 +1,4 @@
-function fcp_5_freqanalysis(paths, ROIs)
+function fcp_5_freqanalysis(paths)
 
 % FCP_5_FREQANALYSIS uses spectral analysis on time-frequency 
 % representations of data to test hypotheses based on spectral power. The 
