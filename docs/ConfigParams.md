@@ -29,15 +29,6 @@ Meaning: Email address to which to send pipeline’s progress updates contained 
           Meaning: Indicates epoch length for epoching resting state data (default = 30).
         </details>
       </li>
-      <!--EPOCHING.TOTALTIME--> 
-      <li>
-        <details>
-          <summary>Total time</summary>
-          Where: Nowhere.
-          <br>
-          Meaning: Relic from an older resting state epoch strategy, will be deleted from config template.
-        </details>
-      </li>
      <!--EPOCHING.HEADMOTION--> 
       <li>
         <details>
@@ -84,15 +75,6 @@ Meaning: Email address to which to send pipeline’s progress updates contained 
                 Where: fcp_1_TaskEpoching in artifact detection.
                 <br>
                 Meaning: 0 or 1 (0=no, 1=yes) to indicate if we want to detect artifacts (default = 1).
-              </details>
-            </li>
-            <!--CLEANING OPTIONS.ARTIFACT.REJECTION--> 
-            <li>
-              <details>
-                <summary>Rejection</summary>
-                Where: Nowhere: instead, in fcp_1_TaskEpoching under “Artifact Rejection”, there is a field “cfg.artfctdef.reject” that is equal to “complete”.
-                <br>
-                Meaning: Indicates how much we want to reject trials with artifacts (e.g. “complete” removes the entire trial).
               </details>
             </li>
             <!--CLEANING OPTIONS.ARTIFACT.MUSCLE--> 
@@ -346,7 +328,7 @@ Meaning: Email address to which to send pipeline’s progress updates contained 
           <summary>Function</summary>
           Where: fcp_1_Task_Epoching for setting up the cfg for epoching.
           <br>
-          Meaning: Name of a custom task epoching function to parse data into trials (designed for marker epoching). This will likely be “@searchTaskTrialFun” for you.
+          Meaning: Name of a custom task epoching function to parse data into trials (designed for marker epoching). This field should be “@searchTaskTrialFun”.
         </details>
       </li>
       <!--TASKFUNC.TYPE-->
@@ -354,7 +336,8 @@ Meaning: Email address to which to send pipeline’s progress updates contained 
         <details>
           <summary>Type</summary>
           Where: fcp_1_Task_Epoching for setting up the cfg for epoching.
-          Meaning: Indicates the type of function specified in the "Function" field. If using "@searchTaskTrialFun", this field should be entered as "anonymous" to indicate that it is an anonymous type of function (Matlab lingo, see details here: https://www.mathworks.com/help/matlab/matlab_prog/anonymous-functions.html).
+          <br>
+          Meaning: Indicates the type of function specified in the "Function" field. If using "@searchTaskTrialFun", this field should be entered as "anonymous" to indicate that it is an anonymous type of function (Matlab lingo, see details here: https://www.mathworks.com/help/matlab/matlab_prog/anonymous-functions.html). 
         </details>
       </li>
      <!--TASKFUNC.FILE-->
@@ -362,6 +345,8 @@ Meaning: Email address to which to send pipeline’s progress updates contained 
         <details>
           <summary>File</summary>
           Where: fcp_1_Task_Epoching for setting up the cfg for epoching.
+          <br>
+          Meaning: This field plays a role in indicating to Matlab that the function field is a function, not a string. Leave the default as is.
         </details>
       </li>
      <!--TASKFUNC.WORKSPACE-->
@@ -369,6 +354,8 @@ Meaning: Email address to which to send pipeline’s progress updates contained 
         <details>
           <summary>Workspace</summary>
           Where: fcp_1_Task_Epoching for setting up the cfg for epoching.
+          <br>
+          Meaning: This field plays a role in indicating to Matlab that the function field is a function, not a string. Leave the default as is.
         </details>
       </li>
       <!--TASKFUNC.WITHINFILEPATH-->
@@ -376,6 +363,8 @@ Meaning: Email address to which to send pipeline’s progress updates contained 
         <details>
           <summary>Within_file_path</summary>
           Where: fcp_1_Task_Epoching for setting up the cfg for epoching.
+          <br>
+          Meaning: This field plays a role in indicating to Matlab that the function field is a function, not a string. Leave the default as is.
         </details>
       </li>
  </details>
@@ -415,13 +404,6 @@ Meaning: Email address to which to send pipeline’s progress updates contained 
                 Meaning: Not assigned a specific value, rather it is the umbrella for the fields within it. 
                 <br><br>
                 <ul>
-                  <!--TASK.TRIALDEF.DETAILS.NAME--> 
-                  <li>
-                  <details>
-                    <summary>Name</summary>
-                    Where: searchTaskTrialFun.m.
-                    <br>  
-                  </li>
                   <!--TASK.TRIALDEF.DETAILS.INCLUDE--> 
                   <li>
                   <details>
@@ -431,32 +413,6 @@ Meaning: Email address to which to send pipeline’s progress updates contained 
                     Meaning: Specifies the marker you wish to gain reaction time information for (e.g. “Correct” means you will get the reaction time between stimulus presentation and a correct response).
                     <br>  
                   </li>
-                  <!--TASK.TRIALDEF.DETAILS.COUNTONLY--> 
-                  <li>
-                  <details>
-                    <summary>countOnly</summary>
-                    Where: searchTaskTrialFun.m.
-                    <br>
-                    Meaning: “true” or “false” to specify whether you only want information on the number of trials (true for only want number of trials information, false for want more information including reaction times). Default = false.
-                    <br>  
-                  </li>
-                </ul>
-              </details>
-            <!--TASK.TRIALDEF.LIGHT--> 
-            <li>
-              <details>
-               <summary>Light</summary>
-               Where: Nowhere.
-               <br>
-               Meaning: This is a relic from old code. Do not fill this field, it will be removed in future config templates.
-               <ul>
-                 <!--TASK.TRIALDEF.LIGHT.AVGSTARTTHRESH-->
-                 <li>
-                  <details>
-                   <summary>avgstartThresh</summary>
-                   Where: Nowhere.
-                  </details>
-                 </li>
                 </ul>
               </details>
             <!--TASK.TRIALDEF.PARAMETERS--> 
@@ -504,15 +460,6 @@ Meaning: Email address to which to send pipeline’s progress updates contained 
                    Meaning: Specifies the markers that mark a correct trials (e.g. [“LeftCorrect”], [“RightCorrect”] or multiple such as [“LeftCorrect”, “RightCorrect”]).
                   </details>
                  </li>
-                 <!--TASK.TRIALDEF.MARKERS.INCORRECT--> 
-                 <li>
-                  <details>
-                   <summary>Incorrect</summary>
-                   Where: Nowhere.
-                   <br>
-                   Meaning: This is a relic from old code. Do not fill in this field, it will be deleted from future config templates.
-                  </details>
-                 </li>
                  <!--TASK.TRIALDEF.MARKERS.T0MARKER--> 
                  <li>
                   <details>
@@ -520,15 +467,6 @@ Meaning: Email address to which to send pipeline’s progress updates contained 
                    Where: fcp_1_TaskEpoching when t0 markers are grabbed (the plotTriggers function) AND search TaskTrialFun.
                    <br>
                    Meaning: Specifies the event type to epoch around. This will be the marker that define t=0 of each trigger, that is the presentation trigger (eg. “OfflneLightOn”, “LeftButtonPress”, etc.).
-                  </details>
-                 </li>
-                 <!--TASK.TRIALDEF.MARKERS.NEWTRIG--> 
-                 <li>
-                  <details>
-                   <summary>newTrig</summary>
-                   Where: Nowhere
-                   <br>
-                   Meaning: This is a relic from old code. Do not fill in this field, it will be deleted from future config templates.
                   </details>
                  </li></ul>
               </details>
@@ -691,14 +629,6 @@ Meaning: Email address to which to send pipeline’s progress updates contained 
               <br>
               Meaning: Only used when “method” is set to “slice”. This will specify the number of slices (default = 20).
             </details>
-          </li>
-          <!--BEAMFORMING.CHECKMRIVOLUMES.FUNPARAMETER--> 
-          <li>
-            <details>
-              <summary>Funparameter</summary>
-              Where: Nowhere.
-              <br>
-              Meaning: Relic from old code. Do not fill this in, it will be deleted from future config templates.
           </li></ul>
         </details>
        </li>
@@ -757,15 +687,6 @@ Meaning: Email address to which to send pipeline’s progress updates contained 
           <br>
           Meaning: Not assigned a specific value, rather it is the umbrella for the fields within it which specify parameters for computing the leadfield used for each participant. 
           <ul>
-          <!--BEAMFORMING.LEADFIELD.REDUCERANK--> 
-          <li>
-            <details>
-              <summary>Reducerank</summary>
-              Where: Nowhere, but in “compute leadfield” there is a field “cfg.reducerank” that has an associated number.
-              <br>
-              Meaning: “Yes” or “no” to specify whether we want to reduce rank, which addresses depth bias in the computation of the forward model.
-            </details>
-           </li>
            <!--BEAMFORMING.LEADFIELD.NORMALIZE--> 
            <li>
             <details>
@@ -848,14 +769,7 @@ Meaning: Email address to which to send pipeline’s progress updates contained 
                 <br>
                 Meaning: “Yes” or “no” to specify whether or not we want to keep the filer → which we do so that we can project all the data points through it to do the beamforming (default = "yes").
               </details>
-             </li>
-             <!--BEAMFORMING.OPTIONS.RAWTRIAL--> 
-            <li>
-              <details>
-                <summary>Rawtrial</summary>
-                Where: Fcp_4_beamforming just before we perform actual beamforming.
-              </details>
-            </li></ul>
+             </li></ul>
         </details>
        </li>
        <!--BEAMFORMING.METHOD--> 
@@ -912,13 +826,13 @@ Where: Fcp_5_taskconnectivity
       Meaning: Specifies the various frequency bands (e.g. [4,7] for theta, [8,12] for alpha, etc. Default = [ [4,7], [8,12], [13,29],[30,59], [60,100] ].
     </details>
   </li>
-  <!--CONNECTIVITY.COLLAPSEBAND-->
+  <!--CONNECTIVITY.FREQNAMES-->
   <li>
     <details>
-      <summary>Collapse_band</summary>
-      Where: Nowhere.
+      <summary>Freq_names</summary>
+      Where: Fcp_5_taskconnectivity
       <br>
-      Meaning: Specifies method of collapsing multiple reconstructed sources within a certain ROI to a representative timeseries for that ROI. Options are "mean" or "max" (default = "max").
+      Meaning: Specifies the names of the frequency bands in the other that they are listed in the previous field (e.g., for example given in the filt_freqs field above, this field would be theta, alpha, beta, lowgamma, highgamma).
     </details>
   </li></ul>
 </details>
