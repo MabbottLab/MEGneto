@@ -157,14 +157,14 @@ fcp_5_taskconnectivity(paths);
 % includes: make_NBS_ready, make_BNV_ready
 
 %% make_NBS_ready 
-% This function prepares a design matrix to serve as input to the Matlab
+% This function prepares a design matrix to serve as input to the
 % NBS toolbox. The design matrix columns are the participant groups
 % (e.g. "control", "surgery", etc.) and rows are participants. A "0" or
 % "1" indicates whether the participant belongs to the group/column ("1") 
 % or not ("0"). 
 
-% Don't forget to include a ParticipantCategories.xlsx file in your
-% config folder. Fill in the variables below which are input to the
+% Don't forget to include a [subAnalysis_name]_ParticipantCategories.xlsx 
+% file in your config folder. Fill in the variables below which are input to the
 % function.
 
 % Specify function inputs
@@ -174,8 +174,13 @@ conn = NaN; % name of connectivity metric as a character array (must match
 %            the metric outlined in the file name of the connectivity
 %            matrix .mat file). Can take on values including: 
 %            "plv, "pli", "wpli", "wpli_debiased", "coh"
+subAnalysis_name = NaN; % nickname for sub-analysis, e.g. 'TreatVsControl'
+                        % this gets prepended to design_matrix and NBS data
+                        % mat files. This should also match the name of
+                        % the corresponding *_ParticipantCategories.xlsx
 
-make_NBS_ready(paths, group_names, conn)
+make_NBS_ready(paths, group_names, conn, subAnalysis_name)
+
 %% make_BNV_ready
 % This fuction creates *.node and *.edge files for viewing connectivity 
 % results from PLS or NBS on BrainNet Viewer (BNV). 
