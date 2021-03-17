@@ -9,7 +9,7 @@
 
 ### **Error occurrence #1:** During fcp_1, a warning pops up that says “not enough markers found”.
 
-![](https://github.com/dunjamatic/MEGneto/blob/error_guide/images/not_enough_markers.PNG)
+![](https://github.com/MabbottLab/MEGneto/blob/master/images/not_enough_markers.PNG)
 
 Why did this occur?
 
@@ -26,7 +26,7 @@ Note: For more information on the JSON config file please navigate to the `Confi
 
 ### Error occurrence #2: Error in load config, parsing config, or recursive json struct.
 
-![](https://github.com/dunjamatic/MEGneto/blob/error_guide/images/JSON_population.PNG)
+![](https://github.com/MabbottLab/MEGneto/blob/master/images/JSON_population.PNG)
 
 Why did this occur?
 
@@ -47,7 +47,7 @@ Forgetting to populate the subject .CSV files
 
 ### Error occurrence : Error using load participants
 
-![](https://github.com/dunjamatic/MEGneto/blob/error_guide/images/CSV_population.PNG)
+![](https://github.com/MabbottLab/MEGneto/blob/master/images/CSV_population.PNG)
 
 Why did this occur?
 
@@ -70,7 +70,7 @@ excess of bad channels, bad trials, etc.).
 
 ### Error occurrence : Error using ds_pid_match which finds matching MEG and MRI data.
 
-![](https://github.com/dunjamatic/MEGneto/blob/error_guide/images/MEG-MRI_mismatch.PNG)
+![](https://github.com/MabbottLab/MEGneto/blob/master/images/MEG-MRI_mismatch.PNG)
 
 Why did this occur?
 
@@ -86,7 +86,7 @@ that do not have .mri data.
 
 ### Error occurrence: Error occurs in megne2setup’s path generation.
 
-![](https://github.com/dunjamatic/MEGneto/blob/error_guide/images/naming_convention.PNG)
+![](https://github.com/MabbottLab/MEGneto/blob/master/images/naming_convention.PNG)
 
 Why did this occur?
 
