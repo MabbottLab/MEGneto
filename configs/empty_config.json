@@ -51,9 +51,7 @@
             "isRest" : null,
             "trialdef" : {
                 "details" : {
-                    "name" : [""],
-                    "include" : [""],
-                    "countOnly" : null
+                    "include" : [""]
                 },
                 "parameters" : {
                     "t0shift" : null,
@@ -105,8 +103,7 @@
 		},
 		"options" : {
 			"keeptrials" : "",
-			"keepfilter" : "",
-			"rawtrial" : ""		
+			"keepfilter" : ""		
 		},
 		"method" : "",
 		"rep_timeseries" : ""
@@ -115,6 +112,7 @@
 		"include": null,
 		"method" : "",
 		"filt_freqs" : [[]],
+		"freq_names" : [],
 		"collapse_band" : ""
 	},
 	"freqanalysis": {

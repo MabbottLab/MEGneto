@@ -54,9 +54,7 @@
             "isRest" : 0,
             "trialdef" : {
                 "details" : {
-                    "name" : ["Correct"],
-                    "include" : ["Correct"],
-                    "countOnly" : false
+                    "include" : ["Correct"]
                 },
                 "parameters" : {
                     "t0shift" : 0.023,
@@ -108,8 +106,7 @@
 		},
 		"options" : {
 			"keeptrials" : "yes",
-			"keepfilter" : "yes",
-			"rawtrial" : "yes"		
+			"keepfilter" : "yes"		
 		},
 		"method" : "lcmv",
 		"rep_timeseries" : "mean"
