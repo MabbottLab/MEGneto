@@ -4,16 +4,16 @@ This functional connectivity pipeline (fcp) is built on MATLAB using the FieldTr
 
 - [System Requirements](#system-requirements)
 - [Installation Guide](#installation-guide)
+- [Common Terms](#common-terms)
 - [How to Use](#how-to-use)
-   1. [Common terms](#common-terms)
+   1. [Initial Setup](#initial-setup)
    2. [JSON Config Setup](#json-config-setup)
-   3. [Initial Setup](#initial-setup)
-   4. [Epoching](#epoching)
-   5. [Preprocessing](#preprocessing)
-   6. [ICA Checkpoint](#ica-checkpoint)
-   7. [Channel Repair](#channel-repair)
-   8. [Beamforming](#beamforming)
-   9. [Pipeline Endpoints](#pipeline-endpoints)
+   3. [Epoching](#epoching)
+   4. [Preprocessing](#preprocessing)
+   5. [ICA Checkpoint](#ica-checkpoint)
+   6. [Channel Repair](#channel-repair)
+   7. [Beamforming](#beamforming)
+   8. [Pipeline Endpoints](#pipeline-endpoints)
       * [Frequency Analysis](#frequency-analysis)
       * [Functional Connectivity](#functional-connectivity)
 - [Credits](#credits)
@@ -34,18 +34,7 @@ Note that, depending on available RAM on your system, the pipeline may crash dur
 
 Download the repo through the Github website or use git in the command line to clone it on your machine. 
 
-## How to Use
-
-A template "main" function is provided under `templates/main_template.m` which guides the user through the pipeline steps. You should begin by making a copy of this file and renaming it (e.g., main_motor_both if you're running a motor analysis). A unique main file should be created for each of your analyses, as it can serve as a record of what settings you used. 
-
-Note that the functions associated with pipeline steps laid out below are found in the top-level MEGneto folder. Any related functions listed below are found in subfolders of the repo (e.g., the `functions` folder). Anything under development is, accordingly, under `dev_functions`. 
-
-Also, please note the naming convention of your MRI files (which must have a .mri extension). These file names should not have more than one underscore or period (i.e., the only period should be the file's extension `.mri`). If there is an underscore, the typical naming convention is `PID_version.mri`. 
-
-Lastly, for an overview of MEGNETO's folder structure please refer to the image below.
-![](docs/filefolder_structure.jpg)
-
-### Common Terms
+## Common Terms
 
 | Term  | Meaning |
 | ------------- | ------------- |
@@ -58,6 +47,18 @@ Lastly, for an overview of MEGNETO's folder structure please refer to the image 
 | MRI  | Magnetic resonance imaging |
 | Struct   | In MATLAB, a [struct](https://www.mathworks.com/help/matlab/ref/struct.html) is a data type that stores multiple different data items in a single container. |
 | Time window analysis  | A data analysis approach that examines how power at certain frequencies change over consecutive time bins. See FieldTrip tutorial [here](https://www.fieldtriptoolbox.org/tutorial/timefrequencyanalysis/). |
+
+## How to Use
+
+A template "main" function is provided under `templates/main_template.m` which guides the user through the pipeline steps. You should begin by making a copy of this file and renaming it (e.g., main_motor_both if you're running a motor analysis). A unique main file should be created for each of your analyses, as it can serve as a record of what settings you used. 
+
+Note that the functions associated with pipeline steps laid out below are found in the top-level MEGneto folder. Any related functions listed below are found in subfolders of the repo (e.g., the `functions` folder). Anything under development is, accordingly, under `dev_functions`. 
+
+Also, please note the naming convention of your MRI files (which must have a .mri extension). These file names should not have more than one underscore or period (i.e., the only period should be the file's extension `.mri`). If there is an underscore, the typical naming convention is `PID_version.mri`. 
+
+Lastly, for an overview of MEGNETO's folder structure please refer to the image below.
+![](docs/filefolder_structure.jpg)
+
 
 ### Initial Setup
 
