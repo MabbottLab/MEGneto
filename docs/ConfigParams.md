@@ -882,15 +882,23 @@ Meaning: Email address to which to send pipeline’s progress updates contained 
 
 <details>
 <summary>Connectivity</summary>
-Where: Fcp_5_task_Connectivity.
-Meaning: Not assigned a specific value, rather it is the umbrella for the fields within it. 
+Where: Fcp_5_taskconnectivity
 <br><br>
 <ul>
+  <!--CONNECTIVITY.INCLUDE-->
+  <li>
+    <details>
+      <summary>Include</summary>
+      Where: Fcp_5_taskconnectivity
+      <br>
+      Meaning: Specifies whether functional connectivity results should be generated (i.e., if fcp_5_taskconnectivity should be done). Optins are 0 for no and 1 for yes.
+    </details>
+  </li>
   <!--CONNECTIVITY.METHOD-->
   <li>
     <details>
       <summary>Method</summary>
-      Where: Fcp_5_task_Connectivity.
+      Where: Fcp_5_taskconnectivity
       <br>
       Meaning: Specifies what metric to use for connectivity analysis (default = "wpli_debiased").
     </details>
@@ -899,7 +907,7 @@ Meaning: Not assigned a specific value, rather it is the umbrella for the fields
   <li>
     <details>
       <summary>Filt_freqs</summary>
-      Where: Fcp_5_task_Connectivity
+      Where: Fcp_5_taskconnectivity
       <br>
       Meaning: Specifies the various frequency bands (e.g. [4,7] for theta, [8,12] for alpha, etc. Default = [ [4,7], [8,12], [13,29],[30,59], [60,100] ].
     </details>
@@ -915,4 +923,68 @@ Meaning: Not assigned a specific value, rather it is the umbrella for the fields
   </li></ul>
 </details>
 
+ <!--FREQANALYSIS-->
+
+<details>
+<summary>Freq Analysis</summary>
+Where: Fcp_5_freqanalysis
+<br><br>
+<ul>
+  <!--FREQANALYSIS.INCLUDE-->
+  <li>
+    <details>
+      <summary>Include</summary>
+      Where: Fcp_5_freqanalysis
+      <br>
+      Meaning: Specifies whether time-frequency analysis should be done (i.e., if Fcp_5_freqanalysis should be done). Optins are 0 for no and 1 for yes.
+    </details>
+  </li>
+  <!--FREQANALYSIS.FOI-->
+  <li>
+    <details>
+      <summary>FOI (frequencies of interest)</summary>
+      Where: Fcp_5_freqanalysis
+      <br>
+      Meaning: Specifies the frequencies of interest (in Hz) in a vector 1 x number of frequencies. For examples, [2:2:100] would list frequencies from 2 to 100 in increments of 2.
+    </details>
+  </li>
+  <!--FREQANALYSIS.METHOD-->
+  <li>
+    <details>
+      <summary>Method</summary>
+      Where: Fcp_5_freqanalysis
+      <br>
+      Meaning: Specifies the method of computing the power spectrum. Options include (1) 'mtmfft', analyses an entire spectrum for the entire data length, implements multitaper frequency transformation. (2) 'mtmconvol', implements multitaper time-frequency transformation based on multiplication in the frequency domain. (3) 'wavelet', implements wavelet time frequency transformation (using Morlet wavelets) based on multiplication in the frequency domain. (4) 'tfr', implements wavelet time frequency transformation (using Morlet wavelets) based on convolution in the time domain. (5) 'mvar', does a fourier transform on the coefficients of an estimated multivariate autoregressive model, obtained with FT_MVARANALYSIS. In this case, the output will contain a spectral transfer matrix, the cross-spectral density matrix, and the covariance matrix of the innovatio noise. 
+    </details>
+  </li>
+  <!--FREQANALYSIS.TOI-->
+  <li>
+    <details>
+      <summary>TOI (time of interest)</summary>
+      Where: Fcp_5_freqanalysis
+      <br>
+      Meaning: Specifies the time of interest (the times on which the analysis windows should be centered (in seconds),) in a vector 1 x number of times of interest. For example [-1.5:0.05:1.5] would list all times between -1.5 and 1.5 seconds in increments of 0.05.
+    </details>
+  </li>
+  <!--FREQANALYSIS.BASELINE-->
+  <li>
+    <details>
+      <summary>Baseline</summary>
+      Where: Fcp_5_freqanalysis
+      <br>
+      Meaning: Specifies the baseline window for baseline correction in the form [begin end]. Default is [-1.5 -1].
+    </details>
+  </li>
+  <!--FREQANALYSIS.BASELINE_TYPE-->
+  <li>
+    <details>
+      <summary>Baseline type</summary>
+      Where: Fcp_5_freqanalysis
+      <br>
+      Meaning: Specifies the type of baseline (default = 'relative'). Options include 'absolute', 'relative', 'relchange', 'normchange', 'db', 'vssum' or 'zscore'.
+    </details>
+  </li></ul>
+</details>
+
  
+

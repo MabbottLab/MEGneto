@@ -112,10 +112,19 @@
 		"rep_timeseries" : ""
 	},
 	"connectivity" : {
+		"include": null,
 		"method" : "",
 		"filt_freqs" : [[]],
 		"freq_names" : [],
 		"collapse_band" : ""
+	},
+	"freqanalysis": {
+		"include": null,
+		"foi": [],
+		"method": "",
+		"toi": [],
+		"baseline": [],
+		"baseline_type": ""
 		}
 	}    
 }
