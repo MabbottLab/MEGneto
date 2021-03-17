@@ -1,25 +1,26 @@
-function [res, rand_diffs] = bootTestDiffSeeds(paths, seed_regions, freq_band, two_groups, num_bootstraps, thresh, group_names)
+function [res, rand_diffs] = bootTestDiffSeeds(paths, bootcfg)
 % This function performs permutation-based significance testing (via 
 % t-test for 2 groups or f-test for >2 groups using the max procedure) 
 % to build a null distribution and control for Type 1 error.
 
 % INPUTS-------------------------------------------------------------------
 % paths:           - variable containing paths to analysis and data
-% seed_regions:    - numeric indices indicating the seed ROIs (e.g. 
-%                    if the AAL atlas is used, the default input [1, 2, 3] 
-%                    corresponds to the following regions 
-%                    ['left precentral gyrus', 'right precentral gyrus', 
-%                     'left superior frontal gyrus, dorsolateral']. Note 
-%                    that for AAL atlas there are 90 regions, so indices 
-%                    should take on values between 1-90). 
-% freq_band:       - frequency band of interest
-% two_groups:      - true or false to indicate T-max analysis or F-max
-%                    analysis, respectively.
-% num_bootstraps:  - number of desired bootstraps.
-% thresh:          - significance threshold for the p-value.
-% group_names:      - array of strings, e.g., ["RAD", "SURG", "TDC"], 
-%                     exactly as they appear in the input for group_names 
-%                     in the make_NBS function.
+% bootcfg.
+    % seed_regions:    - numeric indices indicating the seed ROIs (e.g. 
+    %                    if the AAL atlas is used, the default input [1, 2, 3] 
+    %                    corresponds to the following regions 
+    %                    ['left precentral gyrus', 'right precentral gyrus', 
+    %                     'left superior frontal gyrus, dorsolateral']. Note 
+    %                    that for AAL atlas there are 90 regions, so indices 
+    %                    should take on values between 1-90). 
+    % freq_band:       - frequency band of interest
+    % num_bootstraps:  - number of desired bootstraps.
+    % thresh:          - significance threshold for the p-value.
+    % group_names:      - array of strings, e.g., ["RAD", "SURG", "TDC"], 
+    %                     exactly as they appear in the input for group_names 
+    %                     in the make_NBS_ready function.
+    % nickname:         - nickname of this subanalysis as set in
+    %                       make_NBS_ready
 %
 % OUTPUTS------------------------------------------------------------------
 % res:             - a struct containing the group differences for each
@@ -61,15 +62,14 @@ else
 end
 
 %% CREATE DESIGN MATRIX
-load([paths.anout '/NBS' freq_band '_Hz.mat']) % load data corresponding to freq band
-load([paths.anout '/design_matrix.mat']) % load design matrix
+load([paths.anout_grp '/' bootcfg.nickname '_datamat_' bootcfg.freq_band '.mat']) % load data corresponding to freq band
+load([paths.anout_grp '/' bootcfg.nickname '_design_matrix.mat']) % load design matrix
 
-if two_groups % if a T-max analysis is desired, use collapsed data
-    design_matrix = readmatrix([paths.conf_dir '/collapsed_ParticipantCategories.xlsx']);
+if size(design_matrix, 2) == 2 % if only two groups => it's a max T test
     rand_diffs = [];
-else % if a F-max analysis is desired, use output of make_NBS
+else % if a F-max analysis is desired, need to generate group name matrix
     for i = 1:length(design_matrix)
-        design_labels(logical(design_matrix(:,i))) = group_names(i);
+        design_labels(logical(design_matrix(:,i))) = bootcfg.group_names(i);
     end 
     design_labels = cellstr(design_labels);
     res = [];
@@ -77,21 +77,21 @@ end
 
 %% ANALYSIS
 % for each of the seed regions you requested
-for this_seed = seed_regions
+for this_seed = bootcfg.seed_regions
     fprintf("ROI: %s\n", atlas.tissuelabel{this_seed});
     seed_mat = squeeze(data_matrix(this_seed, :, :)); % slice the data matrix
 
-    if two_groups % if T-max analysis
+    if size(design_matrix,2) == 2 % if T-max analysis
         % using permutationTest from Github/MATLAB forum, modified for
         % MaxT procedure
         [p_pos, p_neg, obs_diffs, this_rand_diffs] = permutationTest(seed_mat(:,logical(design_matrix(:,2))), ...
                             seed_mat(:,logical(design_matrix(:,1))), ...
-                            num_bootstraps, 'plotresult', 0, 'showprogress', 0);
+                            bootcfg.num_bootstraps, 'plotresult', 0, 'showprogress', 0);
 
         % save output by label
         res.(char(atlas.tissuelabel{this_seed})) = table(p_pos', p_neg', obs_diffs', ...
                                                     'VariableNames', ["p_pos", "p_neg", "observed_diffs"], ...
-                                                    'RowNames', string(atlas.tissuelabel(setdiff(1:90,this_seed))));
+                                                    'RowNames', string(atlas.tissuelabel(setdiff(1:size(seed_mat,1),this_seed))));
         if any(p_pos < 0.05) || any(p_neg < .05)
             fprintf("\tSignificant connections:\n");
                 for i = [find(p_pos < .05) find(p_neg < .05)]
@@ -104,11 +104,11 @@ for this_seed = seed_regions
         rand_diffs = [rand_diffs; this_rand_diffs];
     else % if F-max analysis
         % end up with: (num_seeds) x (paired_region) x (frequency band) matrix
-        res = [res; arrayfun(@(x) anova1(seed_mat(x,:), design_labels, 'off'), 1:90)];
+        res = [res; arrayfun(@(x) anova1(seed_mat(x,:), design_labels, 'off'), 1:(size(seed_mat,1)))];
     end
 end
 
-if two_groups 
+if size(design_matrix,2) == 2 
     NOI_origins = fieldnames(res);
     NOI_connections = cellfun(@(x) ...
                             res.(x).Properties.RowNames(...
