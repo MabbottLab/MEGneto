@@ -1,8 +1,23 @@
 function [res, rand_diffs] = bootTestDiffSeeds(paths, seed_regions, freq_band, two_groups, num_bootstraps, thresh)
 
+config      = load_config(paths, paths.name);
+config      = config.config;
+
 fprintf("FREQ. BAND: %s\n", freq_band)
 
-atlas = importdata('/mnt/sda/juanita/fieldtrip/template/atlas/aal/ROI_MNI_V4.txt'); % get region labels
+if contains(config.beamforming.atlas.filepath, 'mmp') % if MMP glasser atlas
+    megneto_path        = fileparts(which('fcp_4_beamforming.m'));
+    atlas               = ft_read_atlas([megneto_path '/external/atlas/mmp.mat']);
+else
+    fullPath                = which('ft_preprocessing.m');
+    [pathstr,~,~]           = fileparts(fullPath);
+    atlas                   = ft_read_atlas([pathstr config.beamforming.atlas.filepath]);
+    if contains(config.beamforming.atlas.filepath, 'aal')
+        atlas.tissuelabel   = atlas.tissuelabel(1:90); % we only want non-cerebellar regions (isolate desired regions)
+        atlas.tissue(atlas.tissue > 90) = 0;
+    end
+end
+
 load([paths.anout '/NBS_treatmenttype/NBS' freq_band '_Hz.mat']) % load data corresponding to freq band
 load([paths.anout '/NBS_treatmenttype/design_matrix.mat']) % load design matrix
 
