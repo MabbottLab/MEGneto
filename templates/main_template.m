@@ -161,7 +161,9 @@ fcp_5_taskconnectivity(paths);
 % NBS toolbox. The design matrix columns are the participant groups
 % (e.g. "control", "surgery", etc.) and rows are participants. A "0" or
 % "1" indicates whether the participant belongs to the group/column ("1") 
-% or not ("0"). 
+% or not ("0"). This function also outputs a list of participant
+% (ordered_ppt_list.txt) in the analysis folder to inform the user of the
+% design matrix's rows (same order as ppt list prestented in the .txt file).
 
 % Don't forget to include a ParticipantCategories.xlsx file in your
 % config folder. An example of this excel sheet with dummy variables
@@ -202,13 +204,13 @@ make_BNV_ready(paths, brainnet)
 % t-test or f-test using the max procedure) to build a null distribution 
 % and control for Type 1 error.
 
-% Note:
-% I you wish to perform a T-max analsysis, tyou must include a .xlsx file
-% in the config directory that contains collapsed data from the design 
-% matrix (output of make NBS). This specifies the two groups that are to 
-% be compared in the T-max analysis. A sample file in found in the 
-% templates folder. You should name this file 
-% collapsed_ParticipantCategories.xlsx.
+% Note on T-max analysis extra input:
+% If you wish to perform a T-max analsysis, you must include a .xlsx file
+% with two group that will be compared in the T-max analysis for 
+% differences. You may use the make_NBS function to prepare this file
+% where your input to make_NBS (the ParticipantCategories.xlsx) should have
+% two groups you wish to include (e.g. "control" and "surg") and the
+% participant IDs that fall under each group. 
 
 % Specify function inputs
 seed_regions = [1, 2, 3];             % numeric indices indicating the seed 
