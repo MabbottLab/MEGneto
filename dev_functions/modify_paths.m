@@ -2,10 +2,10 @@
 % assuming that you are starting from fcp_4_beamforming
 
 % change project path locations
-new_project_path = '/home/jtseng/noor/analysis';
-paths_loc = '/home/jtseng/noor/analysis/motor_both/config/paths.json';
-paths = loadjson(old_paths_loc);
-fieldnames = fn(paths);
+new_project_path = '/home/jtseng/katie';
+paths_loc = '/home/jtseng/katie/analysis/SpeedofThinkingMEG/config/paths.json';
+paths = loadjson(paths_loc);
+fn = fieldnames(paths);
 to_replace = paths.(fn{1});
 
 for k = 1:numel(fn)
