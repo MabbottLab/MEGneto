@@ -70,7 +70,7 @@ excess of bad channels, bad trials, etc.).
 
 ### Error occurrence : Error using ds_pid_match which finds matching MEG and MRI data.
 
-![](images/https://github.com/dunjamatic/MEGneto/blob/error_guide/images/MEG-MRI_mismatch.PNG)
+![](https://github.com/dunjamatic/MEGneto/blob/error_guide/images/MEG-MRI_mismatch.PNG)
 
 Why did this occur?
 
