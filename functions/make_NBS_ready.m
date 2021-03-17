@@ -1,4 +1,4 @@
-function make_NBS_ready(paths, group_names, conn)
+function make_NBS_ready(paths, group_names, conn, freq)
 
 % To make data matrix and design matrix for NBS exercise 
 % modified from NBS_sam by Sonya - May 9, 2018
@@ -22,6 +22,10 @@ function make_NBS_ready(paths, group_names, conn)
 % the first entry of the 3rd dimension (the trials dimension) populated.
 % This is because WPLI and debiased WPLI must avg across trials for the
 % final connectivity estimate. 
+
+%% LOAD JSON CONFIG FILE
+config      = load_config(paths, paths.name);
+config      = config.config;
 
 %% SETUP PARTICIPANT LISTS
 
@@ -53,7 +57,7 @@ end
 
 %% Save matrix by frequency band 
 
-freq ={'theta','alpha','beta','Lgamma','Hgamma'};
+freq = config.connectivity.freq_names;
 nbs_datamat = permute(nbs_datamat, [1 2 4 3]);
 num_freqs = size(nbs_datamat,4); % just in case not every freq is there
 

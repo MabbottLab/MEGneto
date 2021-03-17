@@ -163,9 +163,18 @@ fcp_5_taskconnectivity(paths);
 % "1" indicates whether the participant belongs to the group/column ("1") 
 % or not ("0"). 
 
+<<<<<<< HEAD
 % Don't forget to include a [subAnalysis_name]_ParticipantCategories.xlsx 
 % file in your config folder. Fill in the variables below which are input to the
 % function.
+=======
+% Don't forget to include a ParticipantCategories.xlsx file in your
+% config folder. An example of this excel sheet with dummy variables
+% is available in the templates folder (note that the column names of this
+% file, in order, represent radiation, sugery, and typical development 
+% controls).
+% Fill in the variables below which are the inputs to the function.
+>>>>>>> 55e563274ddc6740a75a4275918e750857a384ea
 
 % Specify function inputs
 group_names = NaN; % array of strings, e.g., ["surg", "rad", "control"], 
@@ -174,6 +183,7 @@ conn = NaN; % name of connectivity metric as a character array (must match
 %            the metric outlined in the file name of the connectivity
 %            matrix .mat file). Can take on values including: 
 %            "plv, "pli", "wpli", "wpli_debiased", "coh"
+<<<<<<< HEAD
 subAnalysis_name = NaN; % nickname for sub-analysis, e.g. 'TreatVsControl'
                         % this gets prepended to design_matrix and NBS data
                         % mat files. This should also match the name of
@@ -181,6 +191,11 @@ subAnalysis_name = NaN; % nickname for sub-analysis, e.g. 'TreatVsControl'
 
 make_NBS_ready(paths, group_names, conn, subAnalysis_name)
 
+=======
+freq = {};
+
+make_NBS_ready(paths, group_names, conn, freq)
+>>>>>>> 55e563274ddc6740a75a4275918e750857a384ea
 %% make_BNV_ready
 % This fuction creates *.node and *.edge files for viewing connectivity 
 % results from PLS or NBS on BrainNet Viewer (BNV). 

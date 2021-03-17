@@ -29,7 +29,6 @@ function fcp_5_taskconnectivity(paths, ROIs)
 %   This file is part of MEGneto, see https://github.com/SonyaBells/MEGneto
 %   for the documentation and details.
 %
-
 %% SET UP LOGGING FILE
 
 right_now = clock;
@@ -46,6 +45,11 @@ fprintf('\n\n%02.f:%02.f:%02.f       Now running **%s**.\n', ...
 config      = load_config(paths, paths.name);
 config      = config.config;
 step        = 'fcp5';
+
+% check is user indicated that connectivity results should be generated
+if ~config.connectivity.include
+    error('Your input to the JSON config file indicates you do not wish to run fcp_5_taskconnectivity. If you wish to run this function, please change the config.connectivity.include field to 1.')
+end
 
 % check for matched MRI and MEG data
 subj_match  = ds_pid_match(paths,step);
@@ -94,7 +98,7 @@ fprintf('Max filter length: %d samples = %.4f sec.\n', maxn, maxn/srate);
 %% RUN CONNECTIVITY ANALYSIS
 
 % setup band names and master connectivity matrix
-band_names = ["theta", "alpha", "beta", "lowgamma", "highgamma"];
+band_names = config.connectivity.freq_names;
 
 % get number of ROIs or supra-ROIs
 if exist('ROIs', 'var')
@@ -144,7 +148,7 @@ all_conn_mat = nan(num_sources, num_sources, ... % num_nodes x num_nodes x ...
 %%% RUN CONNECTIVITY ANALYSIS ---------------------------------------------
     %%% FOR EACH FREQUENCY BAND
         for fq = 1:length(config.connectivity.filt_freqs) 
-          fprintf('Analyzing the %s band!\n', band_names(fq)); 
+          fprintf('Analyzing the %s band!\n', band_names{fq}); 
           
           %%% FOR EACH TRIAL
           for tt = 1:num_trials
