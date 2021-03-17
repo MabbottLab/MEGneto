@@ -161,41 +161,33 @@ fcp_5_taskconnectivity(paths);
 % NBS toolbox. The design matrix columns are the participant groups
 % (e.g. "control", "surgery", etc.) and rows are participants. A "0" or
 % "1" indicates whether the participant belongs to the group/column ("1") 
-% or not ("0"). 
+% or not ("0"). This function also outputs a list of participant
+% (ordered_ppt_list.txt) in the analysis folder to inform the user of the
+% design matrix's rows (same order as ppt list prestented in the .txt file).
+% IMPORTANT: the by-frequency output files also have re-arranged
+% participants that match the order of ordered_ppt_list.txt.
 
-<<<<<<< HEAD
-% Don't forget to include a [subAnalysis_name]_ParticipantCategories.xlsx 
-% file in your config folder. Fill in the variables below which are input to the
-% function.
-=======
 % Don't forget to include a ParticipantCategories.xlsx file in your
 % config folder. An example of this excel sheet with dummy variables
 % is available in the templates folder (note that the column names of this
 % file, in order, represent radiation, sugery, and typical development 
 % controls).
 % Fill in the variables below which are the inputs to the function.
->>>>>>> 55e563274ddc6740a75a4275918e750857a384ea
 
 % Specify function inputs
 group_names = NaN; % array of strings, e.g., ["surg", "rad", "control"], 
-%                   exactly as they appear in folder names 
+                    % exactly as it appears in the participant categories
+                    % sheet
 conn = NaN; % name of connectivity metric as a character array (must match 
 %            the metric outlined in the file name of the connectivity
 %            matrix .mat file). Can take on values including: 
 %            "plv, "pli", "wpli", "wpli_debiased", "coh"
-<<<<<<< HEAD
 subAnalysis_name = NaN; % nickname for sub-analysis, e.g. 'TreatVsControl'
                         % this gets prepended to design_matrix and NBS data
                         % mat files. This should also match the name of
                         % the corresponding *_ParticipantCategories.xlsx
 
 make_NBS_ready(paths, group_names, conn, subAnalysis_name)
-
-=======
-freq = {};
-
-make_NBS_ready(paths, group_names, conn, freq)
->>>>>>> 55e563274ddc6740a75a4275918e750857a384ea
 %% make_BNV_ready
 % This fuction creates *.node and *.edge files for viewing connectivity 
 % results from PLS or NBS on BrainNet Viewer (BNV). 
@@ -218,24 +210,45 @@ make_BNV_ready(paths, brainnet)
 % t-test or f-test using the max procedure) to build a null distribution 
 % and control for Type 1 error.
 
-% Specify function inputs
-seed_regions = [1, 2, 3]; % numeric indices indicating the seed ROIs (e.g. 
-%                           if the AAL atlas is used, the default input 
-%                           [1, 2, 3] corresponds to the following regions 
-%                           ['left precentral gyrus', 'right precentral 
-%                           gyrus', 'left superior frontal gyrus,
-%                           dorsolateral']. Note that for AAL atlas there 
-%                           are 90 regions, so indices should take on 
-%                           values between 1-90). 
-freq_band = 'gamma'; % frequency band of interst (e.g. 'alpha', 'beta', 
-%                      'gamma', 'theta')
-two_groups = false; % true or false to indicate if the function does a Tmax 
-                    % or Fmax analysis. Default is 'false'. 
-num_bootstraps = 1000; % number of desired bootstrap tests.Default is 1000.
-thresh = 0.05; % significance threshold for the p-value. Default is 0.05, 
-%                can be altered to desired threshold by the user.
+% Note on T-max analysis extra input:
+% If you wish to perform a T-max analsysis, you must include a .xlsx file
+% with two group that will be compared in the T-max analysis for 
+% differences. You may use the make_NBS function to prepare this file
+% where your input to make_NBS (the ParticipantCategories.xlsx) should have
+% two groups you wish to include (e.g. "control" and "surg") and the
+% participant IDs that fall under each group. 
 
-bootTestDiffSeeds(paths, seed_regions, freq_band, two_groups, num_bootstraps, thresh)
+% Specify function inputs
+seed_regions = [1, 2, 3];             % numeric indices indicating the seed 
+%                                       ROIs (e.g. if the AAL atlas is used, 
+%                                       the default input [1, 2, 3] 
+%                                       corresponds to the following regions 
+%                                       ['left precentral gyrus', 'right 
+%                                       precentral gyrus', 'left superior 
+%                                       frontal gyrus, dorsolateral']. Note 
+%                                       that for AAL atlas there are 90 
+%                                       regions, so indices should take on 
+%                                       values between 1-90). 
+freq_band = 'gamma';                  % frequency band of interst 
+%                                       (e.g. 'alpha', 'beta', 'gamma', 
+%                                       'theta')
+two_groups = false;                   % true or false to indicate if the 
+%                                       function does a Tmax (enter true) 
+%                                       or Fmax analysis (enter false). 
+%                                       Default is 'false'. 
+num_bootstraps = 1000;                % number of desired bootstrap tests. 
+%                                       Default is 1000.
+thresh = 0.05;                        % significance threshold for the 
+%                                       p-value. Default is 0.05, can be 
+%                                       altered to desired threshold 
+%                                       by the user.
+group_names = ["rad", "surg", "tdc"]; % array of strings, e.g., 
+%                                       ["RAD", "SURG", "TDC"], 
+%                                       exactly as they appear in the input
+%                                       for group_names in the make_NBS
+%                                       function.
+
+bootTestDiffSeeds(paths, seed_regions, freq_band, two_groups, num_bootstraps, thresh, group_names)
 
 %% Summary functions
 % includes: inspecting_results, getTrialSummary,
@@ -266,9 +279,9 @@ inspecting_results(paths, name, type)
 
 % Specify function inputs
 num_markers = NaN; % number of events expected 
-                 % (total number of times stimulus is presented)
-thresh = 25; % percentage indicating what percentage of trials removed 
-             % is unacceptable. Here, 25 is the lab's convention.
+                   % (total number of times stimulus is presented)
+thresh = 25;       % percentage indicating what percentage of trials removed 
+                   % is unacceptable. Here, 25 is the lab's convention.
 
 getTrialSummary(paths, num_markers, thresh)
 
