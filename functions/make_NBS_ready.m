@@ -1,4 +1,4 @@
-function make_NBS_ready(paths, group_names, conn)
+function make_NBS_ready(paths, group_names, conn, freq)
 
 % To make data matrix and design matrix for NBS exercise 
 % modified from NBS_sam by Sonya - May 9, 2018
