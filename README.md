@@ -39,11 +39,11 @@ addpath('/path/to/FieldTrip') % note the lack of genpath here
 ft_defaults; % allow fieldtrip to run setup
 ```
 
-Note that the functions associated with the steps laid out below are found in the top-level MEGneto folder. Any related functions listed below are found in subfolders of the repo (e.g., the `functions` folder). Anything under development is, accordingly, under `dev_functions`. 
-
-Also, please note the naming convention of your MRI files (which must have a .mri extension). These file names should not have more than one underscore or period (i.e., the only period should be the file's extension `.mri`). If there is an underscore, the typical naming convention is `PID_version.mri`. 
-
-Lastly, for an overview of MEGNETO's folder structure please refer to the image below.
+A few important notes to remember before running the pipeline are:
+1. The functions associated with the steps laid out below are found in the top-level MEGneto folder. Any related functions listed below are found in subfolders of the repo (e.g., the `functions` folder). Anything under development is, accordingly, under `dev_functions`. 
+2. The naming convention of your MRI files (which must have a .mri extension). These file names should not have more than one underscore or period (i.e., the only period should be the file's extension `.mri`). If there is an underscore, the typical naming convention is `PID_version.mri`. 
+3. The pipeline can only process one task at a time. If multiple tasks are fed in, there will be one set of .ds files for participants for task 1 and one for task 2, meaning there will be multiple .ds files for one participant. The pipeline is not equipped to handle this. If you have multiple tasks you wish to analyze, please do one at a time.
+4. For an overview of MEGNETO's folder structure please refer to the image below.
 ![](docs/filefolder_structure.jpg)
 
 ### Common Terms
