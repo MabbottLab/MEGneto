@@ -64,9 +64,7 @@ prompt{5}     = {'Enter the name of the function used to parse data into trials'
                  'Enter file',... 
                  'Enter within_file_path'}; 
 prompt{6}     = {'Enter 0 (no) or 1 (yes) to specify if there is rest data', ...
-                 'Enter the name of marker to epoch around',...
                  'Enter marker to gain reaction time information on', ... % need clarity
-                 'Enter  true or false to specify whether you only want information on the number of trials'...
                  'Specify delay time to correct for',... % need clarity
                  'Enter epoching period',...
                  'Specify markers that distinguish a correct trial',...
@@ -91,21 +89,22 @@ prompt{8}     = {'Specify the number of slices if the plotting field method is "
                  'Enter the vartrllength',... % need clarity
                  'Enter yes or no to specify if data should be projected to dominant eigenvector'};
 prompt{9}     = {'Enter yes or no to specify if trials should be separated',...
-                 'Enter yes or no if the filter should be kept for projection'...
-                 'Enter yes or no to construct a filter from single trials and apply it to single trials',...
+                 'Enter yes or no if the filter should be kept for projection',...
                  'Enter beamforming method',...
                  'Enter method of generating a representative timeseries'};
 prompt{10}    = {'Do you wish to generate functional connectivity results (0 for no, 1 for yes)',...
                  'Enter the metric for connectivity analysis',...
                  'Specify the frequency bands',...
                  'Specify the frequency band  names, in order of the previous field',...
-                 'Specify the method of generating a representative timeseries for each ROI'};
+                 'Specify the method of generating a representative timeseries for each ROI',...
+                 'Specify ROIs you wish to collapse into supra-ROIs'};
 prompt{11}    = {'Do you wish to perform time frequency analysis (0 for no, 1 for yes)',...
                  'Specify the frequencies of interest',...
                  'Specify the method of calculating the spectra',...
                  'Specify the length of the time window'...
                  'Specify baseline time window as [begin end]',...
-                 'Specify the baseline type (absolute, relative, relchange, normchange, db, vssum, zscore)'};
+                 'Specify the baseline type (absolute, relative, relchange, normchange, db, vssum, zscore)',...
+                 'Specify ROIs you wish to collapse into supra-ROIs'};
              
 % default inputs for the dialog boxes
 definput{1}   = {'firstname.lastname@sickkids.ca', '30', '10'};
@@ -115,16 +114,18 @@ definput{3}   = {'0.1', '0.1', '35', '1', '1', '1'};
 definput{4}   = {'MEG,MEGREF,REFGRAD,REFMAG','yes', '[60,120]', 'yes',...
                  '[1,150]', '5', '300', 'CTF151.lay'};
 definput{5}   = {'@searchTaskTrialFun', 'anonymous', '', '__base_function'};
-definput{6}   = {'0', 'Correct', 'Correct', 'false', '0.023',...
+definput{6}   = {'0', 'Correct', '0.023',...
                  '[-2.0, 2.0]', 'LeftCorrect,RightCorrect',...
                  'OfflineLightOn'};
 definput{7}   = {'singleshell', 'cm', '1', 'yes', '-0.8', 'spm',...
                  '/template/atlas/aal/ROI_MNI_V4.nii', 'mni', 'slice', '2'};
 definput{8}   = {'20', 'yes', 'yes', 'cm', 'no', 'yes', 'all', '2', 'yes'};
-definput{9}   = {'yes', 'yes', 'yes', 'lcmv', 'mean'};
-
-definput{10}  = {'0', 'wpli_debiased', '[4,7;8,12;13,29;30,59;60,100]', 'max'};
-definput{11}  = {'0', '[2:2:100]', 'mtmconvol','-1.5:0.05:1.5', '[-1.5 -1]', 'relative'};
+definput{9}   = {'yes', 'yes', 'lcmv', 'mean'};
+definput{10}  = {'0', 'wpli_debiased', '[4,7;8,12;13,29;30,59;60,100]',...
+                 'theta,alpha,beta,lowgamma,highgamma', 'max',...
+                 '[1,2,3];[4];[5,6]'};
+definput{11}  = {'0', '[2:2:100]', 'mtmconvol','-1.5:0.05:1.5',...
+                 '[-1.5 -1]', 'relative', '[1,2,3];[4];[5,6]'};             
 
 % titles of dialog boxes
 dlg_title{1}  = 'Part 1 of 11: config.contact and config.epoching';
@@ -184,13 +185,11 @@ for cfg_part = 1:11
             decode.config.taskFunc.within_file_path = answers{4};
         case 6
             decode.config.task.isRest = str2double(answers{1});
-            decode.config.task.trialdef.details.name = {answers{2}};
-            decode.config.task.trialdef.details.include = {answers{3}};
-            decode.config.task.trialdef.details.countOnly = strcmp(answers{4}, 'true');
-            decode.config.task.trialdef.parameters.t0shift = str2double(answers{5});
-            decode.config.task.trialdef.parameters.tEpoch = str2num(answers{6});
-            decode.config.task.trialdef.markers.Correct = split(answers{7}, ',');
-            decode.config.task.trialdef.markers.t0marker = answers{8};
+            decode.config.task.trialdef.details.include = {answers{2}};
+            decode.config.task.trialdef.parameters.t0shift = str2double(answers{3});
+            decode.config.task.trialdef.parameters.tEpoch = str2num(answers{4});
+            decode.config.task.trialdef.markers.Correct = split(answers{5}, ',');
+            decode.config.task.trialdef.markers.t0marker = answers{6};
         case 7
             decode.config.beamforming.headmodel.method = answers{1};
             decode.config.beamforming.headmodel.units = answers{2};
@@ -215,14 +214,18 @@ for cfg_part = 1:11
         case 9
             decode.config.beamforming.options.keeptrials = answers{1};
             decode.config.beamforming.options.keepfilter = answers{2};
-            decode.config.beamforming.options.rawtrial = answers{3};
-            decode.config.beamforming.method = answers{4};
-            decode.config.beamforming.rep_timeseries = answers{5};
+            decode.config.beamforming.method = answers{3};
+            decode.config.beamforming.rep_timeseries = answers{4};
         case 10
             decode.config.connectivity.include = str2num(answers{1});
             decode.config.connectivity.method = answers{2};
             decode.config.connectivity.filt_freqs = str2num(answers{3});
-            decode.config.connectivity.collapse_band = answers{4};
+            decode.config.connectivity.freq_names = split(answers{4}, ',');
+            decode.config.connectivity.collapse_band = answers{5};   
+            decode.config.connectivity.ROIs = split(answers{6}, ';');
+            for i = 1:length(decode.config.connectivity.ROIs)
+                decode.config.connectivity.ROIs{i} = str2num(decode.config.connectivity.ROIs{i});
+            end
         case 11
             decode.config.freqanalysis.include = str2num(answers{1});
             decode.config.freqanalysis.foi = str2num(answers{2});
@@ -230,6 +233,10 @@ for cfg_part = 1:11
             decode.config.freqanalysis.toi = str2num(answers{4});
             decode.config.freqanalysis.baseline = str2num(answers{5});
             decode.config.freqanalysis.baseline_type = answers{6};
+            decode.config.freqanalysis.ROIs = split(answers{7}, ';');
+            for i = 1:length(decode.config.freqanalysis.ROIs)
+                decode.config.freqanalysis.ROIs{i} = str2num(decode.config.freqanalysis.ROIs{i});
+            end   
     end 
             
 end

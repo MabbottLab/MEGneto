@@ -1,4 +1,4 @@
-function fcp_5_taskconnectivity(paths, ROIs)
+function fcp_5_taskconnectivity(paths)
 
 % FCP_5_TASKCONNECTIVITY estimates functional connectivity (i.e., analyzes 
 % the synchrony of signals from two regions). 
@@ -101,7 +101,8 @@ fprintf('Max filter length: %d samples = %.4f sec.\n', maxn, maxn/srate);
 band_names = config.connectivity.freq_names;
 
 % get number of ROIs or supra-ROIs
-if exist('ROIs', 'var')
+ROIs = config.connectivity.ROIs;
+if ~isempty(ROIs)
     num_sources = length(ROIs); % if collapsed
 else
     num_sources = size(catmatrix, 3); % if not
@@ -131,7 +132,7 @@ all_conn_mat = nan(num_sources, num_sources, ... % num_nodes x num_nodes x ...
         num_trials  = size(catmatrix, 2);
         
         % collapse across ROIs if indicated
-        if exist('ROIs', 'var')
+        if ~isempty(ROIs)
             catmatrix_collapsed = cellfun(@(x) nanmean(catmatrix(:,:,x), 3), ROIs, 'UniformOutput', false);
             catmatrix = cat(3, catmatrix_collapsed{:}); clear catmatrix_collapsed;
         end

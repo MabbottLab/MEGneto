@@ -285,7 +285,7 @@ for ss = rangeOFsubj % for each participant that has matched MEG/MRI data
     cfg.headmodel        = hdm;
     cfg.method           = config.beamforming.method;
     cfg.keeptrials       = 'yes';
-    cfg.rawtrial         = config.beamforming.options.rawtrial;       
+    cfg.rawtrial         = 'yes';       
     source_t_trials      = ft_sourceanalysis(cfg, tlock); % perform beamforming
         
     %%% project virtual sources to strongest (dominant) orientation
