@@ -167,11 +167,12 @@ fcp_5_taskconnectivity(paths);
 % IMPORTANT: the by-frequency output files also have re-arranged
 % participants that match the order of ordered_ppt_list.txt.
 
-% Don't forget to include a ParticipantCategories.xlsx file in your
-% config folder. An example of this excel sheet with dummy variables
+% Don't forget to include a nickname_ParticipantCategories.xlsx file 
+% (where nickname corresponds to the subAnalysis_name variable below) in 
+% your config folder. An example of this excel sheet with dummy variables
 % is available in the templates folder (note that the column names of this
 % file, in order, represent radiation, sugery, and typical development 
-% controls).
+% controls). 
 % Fill in the variables below which are the inputs to the function.
 
 % Specify function inputs
@@ -182,6 +183,7 @@ conn = NaN; % name of connectivity metric as a character array (must match
 %            the metric outlined in the file name of the connectivity
 %            matrix .mat file). Can take on values including: 
 %            "plv, "pli", "wpli", "wpli_debiased", "coh"
+
 subAnalysis_name = NaN; % nickname for sub-analysis, e.g. 'TreatVsControl'
                         % this gets prepended to design_matrix and NBS data
                         % mat files. This should also match the name of
@@ -212,7 +214,7 @@ make_BNV_ready(paths, brainnet)
 
 % Note on T-max analysis extra input:
 % If you wish to perform a T-max analsysis, you must include a .xlsx file
-% with two group that will be compared in the T-max analysis for 
+% with two groups that will be compared in the T-max analysis for 
 % differences. You may use the make_NBS function to prepare this file
 % where your input to make_NBS (the ParticipantCategories.xlsx) should have
 % two groups you wish to include (e.g. "control" and "surg") and the

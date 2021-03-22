@@ -36,7 +36,8 @@ config      = config.config;
 %% SETUP PARTICIPANT LISTS
 
 numGroups = length(group_names); % get number of groups
-spath = paths.anout_grp; % path to analysis folder
+spath = paths.anout; % path to analysis folder
+spath_grp = paths.anout_grp;
 
 % load info on which participants belong to which groups
 groups = readtable([paths.conf_dir '/' nickname '_ParticipantCategories.xlsx']);
@@ -57,7 +58,7 @@ for i = 1:length(ppt_list)
 end
 
 % save ordered participant list
-orderedpptlist_output = [spath,'/' nickname '_orderedpptlist.txt'];
+orderedpptlist_output = [spath_grp,'/' nickname '_orderedpptlist.txt'];
 dlmwrite(orderedpptlist_output, ordered_ppt_list, '');
 fprintf(['\nParticipant list saved to: ',orderedpptlist_output,'\n\n']);
 
@@ -81,7 +82,7 @@ num_freqs = size(nbs_datamat,4); % just in case not every freq is there
 
 for ff = 1:num_freqs % range freq save
     data_matrix = nbs_datamat(:,:,:,ff);
-    datamat_output = [spath,'/' nickname 'datamatrix_' freq{ff} '.mat'];
+    datamat_output = [spath_grp,'/' nickname '_datamatrix_' freq{ff} '.mat'];
     save(datamat_output,'data_matrix','-mat');
     fprintf(['NBS Data Matrix saved to: ',datamat_output,'\n']);
 end
@@ -96,7 +97,7 @@ for gg = 1:numGroups
 end
 
 % save 
-designmat_output = [spath,'/' nickname '_designmatrix.mat'];
+designmat_output = [spath_grp,'/' nickname '_designmatrix.mat'];
 save(designmat_output,'design_matrix','-mat');
 fprintf(['\nDesign Matrix saved to: ',designmat_output,'\n\n']);
 
