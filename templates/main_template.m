@@ -68,30 +68,37 @@ paths = megne2setup(project_path, analysis_name, rawdata_path, mri_path, overwri
 
 interactive_JSON_config(paths, megneto_path) % run the interactive config function
 
+%% subj_fcp1.csv population
+
+% The following lines are used to auto-populate subj_fcp1.csv with
+% participants who have .ds files. Should you wish to exclude certain
+% participants for step 1 of the pipeline (fcp1), you can open the 
+% subj_fcp1.csv file post auto-population and erase those participants.
+
+MEG_ds = struct2table(dir(paths.rawdata)); % finds all MEG filenames
+fid = fopen(paths.subj_fcp1, 'w'); % open subj_fcp1.csv
+MEG_ds = MEG_ds.name(3:(height(MEG_ds))).'; % isolate only PIDs
+fprintf(fid, '%s\n', MEG_ds{:}); % write each PID to file
+fclose(fid); % close the file
+
 %% fcp_1: task epoching, jump/muscle artifact detection, bad channel detection
 % This step will epoch MEG data into trials based on desired markers,
 % detect and reject trials with excessive head motion and muscle/jump
 % artifacts, and detect and record (not reject) bad channels.
 
-% uncomment the following lines if you'd like to auto-populate subj_fcp1.csv
-% MEG_ds = struct2table(dir(paths.rawdata)); % finds all MEG filenames
-% fid = fopen(paths.subj_fcp1, 'w'); % open subj_fcp1.csv
-% MEG_ds = MEG_ds.name(3:(height(MEG_ds))).'; % isolate only PIDs
-% fprintf(fid, '%s\n', MEG_ds{:}); % write each PID to file
-% fclose(fid); % close the file
-
 fcp_1_TaskEpoching(paths) % run first step of the MEG pipeline
 
-% after fcp_1, check output for: not enough trials, excessive head motion, too many bad channels
+% after fcp_1, check output for: not enough trials, excessive head motion, 
+% and/or too many bad channels
 
 %% fcp_2: ICA for artifact identification
 % This step downsamples and filters/denoises MEG data, then carries out  
 % ICA (if indicated in the config JSON file). 
 
-% remember to fill in participant IDs in the subj_fcp2.csv! If you would
-% like to auto-populate subj_fcp2.csv (i.e. include all participants), copy
-% the commented lines of code from fcp_1 and chaged "path.subj_fcp1" to
-% "paths.subj_fcp2"
+% Remember to fill in participant IDs in the subj_fcp2.csv! Please navigate
+% to subj_fcp1.csv, copy the list of participants, paste them in 
+% subj_fcp2.csv and remove any participants you don't wish to include for 
+% fcp2 and subsequent steps.
 
 fcp_2_PreprocessingICA(paths)
 
@@ -100,10 +107,10 @@ fcp_2_PreprocessingICA(paths)
 % fcp_2,and identify the ones that contain artifacts. After each 
 % inspection, the user enters which components contain artifacts 
 
-% remember to fill in participant IDs in the subj_fcp2.csv! If you would
-% like to auto-populate subj_fcp2.csv (i.e. include all participants), copy
-% the commented lines of code from fcp_1 and chaged "path.subj_fcp1" to
-% "paths.subj_fcp2_5"
+% Remember to fill in participant IDs in the subj_fcp2_5.csv! Please 
+% navigate to subj_fcp2.csv, copy the list of participants, paste them in 
+% subj_fcp2_5.csv and remove any participants you don't wish to include for 
+% fcp2_5 and subsequent steps.
 
 fcp_2_5_checkpoint(paths)
 
@@ -112,10 +119,10 @@ fcp_2_5_checkpoint(paths)
 %% fcp_3: bad channel repair
 % This step repairs the bad channels that were detected in fcp_1 
 
-% remember to fill in participant IDs in the subj_fcp3.csv!If you would
-% like to auto-populate subj_fcp2.csv (i.e. include all participants), copy
-% the commented lines of code from fcp_1 and chaged "path.subj_fcp1" to
-% "paths.subj_fcp3"
+% Remember to fill in participant IDs in the subj_fcp3.csv! Please navigate
+% to subj_fcp2_5.csv, copy the list of participants, paste them in 
+% subj_fcp3.csv and remove any participants you don't wish to include for 
+% fcp3 and subsequent steps.
 
 fcp_3_ChannelRepair(paths)
 
@@ -124,10 +131,10 @@ fcp_3_ChannelRepair(paths)
 % JSON config file by the user) on the MEG data using anatomical
 % MRI data. 
 
-% remember to fill in participant IDs in the subj_fcp4.csv!If you would
-% like to auto-populate subj_fcp2.csv (i.e. include all participants), copy
-% the commented lines of code from fcp_1 and chaged "path.subj_fcp1" to
-% "paths.subj_fcp4"
+% Remember to fill in participant IDs in the subj_fcp4.csv! Please navigate
+% to subj_fcp3.csv, copy the list of participants, paste them in 
+% subj_fcp4.csv and remove any participants you don't wish to include for 
+% fcp4 and subsequent steps.
 
 fcp_4_beamforming(paths)
 
@@ -135,10 +142,10 @@ fcp_4_beamforming(paths)
 % This step performs frequency analysis to generate power spectrum data
 % which can be used to test hypotheses based on spectral power.
 
-% remember to fill in participant IDs in the subj_fcp5.csv!If you would
-% like to auto-populate subj_fcp2.csv (i.e. include all participants), copy
-% the commented lines of code from fcp_1 and chaged "path.subj_fcp1" to
-% "paths.subj_fcp5"
+% Remember to fill in participant IDs in the subj_fcp5.csv! Please navigate
+% to subj_fcp4.csv, copy the list of participants, paste them in 
+% subj_fcp5.csv and remove any participants you don't wish to include for 
+% fcp5 and subsequent steps.
 
 fcp_5_freqanalysis(paths);
 
