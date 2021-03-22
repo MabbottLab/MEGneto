@@ -62,8 +62,8 @@ else
 end
 
 %% CREATE DESIGN MATRIX
-load([paths.anout_grp '/' bootcfg.nickname '_datamat_' bootcfg.freq_band '.mat']) % load data corresponding to freq band
-load([paths.anout_grp '/' bootcfg.nickname '_design_matrix.mat']) % load design matrix
+load([paths.anout_grp '/' bootcfg.nickname '_datamatrix_' bootcfg.freq_band '.mat']) % load data corresponding to freq band
+load([paths.anout_grp '/' bootcfg.nickname '_designmatrix.mat']) % load design matrix
 
 if size(design_matrix, 2) == 2 % if only two groups => it's a max T test
     rand_diffs = [];
