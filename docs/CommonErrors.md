@@ -1,9 +1,10 @@
 # A guide on commonly encountered errors and how to tackle them
 
 - [Improper JSON config file set up](#improper-setup)
-- [Forgetting to populate the subject .CSV files](#populate-csv)
+- [Subject .CSV file population](#populate-csv)
 - [Subjects missing matching MRI and MEG data](#mismatch)
 - [Incorrect file extension for MRI data (mri data is not .mri extension](#mri-filetype)
+- [Incorrect interactive JSON config file population](#interactive-config)
 
 ## Improper JSON config file set up
 
@@ -43,9 +44,9 @@ ConfigParams.md file for a description of each field.
 Forgetting to populate the subject .CSV files
 
 
-## Forgetting to populate the subject .CSV files
+## Subject .CSV file population
 
-### Error occurrence : Error using load participants
+### Error occurrence #1: Error using load participants
 
 ![](https://github.com/MabbottLab/MEGneto/blob/master/images/CSV_population.PNG)
 
@@ -65,6 +66,26 @@ subsequent steps, copy the code above the call to fcp1 and change the `subj_fcp1
     a. Note that auto population is fine to do for every step, however the user must
 ensure they manually delete any participants they wish to exclude (due to an
 excess of bad channels, bad trials, etc.).
+
+### Error occurrence #2: Using auto-population beyond fcp1
+
+Why did this occur?
+
+Prior to fcp1, it is common for the user to user the pipeline's code to auto-populate the subj_fcp1.csv
+file. However, users should not repeat this for subsequent steps since in most analyses, some participant's 
+will be removed after several steps in the pipeline. 
+
+Instead of using the auto-population code,
+user's should navigate to the previous fcpX step's subject CSV file and copy the participant list to the 
+current fcpX steps subject CSV file, then remove any more participants that they need to.
+
+How to debug:
+1. Do not use the auto-population code for steps other than fcp1. Instead, do the steps listed below.
+2. Navigate to the previous step’s csv file (`subj_fcpX.csv`, where X is the number of the step you
+just finished in the pipeline) and copy the list of participants.
+3. Navigate to the current step’s csv file (`subj_fcpX.csv`, where X is the number of the step you
+are about to run in the pipeline) and paste the list of participants. Remove any participant's you 
+do not wish to include in the analysis.
 
 ## Subjects missing matching MRI and MEG data
 
@@ -100,3 +121,15 @@ a. MRI files should only contain one underscore after the last slash that design
 the file path (e.g., `/xxx/xxx/xxx/ST01_V1.mri` is acceptable but
 `/xxx/xxx/xxx/ST01_V1_V2.mri` is not). Note that underscores are not
 required (e.g., `/xxx/xxx/xxx/ST01.mri` is acceptable).
+
+## Incorrect interactive JSON config file population
+
+### Error occurrence: Incorrect format inputted to interactive JSON config 
+
+Why did this occur?
+The interactive config file presents a template/sample input for each field. The user
+is welcome to change any of these values, however they must follow the format
+presented in the interactive JSON config, else errors will occur.
+
+How to debug:
+1. Ensure you are following the exact format of inputs presented in the interactive config.Common mistakes include putting spaces between characters that shouldn't have spaces (e.g., freqanalaysis.ROIs is inputted as [1,2,3];[4];[5,6] with no spaces between any of the characters).
