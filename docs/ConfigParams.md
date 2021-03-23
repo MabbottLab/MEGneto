@@ -542,7 +542,7 @@ Meaning: Email address to which to send pipeline’s progress updates contained 
                     <summary>Tight</summary>
                     Where: Fcp_4_beamforming when constructing the grid for the T1 template model. 
                     <br>
-                    Meaning: "yes" or "no" (default = "yes"). 
+                    Meaning: "yes" or "no" (default = "yes") to indicate tightness of mesh grid around the brain. Should be kept as yes for computational power. Navigate to the images folder and click on grid.tight.PNG for a visual explanation.
                   </details>
                </li>
                <!--BEAMFORMING.TEMPLATE.TINWARDSHIFT--> 
