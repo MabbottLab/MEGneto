@@ -59,10 +59,10 @@ function make_BNV_ready(paths, brainnet)
 if strcmp(brainnet.netmetric, 'nbs')
 
     % load nbs results file: */analysis/group/capybara_NBSResults_alpha.mat
-    load([paths.anout_grp '/correct/' brainnet.nickname '_NBSResults_' brainnet.fb_interest '.mat'])
+    load([paths.anout_grp '/' brainnet.nickname '_NBSResults_' brainnet.fb_interest '.mat'])
 
     % load the NBS data matrix: */analysis/group/capybara_datamatrix_alpha.mat
-    load([paths.anout_grp '/correct/' brainnet.nickname '_datamatrix_' brainnet.fb_interest '.mat'])
+    load([paths.anout_grp '/' brainnet.nickname '_datamatrix_' brainnet.fb_interest '.mat'])
     
 elseif strcmp(brainnet.netmetric, 'maxT')
     load([paths.anout '/NBS_treatmenttype/NBS' brainnet.fb_interest '_Hz.mat']) % load data corresponding to freq band
