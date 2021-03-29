@@ -41,7 +41,9 @@ ft_defaults; % allow fieldtrip to run setup
 
 Note that the functions associated with the steps laid out below are found in the top-level MEGneto folder. Any related functions listed below are found in subfolders of the repo (e.g., the `functions` folder). Anything under development is, accordingly, under `dev_functions`. 
 
-Also, please note the naming convention of your MRI files (which must have a .mri extension). These file names should not have more than one underscore or period (i.e., the only period should be the file's extension `.mri`). If there is an underscore, the typical naming convention is `PID_version.mri`. 
+Also, please note the following naming convention tipes:
+- _MRI files (which must have a .mri extension)_: These file names should not have more than one underscore or period (i.e., the only period should be the file's extension `.mri`). If there is an underscore, the typical naming convention is `PID_version.mri`. 
+- _Participant IDs_: Typically, participant IDs follow the structure of study name prepended to participant number. For example, OIRM01 would mean that OIRM is the study name and 01 is the first participant. Other examples (for different studies) include ST05 and MEG04 - you may choose the study name to be what you wish. 
 
 Lastly, for an overview of MEGNETO's folder structure please refer to the image below.
 ![](docs/filefolder_structure.jpg)
