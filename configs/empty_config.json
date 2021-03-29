@@ -51,9 +51,7 @@
             "isRest" : null,
             "trialdef" : {
                 "details" : {
-                    "name" : [""],
-                    "include" : [""],
-                    "countOnly" : null
+                    "include" : [""]
                 },
                 "parameters" : {
                     "t0shift" : null,
@@ -105,8 +103,7 @@
 		},
 		"options" : {
 			"keeptrials" : "",
-			"keepfilter" : "",
-			"rawtrial" : ""		
+			"keepfilter" : ""		
 		},
 		"method" : "",
 		"rep_timeseries" : ""
@@ -116,7 +113,8 @@
 		"method" : "",
 		"filt_freqs" : [[]],
 		"freq_names" : [],
-		"collapse_band" : ""
+		"collapse_band" : "",
+		"ROIs": null
 	},
 	"freqanalysis": {
 		"include": null,
@@ -124,7 +122,8 @@
 		"method": "",
 		"toi": [],
 		"baseline": [],
-		"baseline_type": ""
+		"baseline_type": "",
+		"ROIs": null
 		}
 	}    
 }

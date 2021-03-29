@@ -38,7 +38,7 @@ function fcp_2_PreprocessingICA(paths)
 %% SET UP LOGGING FILE
 
 right_now = clock;
-log_filename = [paths.conf_dir '/log_' sprintf('%02.f:%02.f:%02.f', right_now(1:3))];
+log_filename = [paths.conf_dir '/log_' sprintf('%02.f%02.f%02.f', right_now(1:3))];
 diary(log_filename)
 
 fprintf('\n\n%02.f:%02.f:%02.f       Now running **%s**.\n', ...
