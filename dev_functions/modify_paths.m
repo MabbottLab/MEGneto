@@ -1,6 +1,10 @@
 % Modify a paths struct and re-save for moving to a different computer
 % assuming that you are starting from fcp_4_beamforming
 
+% need to transfer from other machine:
+%   - analysis/PID/ft_meg_fullyProcessed.mat
+%   - config/[all files]
+
 % change project path locations
 new_project_path = '/home/jtseng/katie';
 paths_loc = '/home/jtseng/katie/analysis/SpeedofThinkingMEG/config/paths.json';
