@@ -130,13 +130,13 @@ for ss = 1:length(subj_match.ds)
 
     for i = 1:length(reactionTimeTable.event)
         current_cell = reactionTimeTable.event{i};
-        quick_check = contains(current_cell, 'orrect');
+        quick_check = contains(current_cell, 'Correct');
         do_any_contain_1 = any(quick_check);
         if do_any_contain_1 == 1
             count = 0;
             for j = 1:length(current_cell)
                 current_event = current_cell{j};
-                if contains(current_event, 'orrect')
+                if contains(current_event, 'Correct')
                     count = count + 1;
                     if count > 1
                         reactionTimeTable.event{i} = NaN;
