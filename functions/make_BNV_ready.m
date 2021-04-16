@@ -155,6 +155,13 @@ if strcmp(brainnet.netmetric,'nbs') || strcmp(brainnet.netmetric, 'maxT')
 end
 node_size=abs(round(node_size',4)); % gets rid of negatives... so size is accurately depicted
 
+% Remove spaces in node labels (if there are any)
+for i = 1:length(nbs.NBS.node_label)
+    if contains(nbs.NBS.node_label(i),' ') == 1
+        nbs.NBS.node_label(i) = strrep(nbs.NBS.node_label(i), ' ', '.');
+    end
+end
+
 % ASSEMBLE INTO A NODE FILE------------------------------------------------
 if strcmp(brainnet.netmetric,'nbs')
     region_labels                   = nbs.NBS.node_label(noi);
