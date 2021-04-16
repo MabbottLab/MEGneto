@@ -102,7 +102,7 @@ band_names = config.connectivity.freq_names;
 
 % get number of ROIs or supra-ROIs
 ROIs = config.connectivity.ROIs;
-if ~isempty(ROIs)
+if ~isempty(ROIs{1})
     num_sources = length(ROIs); % if collapsed
 else
     num_sources = size(catmatrix, 3); % if not
@@ -132,7 +132,7 @@ all_conn_mat = nan(num_sources, num_sources, ... % num_nodes x num_nodes x ...
         num_trials  = size(catmatrix, 2);
         
         % collapse across ROIs if indicated
-        if ~isempty(ROIs)
+        if ~isempty(ROIs{1})
             catmatrix_collapsed = cellfun(@(x) nanmean(catmatrix(:,:,x), 3), ROIs, 'UniformOutput', false);
             catmatrix = cat(3, catmatrix_collapsed{:}); clear catmatrix_collapsed;
         end
