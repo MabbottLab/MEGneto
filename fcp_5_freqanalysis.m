@@ -72,7 +72,7 @@ for ss = 1:length(subj_match.ds)
     
     % collapsed across ROIs if indicated
     ROIs = config.freqanalysis.ROIs;
-    if ~isempty(ROIs)
+    if ~isempty(ROIs{1})
         catmatrix_collapsed = cellfun(@(x) nanmean(catmatrix(:,:,x), 3), ROIs, 'UniformOutput', false);
         catmatrix = cat(3, catmatrix_collapsed{:}); clear catmatrix_collapsed;
     end
