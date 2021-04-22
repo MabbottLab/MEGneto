@@ -68,30 +68,37 @@ paths = megne2setup(project_path, analysis_name, rawdata_path, mri_path, overwri
 
 interactive_JSON_config(paths, megneto_path) % run the interactive config function
 
+%% subj_fcp1.csv population
+
+% The following lines are used to auto-populate subj_fcp1.csv with
+% participants who have .ds files. Should you wish to exclude certain
+% participants for step 1 of the pipeline (fcp1), you can open the 
+% subj_fcp1.csv file post auto-population and erase those participants.
+
+MEG_ds = struct2table(dir(paths.rawdata)); % finds all MEG filenames
+fid = fopen(paths.subj_fcp1, 'w'); % open subj_fcp1.csv
+MEG_ds = MEG_ds.name(3:(height(MEG_ds))).'; % isolate only PIDs
+fprintf(fid, '%s\n', MEG_ds{:}); % write each PID to file
+fclose(fid); % close the file
+
 %% fcp_1: task epoching, jump/muscle artifact detection, bad channel detection
 % This step will epoch MEG data into trials based on desired markers,
 % detect and reject trials with excessive head motion and muscle/jump
 % artifacts, and detect and record (not reject) bad channels.
 
-% uncomment the following lines if you'd like to auto-populate subj_fcp1.csv
-% MEG_ds = struct2table(dir(paths.rawdata)); % finds all MEG filenames
-% fid = fopen(paths.subj_fcp1, 'w'); % open subj_fcp1.csv
-% MEG_ds = MEG_ds.name(3:(height(MEG_ds))).'; % isolate only PIDs
-% fprintf(fid, '%s\n', MEG_ds{:}); % write each PID to file
-% fclose(fid); % close the file
-
 fcp_1_TaskEpoching(paths) % run first step of the MEG pipeline
 
-% after fcp_1, check output for: not enough trials, excessive head motion, too many bad channels
+% after fcp_1, check output for: not enough trials, excessive head motion, 
+% and/or too many bad channels
 
 %% fcp_2: ICA for artifact identification
 % This step downsamples and filters/denoises MEG data, then carries out  
 % ICA (if indicated in the config JSON file). 
 
-% remember to fill in participant IDs in the subj_fcp2.csv! If you would
-% like to auto-populate subj_fcp2.csv (i.e. include all participants), copy
-% the commented lines of code from fcp_1 and chaged "path.subj_fcp1" to
-% "paths.subj_fcp2"
+% Remember to fill in participant IDs in the subj_fcp2.csv! Please navigate
+% to subj_fcp1.csv, copy the list of participants, paste them in 
+% subj_fcp2.csv and remove any participants you don't wish to include for 
+% fcp2 and subsequent steps.
 
 fcp_2_PreprocessingICA(paths)
 
@@ -100,10 +107,10 @@ fcp_2_PreprocessingICA(paths)
 % fcp_2,and identify the ones that contain artifacts. After each 
 % inspection, the user enters which components contain artifacts 
 
-% remember to fill in participant IDs in the subj_fcp2.csv! If you would
-% like to auto-populate subj_fcp2.csv (i.e. include all participants), copy
-% the commented lines of code from fcp_1 and chaged "path.subj_fcp1" to
-% "paths.subj_fcp2_5"
+% Remember to fill in participant IDs in the subj_fcp2_5.csv! Please 
+% navigate to subj_fcp2.csv, copy the list of participants, paste them in 
+% subj_fcp2_5.csv and remove any participants you don't wish to include for 
+% fcp2_5 and subsequent steps.
 
 fcp_2_5_checkpoint(paths)
 
@@ -112,10 +119,10 @@ fcp_2_5_checkpoint(paths)
 %% fcp_3: bad channel repair
 % This step repairs the bad channels that were detected in fcp_1 
 
-% remember to fill in participant IDs in the subj_fcp3.csv!If you would
-% like to auto-populate subj_fcp2.csv (i.e. include all participants), copy
-% the commented lines of code from fcp_1 and chaged "path.subj_fcp1" to
-% "paths.subj_fcp3"
+% Remember to fill in participant IDs in the subj_fcp3.csv! Please navigate
+% to subj_fcp2_5.csv, copy the list of participants, paste them in 
+% subj_fcp3.csv and remove any participants you don't wish to include for 
+% fcp3 and subsequent steps.
 
 fcp_3_ChannelRepair(paths)
 
@@ -124,10 +131,10 @@ fcp_3_ChannelRepair(paths)
 % JSON config file by the user) on the MEG data using anatomical
 % MRI data. 
 
-% remember to fill in participant IDs in the subj_fcp4.csv!If you would
-% like to auto-populate subj_fcp2.csv (i.e. include all participants), copy
-% the commented lines of code from fcp_1 and chaged "path.subj_fcp1" to
-% "paths.subj_fcp4"
+% Remember to fill in participant IDs in the subj_fcp4.csv! Please navigate
+% to subj_fcp3.csv, copy the list of participants, paste them in 
+% subj_fcp4.csv and remove any participants you don't wish to include for 
+% fcp4 and subsequent steps.
 
 fcp_4_beamforming(paths)
 
@@ -135,10 +142,10 @@ fcp_4_beamforming(paths)
 % This step performs frequency analysis to generate power spectrum data
 % which can be used to test hypotheses based on spectral power.
 
-% remember to fill in participant IDs in the subj_fcp5.csv!If you would
-% like to auto-populate subj_fcp2.csv (i.e. include all participants), copy
-% the commented lines of code from fcp_1 and chaged "path.subj_fcp1" to
-% "paths.subj_fcp5"
+% Remember to fill in participant IDs in the subj_fcp5.csv! Please navigate
+% to subj_fcp4.csv, copy the list of participants, paste them in 
+% subj_fcp5.csv and remove any participants you don't wish to include for 
+% fcp5 and subsequent steps.
 
 fcp_5_freqanalysis(paths);
 
@@ -157,29 +164,39 @@ fcp_5_taskconnectivity(paths);
 % includes: make_NBS_ready, make_BNV_ready
 
 %% make_NBS_ready 
-% This function prepares a design matrix to serve as input to the Matlab
+% This function prepares a design matrix to serve as input to the
 % NBS toolbox. The design matrix columns are the participant groups
 % (e.g. "control", "surgery", etc.) and rows are participants. A "0" or
 % "1" indicates whether the participant belongs to the group/column ("1") 
-% or not ("0"). 
+% or not ("0"). This function also outputs a list of participant
+% (ordered_ppt_list.txt) in the analysis folder to inform the user of the
+% design matrix's rows (same order as ppt list prestented in the .txt file).
+% IMPORTANT: the by-frequency output files also have re-arranged
+% participants that match the order of ordered_ppt_list.txt.
 
-% Don't forget to include a ParticipantCategories.xlsx file in your
-% config folder. An example of this excel sheet with dummy variables
+% Don't forget to include a nickname_ParticipantCategories.xlsx file 
+% (where nickname corresponds to the subAnalysis_name variable below) in 
+% your config folder. An example of this excel sheet with dummy variables
 % is available in the templates folder (note that the column names of this
 % file, in order, represent radiation, sugery, and typical development 
-% controls).
+% controls). 
 % Fill in the variables below which are the inputs to the function.
 
 % Specify function inputs
 group_names = NaN; % array of strings, e.g., ["surg", "rad", "control"], 
-%                   exactly as they appear in folder names 
+                    % exactly as it appears in the participant categories
+                    % sheet
 conn = NaN; % name of connectivity metric as a character array (must match 
 %            the metric outlined in the file name of the connectivity
 %            matrix .mat file). Can take on values including: 
 %            "plv, "pli", "wpli", "wpli_debiased", "coh"
-freq = {};
 
-make_NBS_ready(paths, group_names, conn, freq)
+subAnalysis_name = NaN; % nickname for sub-analysis, e.g. 'TreatVsControl'
+                        % this gets prepended to design_matrix and NBS data
+                        % mat files. This should also match the name of
+                        % the corresponding *_ParticipantCategories.xlsx
+
+make_NBS_ready(paths, group_names, conn, subAnalysis_name)
 %% make_BNV_ready
 % This fuction creates *.node and *.edge files for viewing connectivity 
 % results from PLS or NBS on BrainNet Viewer (BNV). 
@@ -202,24 +219,42 @@ make_BNV_ready(paths, brainnet)
 % t-test or f-test using the max procedure) to build a null distribution 
 % and control for Type 1 error.
 
-% Specify function inputs
-seed_regions = [1, 2, 3]; % numeric indices indicating the seed ROIs (e.g. 
-%                           if the AAL atlas is used, the default input 
-%                           [1, 2, 3] corresponds to the following regions 
-%                           ['left precentral gyrus', 'right precentral 
-%                           gyrus', 'left superior frontal gyrus,
-%                           dorsolateral']. Note that for AAL atlas there 
-%                           are 90 regions, so indices should take on 
-%                           values between 1-90). 
-freq_band = 'gamma'; % frequency band of interst (e.g. 'alpha', 'beta', 
-%                      'gamma', 'theta')
-two_groups = false; % true or false to indicate if the function does a Tmax 
-                    % or Fmax analysis. Default is 'false'. 
-num_bootstraps = 1000; % number of desired bootstrap tests.Default is 1000.
-thresh = 0.05; % significance threshold for the p-value. Default is 0.05, 
-%                can be altered to desired threshold by the user.
+% Note on T-max analysis extra input:
+% If you wish to perform a T-max analsysis, you must include a .xlsx file
+% with two groups that will be compared in the T-max analysis for 
+% differences. You may use the make_NBS function to prepare this file
+% where your input to make_NBS (the ParticipantCategories.xlsx) should have
+% two groups you wish to include (e.g. "control" and "surg") and the
+% participant IDs that fall under each group. 
 
-bootTestDiffSeeds(paths, seed_regions, freq_band, two_groups, num_bootstraps, thresh)
+% Specify function inputs
+bootcfg.seed_regions = [1, 2, 3];      % numeric indices indicating the seed 
+%                                       ROIs (e.g. if the AAL atlas is used, 
+%                                       the default input [1, 2, 3] 
+%                                       corresponds to the following regions 
+%                                       ['left precentral gyrus', 'right 
+%                                       precentral gyrus', 'left superior 
+%                                       frontal gyrus, dorsolateral']. Note 
+%                                       that for AAL atlas there are 90 
+%                                       regions, so indices should take on 
+%                                       values between 1-90). 
+bootcfg.freq_band = 'gamma';          % frequency band of interst 
+%                                       (e.g. 'alpha', 'beta', 'gamma', 
+%                                       'theta')
+bootcfg.num_bootstraps = 1000;        % number of desired bootstrap tests. 
+%                                       Default is 1000.
+bootcfg.thresh = 0.05;                % significance threshold for the 
+%                                       p-value. Default is 0.05, can be 
+%                                       altered to desired threshold 
+%                                       by the user.
+bootcfg.group_names = ["rad", "surg", "tdc"]; % array of strings, e.g., 
+%                                       ["RAD", "SURG", "TDC"], 
+%                                       exactly as they appear in the input
+%                                       for group_names in the make_NBS
+%                                       function.
+bootcfg.nickname = 'nickname';         % subAnalysis name you set in make_NBS_ready
+
+bootTestDiffSeeds(paths, bootcfg)
 
 %% Summary functions
 % includes: inspecting_results, getTrialSummary,
@@ -250,9 +285,9 @@ inspecting_results(paths, name, type)
 
 % Specify function inputs
 num_markers = NaN; % number of events expected 
-                 % (total number of times stimulus is presented)
-thresh = 25; % percentage indicating what percentage of trials removed 
-             % is unacceptable. Here, 25 is the lab's convention.
+                   % (total number of times stimulus is presented)
+thresh = 25;       % percentage indicating what percentage of trials removed 
+                   % is unacceptable. Here, 25 is the lab's convention.
 
 getTrialSummary(paths, num_markers, thresh)
 

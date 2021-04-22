@@ -1,4 +1,4 @@
-function fcp_5_freqanalysis(paths, ROIs)
+function fcp_5_freqanalysis(paths)
 
 % FCP_5_FREQANALYSIS uses spectral analysis on time-frequency 
 % representations of data to test hypotheses based on spectral power. The 
@@ -71,7 +71,8 @@ for ss = 1:length(subj_match.ds)
     num_trials  = size(catmatrix, 2);
     
     % collapsed across ROIs if indicated
-    if exist('ROIs', 'var')
+    ROIs = config.freqanalysis.ROIs;
+    if ~isempty(ROIs{1})
         catmatrix_collapsed = cellfun(@(x) nanmean(catmatrix(:,:,x), 3), ROIs, 'UniformOutput', false);
         catmatrix = cat(3, catmatrix_collapsed{:}); clear catmatrix_collapsed;
     end

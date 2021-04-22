@@ -29,7 +29,7 @@ function fcp_3_ChannelRepair(paths)
 %% SET UP LOGGING FILE
 
 right_now = clock;
-log_filename = [paths.conf_dir '/log_' sprintf('%02.f:%02.f:%02.f', right_now(1:3))];
+log_filename = [paths.conf_dir '/log_' sprintf('%02.f%02.f%02.f', right_now(1:3))];
 diary(log_filename)
 
 fprintf('\n\n%02.f:%02.f:%02.f       Now running **%s**.\n', ...
@@ -57,10 +57,6 @@ if length(unique(subj_match.pid)) ~= length(subj_match.pid)
     error('More than one ds per participant!')
 end
 
-% pull in fcp_2/2_5 output, containing ICA-cleaned data
-fcp2_output = loadjson([paths.anout_grp '/fcp2_5_output.json']);
-fcp2_output = recursive_json_struct_string_to_func(fcp2_output);
-
 %% REPAIR BAD CHANNELS
 
 rangeOFsubj = 1:height(subj_match);
@@ -72,7 +68,7 @@ for ss = rangeOFsubj % for participants that have both MEG and MRI data
         right_now(4:6), subj_match.pid{ss})
 
 %%% LOAD DATA -------------------------------------------------------------
-    load([ssSubjPath(ss) '/' fcp2_output.preprocessedData_cfg],'-mat','data');
+    load([ssSubjPath(ss) '/ft_meg_data_cfg.mat'],'-mat','data');
 
 %%% IF THERE ARE BAD CHANNELS TO REMOVE
     % get info about bad channels

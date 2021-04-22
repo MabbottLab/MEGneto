@@ -7,7 +7,8 @@ function [reactionTimeTable] = reactionTimes(paths)
 % dataset.
 
 % How to use:
-% After running fcp_1_TaskEpoching.m, type reactionTimes(paths) in the
+% After running fcp_4_Beamforming.m (as this function uses the participant
+% list from 'subj_fcp4.csv'), type reactionTimes(paths) in the
 % command window. The output file 'reactionTimeSummary.mat' is stored in 
 % the analysis folder in group folder.
 
@@ -34,7 +35,7 @@ function [reactionTimeTable] = reactionTimes(paths)
 % load config JSON with analysis parameters
 config      = load_config(paths, paths.name);
 config      = config.config;
-step        = 'fcp1';
+step        = 'fcp4';
 
 subj_match = ds_pid_match(paths,step);
 if isempty(subj_match) % if there are no full sets of data
@@ -129,15 +130,24 @@ for ss = 1:length(subj_match.ds)
 
     for i = 1:length(reactionTimeTable.event)
         current_cell = reactionTimeTable.event{i};
-        quick_check = contains(current_cell, 'orrect');
+        quick_check = contains(current_cell, 'Correct');
         do_any_contain_1 = any(quick_check);
         if do_any_contain_1 == 1
+            count = 0;
             for j = 1:length(current_cell)
                 current_event = current_cell{j};
-                if contains(current_event, 'orrect')
+                if contains(current_event, 'Correct')
+                    count = count + 1;
+                    if count > 1
+                        reactionTimeTable.event{i} = NaN;
+                        reactionTimeTable.eventTiming{i} = NaN;
+                        warning('Conflicting marker information (more than one correct or incorret marker) for participant %s on trial %s.', ...
+                            subj_match.ds{ss}, num2str(i));
+                        break
+                    end
                     reactionTimeTable.event{i} = current_event;
                     reactionTimeTable.eventTiming{i} = reactionTimeTable.eventTiming{i}{j};
-                end          
+                end 
             end
         elseif do_any_contain_1 == 0
             reactionTimeTable.event{i} = NaN;

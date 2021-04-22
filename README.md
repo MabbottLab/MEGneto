@@ -1,76 +1,89 @@
 # MEGneto 3.0 
 
-This functional connectivity pipeline (fcp) is built on MATLAB using the FieldTrip toolbox to analyze MEG data. Developed @ SickKids Research Institute, Toronto, Canada. See the PDF 'workflow' to get an overview of the pipeline.
+This functional connectivity pipeline (fcp) is built on MATLAB using the FieldTrip toolbox to analyze MEG data. Developed @ SickKids Research Institute, Toronto, Canada. See docs folder for additional documentation.
 
 - [System Requirements](#system-requirements)
 - [Installation Guide](#installation-guide)
+- [Common Terms](#common-terms)
 - [How to Use](#how-to-use)
-   1. [Common terms](#common-terms)
+   1. [Initial Setup](#initial-setup)
    2. [JSON Config Setup](#json-config-setup)
-   3. [Initial Setup](#initial-setup)
-   4. [Epoching](#epoching)
-   5. [Preprocessing](#preprocessing)
-   6. [ICA Checkpoint](#ica-checkpoint)
-   7. [Channel Repair](#channel-repair)
-   8. [Beamforming](#beamforming)
-   9. [Frequency Analysis](#frequency-analysis)
-   10. [Functional Connectivity](#functional-connectivity)
+   3. [Epoching](#epoching)
+   4. [Preprocessing](#preprocessing)
+   5. [ICA Checkpoint](#ica-checkpoint)
+   6. [Channel Repair](#channel-repair)
+   7. [Beamforming](#beamforming)
+   8. [Pipeline Endpoints](#pipeline-endpoints)
+      * [Frequency Analysis](#frequency-analysis)
+      * [Functional Connectivity](#functional-connectivity)
 - [Credits](#credits)
 - [On Downsampling](#on-downsampling)
 - [Supplementary Reading Material](#supplementary-reading-material)
 
 ## System Requirements
 
-This pipeline is currently being developed with MATLAB R2019a in a Linux environment. Configuration is set using JSON files, inspected with a any basic text editor. The FieldTrip toolbox (also required) contains compatibility functions should you need older or newer versions of certain key functions. 
+* MATLAB
+* FieldTrip Toolbox
+* Machine with enough RAM
 
-Note that, depending on available RAM on your system, the pipeline may crash during beamforming (fcp_3) if your MEG data is not adequately downsampled. (See the [On Downsampling](#on-downsampling) section for more on how to handle this.)
+This pipeline is currently being developed with MATLAB R2019a in a Linux environment. Analysis configuration is kept in a JSON file, and can be inspected with any basic text editor. The [FieldTrip toolbox](https://www.fieldtriptoolbox.org/) contains compatibility functions should you need older or newer versions of certain key functions. 
+
+Note that, depending on available RAM on your system, the pipeline may crash during [beamforming](#beamforming) if your MEG data is not adequately downsampled or if you have requested too many virtual sources to be reconstructed (e.g., dipole grid resolution is too high). (See the [On Downsampling](#on-downsampling) section for more on how to handle this.)
 
 ## Installation Guide
 
-Download the repo or clone it on your machine in a sensible place. 
+Download the repo through the Github website or use git in the command line to clone it on your machine. 
 
-## How to Use
-
-Before you run the pipeline, this repo must be fully visible in the path, as well as the top-level FieldTrip folder. You can do this by running the following lines:
-
-``` MATLAB
-addpath(genpath('/path/to/MEGneto'))
-addpath('/path/to/FieldTrip') % note the lack of genpath here
-ft_defaults; % allow fieldtrip to run setup
-```
-
-Note that the functions associated with the steps laid out below are found in the top-level MEGneto folder. Any related functions listed below are found in subfolders of the repo (e.g., the `functions` folder). Anything under development is, accordingly, under `dev_functions`. 
-
-Also, please note the naming convention of your MRI files (which must have a .mri extension). These file names should not have more than one underscore or period (i.e., the only period should be the file's extension `.mri`). If there is an underscore, the typical naming convention is `PID_version.mri`. 
-
-Lastly, for an overview of MEGNETO's folder structure please refer to the image below.
-![](docs/filefolder_structure.jpg)
-
-### Common Terms
+## Common Terms
 
 | Term  | Meaning |
 | ------------- | ------------- |
-| *.ds files  | Folders which contain MEG-related files. |
-| Fiducial   | Used as a reference point to localize head position relative to sensor position. |
-| JSON config file  | A configuration file where the user specifies all desired parameters for various steps of the pipeline. See “config file documentation” for an explanation of all necessary parameters. |
+| *.ds folder  | Folder containing all MEG-related files for a single participant and single task (if multiple tasks). |
+| Fiducial   | Three reference points visible to the MEG that aid in head position localization relative to sensor positions, and positions also used in subsequent MRI for MEG-MRI coregistration in analysis. |
+| JSON config file  | A configuration file storing user-specified analysis parameters for various steps of the pipeline. See [this write-up](docs/ConfigParams.md) for an explanation of all necessary parameters. |
 | ICA   | Independent component analysis. A computational method for separating a linearly mixed signal into its independent components. |
-| Leadfield   | Provides information on the contribution of a dipole source at a given location in a sensor’s region. |
+| Leadfield   | Matrix that describes solution to the [forward problem](https://www.fieldtriptoolbox.org/reference/ft_compute_leadfield/#:~:text=FT_COMPUTE_LEADFIELD%20computes%20a%20forward%20solution,z%2Dorientations%20of%20the%20dipole.) (i.e., how dipole sources contribute to an MEG channel's measured signal). |
 | MEG  | Magnetoencephalography |
 | MRI  | Magnetic resonance imaging |
-| Struct   | In programming, a struct is a data type that stores multiple different data items in a single entity. |
-| Time window analysis  | A form of data analysis where data is separated into subsamples of time. The time periods may have some overlap and calculations are performed on every subsample. |
+| Struct   | In MATLAB, a [struct](https://www.mathworks.com/help/matlab/ref/struct.html) is a data type that stores multiple different data items in a single container. |
+| Time window analysis  | A data analysis approach that examines how power at certain frequencies change over consecutive time bins. See FieldTrip tutorial [here](https://www.fieldtriptoolbox.org/tutorial/timefrequencyanalysis/). |
+
+## How to Use
+
+A template "main" function is provided under `templates/main_template.m` which guides the user through the pipeline steps. You should begin by making a copy of this file and renaming it (e.g., main_motor_both if you're running a motor analysis). A unique main file should be created for each of your analyses, as it can serve as a record of what settings you used. 
+
+Also, please note the following naming convention tipes:
+A few important notes to remember before running the pipeline are:
+1. The functions associated with the steps laid out below are found in the top-level MEGneto folder. Any related functions listed below are found in subfolders of the repo (e.g., the `functions` folder). Anything under development is, accordingly, under `dev_functions`. 
+2. The naming convention of your MRI files (which must have a .mri extension) is as follows. These file names should not have more than one underscore or period (i.e., the only period should be the file's extension `.mri`). If there is an underscore, the typical naming convention is `PID_version.mri`. 
+3. Participant IDs follow the structure of study name prepended to participant number. For example, OIRM01 would mean that OIRM is the study name and 01 is the first participant. Other examples (for different studies) include ST05 and MEG04. The participant IDs do not require changing - they should be left as they already are. 
+4. The pipeline can only process one task and condition at a time. If multiple tasks/conditions are fed in, there will be one set of .ds files for participants for task/condition 1 and one for task/condition 2, meaning there will be multiple .ds files for one participant. The pipeline is not equipped to handle this. If you have multiple tasks/conditions you wish to analyze, please do one at a time.
+5. For an overview of MEGNETO's folder structure please refer to the image below.
+
+![](docs/filefolder_structure.jpg)
+
 
 ### Initial Setup
 
-`MEGNE2SETUP.m` will create a subfolder to PROJECT_PATH or the current working directory (if PROJECT_PATH is not provided) called ANALYSIS_NAME, create config and analysis subfolders within, and create unfilled participants.txt and config.json files in the config directory. If you already have a config file with your preferred parameters, replace the unfilled config file with that one. You should have a raw data folder in your project directory with all the *.ds files, and a subfolder to rawdata called MRIs which contains all the MRIs in the form [PID].mri.
+After making a copy of the main template and renaming it, open it and:
+* Fill in the relevant folder paths and analysis name (lines 16-21)
+* Add the MEGneto and FieldTrip folders to the path, so MATLAB can find those functions (lines 25-27)
+* Assuming this is your first run, skip the paths variable reloading at line 32
+* Proceed to the section labelled "%%  fcp_0: setup (megne2setup)"
 
-Output: Struct with path definitions.
+`MEGNE2SETUP.m` will create the folder structure for your analysis (e.g., config and analysis folders), and create empty setup files in the config directory (e.g., an empty config file to be filled in with analysis parameters, empty CSV files for each pipeline step that you will use to indicate which participants to analyze). If you already have a config file with your preferred parameters, replace the empty config file with that one. 
+
+Note that this step will fail if your MEG and MRI data are not setup properly, namely:
+* The `rawdata_path` string should be the path to the folder that contains all *.ds folders for all participants
+* The `mri_path` string should be the path to the folder that contains all MRI files with the naming convention [PID].mri
+
+Output: Struct called `paths` with all filepath definitions.
 
 ![](images/paths_struct.PNG)
 
 See also: 
-- `Path_generation.m` to generate path locations
-- `Path_check.m` to check that all paths are properly initialized
+- `path_generation.m` to generate path locations
+- `path_check.m` to check that all paths are properly initialized
 
 ### JSON Config Setup
 Prior to running the first step of the pipeline, the user must ensure that the JSON config file is populated with their desired parameters. `interactive_JSON_config.m` will prompt users to fill this JSON config file through an interactive graphical user interface (GUI). There are 10 total GUI pop ups that resemble that of the image below. The user is repsonsible for filling in each field and sample inputs are presented to the user to demonstrate each field's format (note: the user can leave the sample input as is, if they wish to use that value for their analysis).
@@ -83,13 +96,16 @@ For more detail on the meaning of each parameter in the JSON Config please see t
 
 `FCP_1_TASKEPOCHING.m` will epoch MEG data into trials depending on the desired marker, detect trials with excessive head motion, muscle/jump artifacts, and bad channels. However, the epoching only rejects trials for excessive head motion and muscle/jump artifacts. Bad channels are detected and recorded, but repaired later on in the pipeline, after the ICA process at the final stage of preprocessing.
 
+Note: if there are participants who do not have a matching MRI file, this step will not run until you: a) find the missing MRI and put it in the MRI folder, or b) remove their entry from the `subj_fcp1.csv`. 
+
 Output: A struct with output file names, and for each subject: the number of trials per subject, trials marked with head motion, trials marked with noise, number of removed trials, names of bad channels 
 ![](images/config_JSON1.PNG)
 ![](images/config_JSON2.PNG)
 
 Notes:
 - Ensure that subj_fcp1.csv is populated with the subject IDs of included participants.
-- Prior to running this step, all desired parameters should be defined in the JSON config file. The user should double-check that the JSON config file is populated appropriately, especially if a template JSON was copied over.
+- Prior to running this step, all desired parameters should be defined in the JSON config file. The user should double-check that the JSON config file is populated appropriately, especially if a template JSON was copied over. Information on the meaning of each parameter in the JSON config file can be found in the [Config Params Guide](https://github.com/dunjamatic/MEGneto/blob/configParams/ConfigParams.md).
+
 - At the beginning of this step, a logging file for progress tracking is set up and matching MEG/MRI data is identified.
 - If the user wishes to browse the output of plot_triggers function (a plot), they must indicate “true” for ‘ShowFigure’ when the plot_triggers function is called. By default, this is set to ‘“false”. See the code snippet from fcp_1_taskepoching below for reference.
 ![](images/showFigure_plotTriggers.PNG)
@@ -118,7 +134,7 @@ See also:
 Output: A struct with file names for the configuration of the preprocessed data, the data noise correlation matrix, and the ICA components.
 
 Notes:
-- Prior to running the function, ensure that subj_fcp2.csv is populated with the subject IDs of participants you want to include after checking over initial results.
+- Prior to running the function, ensure that `subj_fcp2.csv` is populated with the subject IDs of participants you want to include after checking over initial results.
 - Outputs from fcp_1 will be loaded in at the start of this step. Additionally, a logging file will be set up to keep track of progress and the pipeline will check for matching MEG/MRI data. 
 - Check participants who had excessive head motion or excessive numbers of bad channels.
 - Need to remove bad channels from ica - if not you will get complex numbers. Because during repair channels procedure bad channels are repaired according to neighbours, thus the new ones are not unique (no independent components).
@@ -147,7 +163,7 @@ See also:
 - `disp_ica_chans.m` (at bottom of script) 
 - `ft_databrowser` to visually inspect the data
 
-Visualization of this step:
+*Visualization of this step:*
 Below is a sample image of the interactive user display for identifying bad ICA component. Users can browse the components using the left and right arrow buttons, zoom in and out horizontally/vertically using the appropriate “+” and “-” buttons, and more. 
 
 ![](images/ICA_interaction_plot.PNG)
@@ -159,7 +175,7 @@ After browsing the ICA components and noting which ones are bad, the user should
 
 ### Channel Repair
 
-`FCP_3_CHECKPOINT.m` repairs bad channels detected from fcp_1, but we held off on removing until the data had been ICA-cleaned. The channels are repaired by replacing them with a some combination of neighbouring channels (default is 'weighted' average, other options include 'average', 'spline', or 'slap').
+`FCP_3_CHANNELREPAIR.m` repairs bad channels detected from fcp_1, but we held off on removing until the data had been ICA-cleaned. The channels are repaired by replacing them with some combination of neighbouring channels (default is 'weighted' average, other options include 'average', 'spline', or 'slap').
 
 Output: *.mat file of fully cleaned data (i.e., removed head motion/muscle and jump artifacts, 3rd order gradients, ICA cleaned data, and repaired bad channels). 
 
@@ -190,7 +206,7 @@ The following source reconstruction algorithms are currently recommended/support
 - Linear constrained minimum variance (LCMV) beamformer
 
 The following atlases are currently supported:
-- MMP 180 region atlas from Glasser et al.'s multimodal parcellation paper
+- MMP 180 region atlas from Glasser et al.'s 2016 multimodal parcellation paper
 - AAL 116 region atlas, but truncated to just regions 1-90 to exclude cerebellar regions
 - Yeo 7-network parcellation into visual, somatomotor, dorsal and ventral attention, default, limbic, frontoparietal
 - Yeo 17-network parcellation
@@ -217,11 +233,18 @@ See also:
 - `ft_sourceinterpolate.m` to interpolate functional data onto anatomical data using prev as input, subject MRI
 - `ft_volumelookup.m` to create binary mask; once applied, will isolate desired regions
 
+### Pipeline Endpoints
 
-### Frequency Analysis
-`FCP_5_FREQANALYSIS.m` uses spectral analysis on time-frequency representations of data to test hypotheses based on spectral power. The virtual sensor data from the beamforming step is loaded in and frequency analysis is performed on various timewindows of the data (time window analysis). Thus, for each subject and each interpolated atlas region, a power spectrum is calculated and corrected to a baseline to control for general/random spikes in power. 
+After beamforming, you now have a set of timeseries for each participant describing brain activity over time within each atlas ROI and for each trial. 
 
-Output: A 4-D matrix containing power spectrum data. Matrix dimensions are [participants] x [regions] x [frequency] x [time]. Users can plot a power spectrum (frequency by time) for a specific region of a given participant’s data by applying a plotting function on a slice of the matrix. 
+If you have hypotheses about whether some ROI has more or less activity within a certain frequency band, or if you want to look at how power changes across certain frequencies as a result of some stimulus marker, proceed with `fcp_5_freqanalysis` (currently set up to do power-over-time analyses). 
+
+Otherwise, if you have hypotheses about the _functional connectivity_ between ROIs and within certain frequency bands, proceed with `fcp_5_taskconnectivity`. 
+
+#### Frequency Analysis
+`FCP_5_FREQANALYSIS.m` uses spectral analysis on time-frequency representations of data to test hypotheses based on spectral power. The virtual sensor data from the beamforming step is loaded in and frequency analysis is performed on sliding timewindows of the data. Thus, for each subject and each interpolated atlas region, a power spectrum is calculated and corrected to a baseline to control for general/random spikes in power. 
+
+Output: A 4-D matrix containing power spectrum data. Matrix dimensions are [participants] x [regions] x [frequency] x [time]. Users can plot a power spectrum (frequency by time) for a specific region of a given participant’s data by plotting a slice of the matrix's first (participant) dimension (e.g., `imagesc(squeeze(powspctrm(participant_number, :, :, :)))`. 
 
 Notes:
 - Prior to running the function, ensure that subj_fcp5.csv is populated with the subject IDs of participants you want to include.
@@ -230,11 +253,11 @@ Notes:
 See also: `ft_freqanalysis.m`
 
 
-### Functional Connectivity
+#### Functional Connectivity
 
 `FCP_5_TASKCONNECTIVITY.m` estimates functional connectivity (i.e., analyzes the synchrony of signals from two regions). At the start of this step, outputs from fcp_4 will be loaded in and a logging file will be set up to keep track of progress. Also, the pipeline will check for matching MEG/MRI data.
 
-Currently supports the following connectivity metrics:
+Currently supports the following connectivity metrics (relevant FieldTrip documentation [here](https://www.fieldtriptoolbox.org/reference/ft_connectivityanalysis/):
 - 'plv' (phase locking value)
 - 'pli' (phase lag index)
 - 'wpli' (weighted phase lag index)

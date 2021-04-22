@@ -48,7 +48,7 @@ function fcp_4_beamforming(paths)
 %% SET UP LOGGING FILE
 
 right_now = clock;
-log_filename = [paths.conf_dir '/log_' sprintf('%02.f:%02.f:%02.f', right_now(1:3))];
+log_filename = [paths.conf_dir '/log_' sprintf('%02.f%02.f%02.f', right_now(1:3))];
 diary(log_filename)
 
 fprintf('\n\n%02.f:%02.f:%02.f       Now running **%s**.\n', ...
@@ -285,7 +285,7 @@ for ss = rangeOFsubj % for each participant that has matched MEG/MRI data
     cfg.headmodel        = hdm;
     cfg.method           = config.beamforming.method;
     cfg.keeptrials       = 'yes';
-    cfg.rawtrial         = config.beamforming.options.rawtrial;       
+    cfg.rawtrial         = 'yes';       
     source_t_trials      = ft_sourceanalysis(cfg, tlock); % perform beamforming
         
     %%% project virtual sources to strongest (dominant) orientation
