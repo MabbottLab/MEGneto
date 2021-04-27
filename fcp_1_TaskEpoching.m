@@ -95,35 +95,63 @@ for ss = 1:length(subj_match.ds) % for each participant that has both MEG and MR
     fprintf('\n\n==================================\n...DS_FILE: %s\nSUBJECT: %s\n', ...
         subj_match.ds{ss}, subj_match.pid{ss});
 
-%%% GRAB T0 MARKERS -------------------------------------------------------
-    right_now = clock;
-    fprintf('%02.f:%02.f:%02.f       Finding t0 markers...\n', right_now(4:6))
+if ~config.task.isRest % if this is a task
+    %%% GRAB T0 MARKERS -------------------------------------------------------
+        right_now = clock;
+        fprintf('%02.f:%02.f:%02.f       Finding t0 markers...\n', right_now(4:6))
 
-    numt0marker = plotTriggers(...
-        [paths.rawdata '/' subj_match.ds{ss}], ...               % path to *.ds folder
-        config.task.trialdef.markers.t0marker, 'savePath', ...   % consult config for t0 marker definition
-        [paths.(subj_match.pid{ss}) '/' fcp1_output.trigger_figure], ... % save marker figure
-        'showFigure', false); % set showFigure to true for debugging and viewing the plot 
-    
-    % if there were less than 5 markers found, throw a warning
-    if numt0marker < 5
-        warning('Not enough markers found - check marker file!')
-        continue
-    else % otherwise, display how many markers were found
-        fprintf('\n %d markers were found for your specified t0markers\n ',...
-            numt0marker)
+        numt0marker = plotTriggers(...
+            [paths.rawdata '/' subj_match.ds{ss}], ...               % path to *.ds folder
+            config.task.trialdef.markers.t0marker, 'savePath', ...   % consult config for t0 marker definition
+            [paths.(subj_match.pid{ss}) '/' fcp1_output.trigger_figure], ... % save marker figure
+            'showFigure', false); % set showFigure to true for debugging and viewing the plot 
+
+        % if there were less than 5 markers found, throw a warning
+        if numt0marker < 5
+            warning('Not enough markers found - check marker file!')
+            continue
+        else % otherwise, display how many markers were found
+            fprintf('\n %d markers were found for your specified t0markers\n ',...
+                numt0marker)
+        end
+
+    %%% EPOCHING --------------------------------------------------------------
+        right_now = clock;
+        fprintf('%02.f:%02.f:%02.f       Epoching into trials...\n', right_now(4:6))
+
+        cfg             = []; % set up config parameters for ft_definetrial
+        cfg.dataset     = [paths.rawdata '/' subj_match.ds{ss}]; 
+        cfg.trialfun    = config.taskFunc; 
+        cfg.trialdef    = config.task.trialdef;
+        cfg.continuous  = 'yes';
+        cfg             = ft_definetrial(cfg); 
+    else
+        right_now = clock;
+        fprintf('%02.f:%02.f:%02.f       Epoching into trials...\n', right_now(4:6))
+        
+        cfg                      = [];
+        cfg.continuous           = 'yes';
+        cfg.dataset              = [paths.rawdata '/' subj_match.ds{ss}]; 
+        data                     = ft_preprocessing(cfg);
+
+        % trim to remove recordings with no participant
+        last_sample              = find(data.trial{1,1}(4,:) == 0, 1, 'first')-1;
+        data.hdr.nSamples        = last_sample;
+        data.time{1,1}           = data.time{1,1}(1:last_sample);
+        data.trial{1,1}          = data.trial{1,1}(:,1:last_sample);
+        data.sampleinfo(2)       = last_sample;
+
+        % prep data struct for head motion detection
+        cfg                      = [];
+        cfg.continuous           = 'yes';
+        cfg.dataset              = [paths.rawdata '/' subj_match.ds{ss}]; 
+        cfg.trialfun             = config.task.taskFunc; % rest_trialfun.m
+        cfg.trialdef.triallength = config.epoching.period;
+        cfg.trialdef.overlap     = config.epoching.overlap; % proportion overlap
+        cfg.trialdef.endbound    = last_sample;
+        cfg                      = ft_definetrial(cfg); 
+        clear data, last_sample
     end
-    
-%%% EPOCHING --------------------------------------------------------------
-    right_now = clock;
-    fprintf('%02.f:%02.f:%02.f       Epoching into trials...\n', right_now(4:6))
-
-    cfg             = []; % set up config parameters for ft_definetrial
-    cfg.dataset     = [paths.rawdata '/' subj_match.ds{ss}]; 
-    cfg.trialfun    = config.taskFunc; 
-    cfg.trialdef    = config.task.trialdef;
-    cfg.continuous  = 'yes';
-    cfg             = ft_definetrial(cfg); 
     
     cfg_orig                    = cfg; % keep the original epoched data
     fcp1_output.numtrls{ss,1}   = length(cfg_orig.trl); % record num trials
@@ -168,9 +196,15 @@ for ss = 1:length(subj_match.ds) % for each participant that has both MEG and MR
         cfg.artfctdef.muscle.hilbert     = config.cleaningOptions.artifact.muscle.hilbert;
         cfg.artfctdef.muscle.boxcar      = config.cleaningOptions.artifact.muscle.boxcar;
         cfg.artfctdef.muscle.cutoff      = config.cleaningOptions.artifact.muscle.cutoff;
-        cfg.artfctdef.muscle.trlpadding  = config.cleaningOptions.artifact.muscle.trlpadding; 
-        cfg.artfctdef.muscle.fltpadding  = config.cleaningOptions.artifact.muscle.fltpadding;
-        cfg.artfctdef.muscle.artpadding  = config.cleaningOptions.artifact.muscle.artpadding;
+        if ~config.task.isRest % if task
+            cfg.artfctdef.muscle.trlpadding  = config.cleaningOptions.artifact.muscle.trlpadding; 
+            cfg.artfctdef.muscle.fltpadding  = config.cleaningOptions.artifact.muscle.fltpadding;
+            cfg.artfctdef.muscle.artpadding  = config.cleaningOptions.artifact.muscle.artpadding;
+        else % if rest
+            cfg.artfctdef.muscle.trlpadding  = 0; 
+            cfg.artfctdef.muscle.fltpadding  = 0;
+            cfg.artfctdef.muscle.artpadding  = 0;
+        end
         [cfg, muscle_artifact]           = ft_artifact_muscle(cfg); % detect muscle artifacts
         
         %%%% Jump Artifacts %%%
