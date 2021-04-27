@@ -95,7 +95,7 @@ for ss = 1:length(subj_match.ds) % for each participant that has both MEG and MR
     fprintf('\n\n==================================\n...DS_FILE: %s\nSUBJECT: %s\n', ...
         subj_match.ds{ss}, subj_match.pid{ss});
 
-if ~config.task.isRest % if this is a task
+    if ~config.task.isRest % if this is a task
     %%% GRAB T0 MARKERS -------------------------------------------------------
         right_now = clock;
         fprintf('%02.f:%02.f:%02.f       Finding t0 markers...\n', right_now(4:6))
