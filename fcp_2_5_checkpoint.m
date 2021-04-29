@@ -157,12 +157,6 @@ end
 
 %%% RECORD KEEPING --------------------------------------------------------
 
-% save all bad ICA components
-if config.cleaningOptions.artifact.icaClean == 1
-    all_bad_comp = fcp2_output.bad_comp;
-    save_to_json(all_bad_comp,[paths.anout_grp '/' fcp2_output.ICAcomp_cfg]);
-end
-
 % save fcp_2_5 output
 disp('Saving fcp_2_5 output...');
 save_to_json(fcp2_output, [paths.anout_grp '/fcp2_5_output.json'])
