@@ -5,6 +5,7 @@ This functional connectivity pipeline (fcp) is built on MATLAB using the FieldTr
 - [System Requirements](#system-requirements)
 - [Installation Guide](#installation-guide)
 - [Common Terms](#common-terms)
+- [Errors and Updates](#errors-updates)
 - [How to Use](#how-to-use)
    1. [Initial Setup](#initial-setup)
    2. [JSON Config Setup](#json-config-setup)
@@ -47,6 +48,11 @@ Download the repo through the Github website or use git in the command line to c
 | MRI  | Magnetic resonance imaging |
 | Struct   | In MATLAB, a [struct](https://www.mathworks.com/help/matlab/ref/struct.html) is a data type that stores multiple different data items in a single container. |
 | Time window analysis  | A data analysis approach that examines how power at certain frequencies change over consecutive time bins. See FieldTrip tutorial [here](https://www.fieldtriptoolbox.org/tutorial/timefrequencyanalysis/). |
+
+## Errors and Updates
+Often times, the pipeline's users experience the same errors as each other due to common set-up mistakes. If users encounter an error, they should first consult the [Common error guide](https://github.com/MabbottLab/MEGneto/blob/master/docs/CommonErrors.md) on the MEGneto GitHub page which details how to resolve commonly encountered errors. 
+
+The pipeline is continuiously updated and as such, users may encounter changes to the pipeline that they were not directly informed about. If this is the case, users can head to the [MEGneto Github page](https://github.com/MabbottLab/MEGneto) and mouse over to the [Issues tab](https://github.com/MabbottLab/MEGneto/issues) where they will see a tab of Open issues and Closed issues. Users should navigate to the [Closed issues tab](https://github.com/MabbottLab/MEGneto/issues?q=is%3Aissue+is%3Aclosed) where they will find a log of resolved issues. Clicking on any one of the issues will reveal any comments the pipeline's developers made in reference to the issue which will shed light on the new changes.
 
 ## How to Use
 
