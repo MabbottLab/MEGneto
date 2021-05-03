@@ -103,14 +103,14 @@ for ss = rangeOFsubj %1:rangeOFsubj
             % if TASK
             else 
                 % data where only excessive head motion removed
-                if config.cleaningOptions.artifact.rmNoisyTrls == 0
+                if config.cleaningOptions.artifact.rmNoisyTrials == 0
                     samples = loadjson([ssSubjPath '/' fcp1_output.trial_cfgHM]);
                     cfg     = [];
                     cfg.trl = samples.trl;
                     disp('Epoched file found!');
                     disp([ssSubjPath(ss) '/' fcp1_output.trial_cfgHM]);
                 % data where artifacts were also rejected
-                elseif config.cleaningOptions.artifact.rmNoisyTrls == 1
+                elseif config.cleaningOptions.artifact.rmNoisyTrials == 1
                     samples = loadjson([ssSubjPath(ss) '/' fcp1_output.trial_cfg]);
                     cfg     = [];
                     cfg.trl = samples.trl;

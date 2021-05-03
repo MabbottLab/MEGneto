@@ -841,7 +841,7 @@ Where: Fcp_5_taskconnectivity
       <summary>ROIs</summary>
       Where: Fcp_5_taskconnectivity
       <br>
-      Meaning: Specifies the ROIs which should be collapsed into supra ROIs (in the case of networks). 
+      Meaning: Specifies the regions of interest (ROIs) that the user wishes to collapse into supra-ROIs (use format [1,4,5];[2,3];[6,7], etc. where each square bracket contains the ROIs that will be collapsed) or the subset of individual ROIs that the user wishes to include in the analysis (use format [1];[2];[3];[4], etc. where each square bracket contains only one ROI).
     </details>
   </li></ul>
 </details>
@@ -913,7 +913,7 @@ Where: Fcp_5_freqanalysis
       <summary>ROIs</summary>
       Where: Fcp_5_freqanalysis
       <br>
-      Meaning: Specifies the ROIs which should be collapsed into supra ROIs (in the case of networks). 
+      Meaning: Specifies the regions of interest (ROIs) that the user wishes to collapse into supra-ROIs (use format [1,4,5];[2,3];[6,7], etc. where each square bracket contains the ROIs that will be collapsed) or the subset of individual ROIs that the user wishes to include in the analysis (use format [1];[2];[3];[4], etc. where each square bracket contains only one ROI).
     </details>
   </li></ul>
 </details>
