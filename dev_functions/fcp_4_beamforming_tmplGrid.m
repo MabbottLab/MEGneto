@@ -79,7 +79,7 @@ end
 %% TEMPLATE HEAD MODEL/SOURCE MODEL
 
 ft_path = fileparts(which('ft_defaults.m'));
-template_grid       = load([ft_path '/template/sourcemodel/standard_sourcemodel3d5mm.mat']);
+template_grid       = load([ft_path '/template/sourcemodel/standard_sourcemodel3d7point5mm.mat']);
 template_grid = template_grid.sourcemodel;
 
 %%% VISUALIZATION: DISPLAY HEAD MODEL -------------------------------------
@@ -338,7 +338,7 @@ for ss = rangeOFsubj % for each participant that has matched MEG/MRI data
     if isnan(var_explained) % if the variance explained has not been populated, don't save it
         save([ssSubjPath(ss) '/atlas_beamforming_results.mat'],'catmatrix', 'srate','coords','-mat','-v7.3')
     else
-        save([ssSubjPath(ss) '/atlas_beamforming_results.mat'],'catmatrix', 'var_explained', 'srate','coords','-mat','-v7.3')
+        save(['/home/kwalonso/TP/' subj_match.pid{ss} '/atlas_beamforming_results.mat'],'catmatrix', 'var_explained', 'srate','coords','-mat','-v7.3')
     end 
         
 %%% OPTIMIZING RUN SPACE --------------------------------------------------
