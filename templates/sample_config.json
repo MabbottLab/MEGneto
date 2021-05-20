@@ -121,6 +121,23 @@
 				[30,59],
 				[60,100]
 				],
+		"freq_names": [
+				[
+					"theta"
+				],
+				[
+					"alpha"
+				],
+				[
+					"beta"
+				],
+				[
+					"lowgamma"
+				],
+				[
+					"highgamma"
+				]
+			      ],
 		"collapse_band" : "max",
 		"ROIs": [
 				[
