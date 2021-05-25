@@ -34,7 +34,8 @@ decode                   = loadjson(empty_config);
 
 % prompts for the dialog boxes
 prompt{1}     = {'Enter contact email', ...
-                 'Enter epoching period for resting state data',... 
+                 'Enter epoching period for resting state data',...
+                 'Enter overlap for resting state data',...
                  'Enter threshold for headmotion'};
 prompt{2}     = {'Enter 0 (no) or 1 (yes) to indicate if artifact detection is desired',...
                  'Enter yes or no if you wish to bandpass filter for muscle artifact'...
@@ -107,7 +108,7 @@ prompt{11}    = {'Do you wish to perform time frequency analysis (0 for no, 1 fo
                  'Specify a subset of ROIs you wish to include in the analysis or ROIs you wish to collapse into supra-ROIs. The example below is for the latter, for the former use the format [1];[2];[3] and so on. Leave as blank if all ROIs should be included.'};
              
 % default inputs for the dialog boxes
-definput{1}   = {'firstname.lastname@sickkids.ca', '30', '10'};
+definput{1}   = {'firstname.lastname@sickkids.ca', '30', '0.5', '10'};
 definput{2}   = {'1', 'yes','[110,140]', '8', 'but', 'yes', '0.2', '30',...
                 '0.5'};
 definput{3}   = {'0.1', '0.1', '35', '1', '1', '1'};
@@ -151,7 +152,8 @@ for cfg_part = 1:11
         case 1
             decode.config.contact = {answers{1}};
             decode.config.epoching.period = str2double(answers{2}); 
-            decode.config.epoching.headMotion.thr = str2double(answers{3});
+            decode.config.epoching.overlap = str2double(answers{3});
+            decode.config.epoching.headMotion.thr = str2double(answers{4});
         case 2
             decode.config.cleaningOptions.artifact.detection = str2double(answers{1});
             decode.config.cleaningOptions.artifact.muscle.bpfilter = answers{2};
