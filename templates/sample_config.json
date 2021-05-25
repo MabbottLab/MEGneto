@@ -2,7 +2,8 @@
     "config" : {
 	"contact" : ["firstname.lastname@sickkids.ca"],
         "epoching" : {
-            "period" : 30,    
+            "period" : 30, 
+	    "overlap" : 0.5,   
             "headMotion" : {
                 "thr" : 10
             }
@@ -121,6 +122,23 @@
 				[30,59],
 				[60,100]
 				],
+		"freq_names": [
+				[
+					"theta"
+				],
+				[
+					"alpha"
+				],
+				[
+					"beta"
+				],
+				[
+					"lowgamma"
+				],
+				[
+					"highgamma"
+				]
+			      ],
 		"collapse_band" : "max",
 		"ROIs": [
 				[
