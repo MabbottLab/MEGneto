@@ -136,7 +136,7 @@ for ss = 1:length(subj_match.ds) % for each participant that has both MEG and MR
 
         % trim to remove recordings with no participant
         last_sample              = find(data.trial{1,1}(4,:) == 0, 1, 'first')-1;
-        if isempty(last_sample)
+        if ~isempty(last_sample)
             data.hdr.nSamples        = last_sample;
             data.time{1,1}           = data.time{1,1}(1:last_sample);
             data.trial{1,1}          = data.trial{1,1}(:,1:last_sample);
