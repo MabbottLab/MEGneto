@@ -101,7 +101,7 @@ if isfield(cfg.trialdef, 'triallength')
   elseif any(cfg.trialdef.overlap)
     nsamples = round(cfg.trialdef.triallength*hdr.Fs);
     slider   = cfg.trialdef.overlap*hdr.Fs;
-    trlbeg   = (0:slider:(hdr.nSamples-cfg.trialdef.triallength*hdr.Fs))+1;
+    trlbeg   = (0:slider:(cfg.trialdef.endbound-cfg.trialdef.triallength*hdr.Fs))+1;
     trlend   = trlbeg + nsamples - 1;
     offset   = zeros(size(trlbeg));
     trl      = [trlbeg(:) trlend(:) offset(:)];
