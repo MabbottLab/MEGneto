@@ -141,6 +141,8 @@ for ss = 1:length(subj_match.ds) % for each participant that has both MEG and MR
             data.time{1,1}           = data.time{1,1}(1:last_sample);
             data.trial{1,1}          = data.trial{1,1}(:,1:last_sample);
             data.sampleinfo(2)       = last_sample;
+        else
+            last_sample = data.sampleinfo(2);
         end
         
         % prep data struct for head motion detection
