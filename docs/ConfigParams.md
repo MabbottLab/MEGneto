@@ -24,6 +24,15 @@ Meaning: Email address to which to send pipeline’s progress updates contained 
       <li>
         <details>
           <summary>Period</summary>
+          Where: fcp_1_RestingStateEpoching, line 150.
+          <br>
+          Meaning: Indicates sliding window length for epoching resting state data (default = 0.5).
+        </details>
+      </li>
+      <!--EPOCHING.OVERLAP--> 
+      <li>
+        <details>
+          <summary>Overlap</summary>
           Where: fcp_1_RestingStateEpoching, line 97.
           <br>
           Meaning: Indicates epoch length for epoching resting state data (default = 30).
@@ -833,6 +842,15 @@ Where: Fcp_5_taskconnectivity
       Where: Fcp_5_taskconnectivity
       <br>
       Meaning: Specifies the names of the frequency bands in the other that they are listed in the previous field (e.g., for example given in the filt_freqs field above, this field would be theta, alpha, beta, lowgamma, highgamma).
+    </details>
+  </li>
+  <!--CONNECTIVITY.COLLAPSE_BAND-->
+  <li>
+    <details>
+      <summary>Collapse_band</summary>
+      Where: Fcp_5_taskconnectivity
+      <br>
+      Meaning: Specifies the method of collapsing (either max or mean).
     </details>
   </li>
   <!--CONNECTIVITY.ROIs-->
