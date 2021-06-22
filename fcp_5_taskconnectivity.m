@@ -154,7 +154,7 @@ all_conn_mat = nan(num_sources, num_sources, ... % num_nodes x num_nodes x ...
           %%% FOR EACH TRIAL
           for tt = 1:num_trials
             fprintf('Processing trial %d...\n', tt);
-            data.time{tt} = time_info(1):(1/srate):time_info(2);
+            data.time{tt} = (time_info(1)+(1/srate)):(1/srate):time_info(2);
             %%% FOR EACH OF THE NODES/SOURCES
             for kk = 1:num_sources
               % mean center or z-score the timeseries before filtering
