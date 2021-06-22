@@ -224,6 +224,18 @@ for ss = 1:length(subj_match.ds) % for each participant that has both MEG and MR
         fcp1_output.Nremove_trls{ss,1}   = length(cfg.trlold)-length(cfg.trl); % record number of removed trials
     end
     
+%%% EXCESS TRIAL CLEAN-UP (REST)-------------------------------------------
+    % if you have resting state data and specified a max length of time
+    if config.task.isRest == 1 && ~isempty(config.maxRest) 
+        ntrials                          = size(cfg.trl, 1); % grab number of trials
+        maxSamp                          = config.maxRest*cfg.origFs; % grab max sample
+        lastTrial                        = find(cfg.trl(:,2) <= maxSamp, 1, 'last'); % find trial containing end sample
+        
+        if ntrials > lastTrial % trim if we have more than we need
+            cfg.trl = cfg.trl(1:lastTrial,:);
+        end
+    end
+
     % save cleaned data progress
     save_to_json(cfg,... 
         [paths.(subj_match.pid{ss}) '/' fcp1_output.trial_cfg],...
