@@ -51,6 +51,7 @@
 	    ],
             "within_file_path": "__base_function"
         },
+	"maxRest": "_NaN_",
         "task" : {
             "isRest" : 0,
             "trialdef" : {
