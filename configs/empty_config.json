@@ -48,6 +48,7 @@
             "workspace": [{}],
             "within_file_path": ""
         },
+	"maxRest": null,
         "task" : {
             "isRest" : null,
             "trialdef" : {
