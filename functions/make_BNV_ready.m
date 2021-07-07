@@ -173,7 +173,7 @@ if strcmp(brainnet.netmetric,'nbs')
     for j = 1:size(node_file,1)
         tmp_name                    = strsplit(region_labels{j,1},'_');
         new_region_label            = strjoin(tmp_name,'.');
-        fprintf(fid,'%s\t%s\t%s\t%s\t%s\t%s\n',node_file{j,1},node_file{j,2},node_file{j,3},node_file{j,4},node_file{j,5},new_region_label);
+        fprintf(fid,'%d\t%d\t%d\t%d\t%d\t%s\n',node_file{j,1},node_file{j,2},node_file{j,3},node_file{j,4},node_file{j,5},new_region_label);
     end
     fclose(fid);
 elseif strcmp(brainnet.netmetric, 'maxT')
