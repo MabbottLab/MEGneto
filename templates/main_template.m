@@ -197,6 +197,36 @@ subAnalysis_name = NaN; % nickname for sub-analysis, e.g. 'TreatVsControl'
                         % the corresponding *_ParticipantCategories.xlsx
 
 make_NBS_ready(paths, group_names, conn, subAnalysis_name)
+
+% Add path to NBS toolbox
+nbs_path = '/fill/path/in/here'; % on imaging-lab machines, this is /mnt/hpc-megneto/MEGneto/NBS1.2
+addpath(genpath(nbs_path))
+
+% Run the interactive GUI
+NBS 
+% OR
+% Run NBS from the command line:
+  % Set up analysis parameters - use GUI if unsure of options
+  nbs_ui          = [];
+  nbs_ui.method   = 'Run NBS'; 
+  nbs_ui.design   = '/path/to/design_matrix.mat';
+  nbs_ui.contrast = '[-1, 1]'; % change to desired contrast between groups
+  nbs_ui.thresh   = '0.05'; % change to desired (initial) threshold for analysis
+  nbs_ui.test     = 't-test'; % could also be 'f-test'
+  nbs_ui.matrices = '/path/to/data_matrix.mat'; 
+  nbs_ui.node_coor = '/path/to/coordinates.txt'; 
+  nbs_ui.node_label = '/path/to/labels.txt';
+  nbs_ui.perms    = '5000'; % permutations
+  nbs_ui.alpha    = '0.05'; % overall cluster alpha level
+  nbs_ui.size     = 'Extent'; % or intensity
+  nbs_ui.exchange = ''; % can put in exchange block to indicated repeated measures, if you have them
+
+  % run analysis
+  NBSrun(nbs_ui, [])
+  
+  % bring resulting structure into workspace
+  global nbs
+
 %% make_BNV_ready
 % This fuction creates *.node and *.edge files for viewing connectivity 
 % results from PLS or NBS on BrainNet Viewer (BNV). 
