@@ -67,15 +67,15 @@ else % otherwise, define the rest of the paths struct
     pids = cell(length(all_participants),1);
     for ii = 1:length(all_participants)
         startpos = find(all_participants{ii} == '/', 1, 'last');
-        all_participants_subset = extractAfter(all_participants{ii}, startpos);
-        if (length(strfind(all_participants_subset, '_')) > 1) || (length(strfind(all_participants_subset, '.')) > 1) 
+        %all_participants_subset = extractAfter(all_participants{ii}, startpos);
+        if (length(strfind(all_participants{ii}, '_')) > 1) || (length(strfind(all_participants{ii}, '.')) > 1) 
             warning('incorrect PID format: more than one underscore or period was found') % throw an error if PID format is wrong
         else
             % startpos = find(all_participants{ii} == '/', 1, 'last'); % find position of the last '/' to be used for PID extraction
-            if contains(all_participants_subset, '_') % check whether the character array contains an underscore 
-                extracted_pid = extractBetween(all_participants_subset, startpos+1, '_'); % extract characters between the last '/' and '_'
+            if contains(all_participants{ii}, '_') % check whether the character array contains an underscore 
+                extracted_pid = extractBetween(all_participants{ii}, startpos+1, '_'); % extract characters between the last '/' and '_'
             else
-                extracted_pid = extractBetween(all_participants_subset, startpos+1, '.'); % extract characters between the last '/' and '.'
+                extracted_pid = extractBetween(all_participants{ii}, startpos+1, '.'); % extract characters between the last '/' and '.'
             end 
         end
         pids{ii} = extracted_pid{1}; % extract and store content of 1x1 cell array containing the pid 
