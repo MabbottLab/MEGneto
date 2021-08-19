@@ -1,0 +1,131 @@
+{
+    "config" : {
+	"contact" : [""],
+        "epoching" : {
+            "period" : null,
+            "overlap" : null,    
+            "headMotion" : {
+                "thr" : null
+            }
+        },
+        "cleaningOptions" : {
+            "artifact" : {
+                "detection" : null,
+                "muscle" : {
+                    "bpfilter"    : "",
+                    "bpfreq"      : [],
+                    "bpfiltord"   : null,
+                    "bpfilttype"  : "",
+                    "hilbert"     : "",
+                    "boxcar"      : null,
+                    "cutoff"      : null,
+                    "trlpadding"  : null,
+                    "fltpadding"  : null,
+                    "artpadding"  : null
+                },
+                "jump" : {
+                    "cutoff" : null
+                },
+                "icaClean" : null,
+                "rmNoisyTrials" : null
+            },
+	    "rmBadChannels" : null
+        },
+        "filteringParameters" : {
+            "channel"    : [""], 
+            "dftfilter"  : "",                 
+            "dftfreq"    : [],           
+            "bpfilter"   : "",                 
+            "bpfreq"     : [],
+            "bpfiltord"  : null,                  
+            "sampleRate" : null,               
+            "CTFlayout"  : ""
+        },
+        "taskFunc": {
+            "function": "",
+            "type": "",
+            "file": "",
+            "workspace": [{}],
+            "within_file_path": ""
+        },
+	"maxRest": null,
+        "task" : {
+            "isRest" : null,
+            "trialdef" : {
+                "details" : {
+                    "include" : [""]
+                },
+                "parameters" : {
+                    "t0shift" : null,
+                    "tEpoch" : []
+                },
+                "markers" : {
+                    "Correct" : [""],
+                    "t0marker" : ""
+                }
+            }
+        },
+	"beamforming" : {
+		"headmodel" : {
+			"method" : "",
+			"units" : ""
+		},
+		"template" : {
+			"grid" : {
+				"resolution" : null,
+				"tight" : "",
+				"inwardshift" : null
+			},
+			"coordsys" : ""
+		},
+		"atlas" : {
+			"filepath" : "",
+			"inputcoord" : ""
+		},
+		"checkMRIvolumes" : {
+			"method" : "",
+			"slicesdim" : null,
+			"nslices" : null
+		},
+		"subj" : {
+			"grid" : {
+				"warpmni": "",
+				"nonlinear": "",
+				"unit": ""
+			}
+		},
+		"leadfield" : {
+			"normalize" : "" 
+		},
+		"timeDomain" : {
+			"covariance" : "",
+			"covariancewindow" : "",
+			"vartrllength" : "",
+			"projectmom" : ""
+		},
+		"options" : {
+			"keeptrials" : "",
+			"keepfilter" : ""		
+		},
+		"method" : "",
+		"rep_timeseries" : ""
+	},
+	"connectivity" : {
+		"include": null,
+		"method" : "",
+		"filt_freqs" : [[]],
+		"freq_names" : [],
+		"collapse_band" : "",
+		"ROIs": null
+	},
+	"freqanalysis": {
+		"include": null,
+		"foi": [],
+		"method": "",
+		"toi": [],
+		"baseline": [],
+		"baseline_type": "",
+		"ROIs": null
+		}
+	}    
+}

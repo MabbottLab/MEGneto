@@ -1,0 +1,8 @@
+-43  -76  35    0   0.000   L Angular Gyrus                    
+51   -64  32    0   0.000   R Angular Gyrus                 
+-3   -54  31    0   0.000   PCC                 
+-2   51   2     0   0.000   Ventral Medial PFC              
+-13  52   23    0   0.000   Dorsal Medial PFC                 
+2    53   24    0   0.000   R Medial PFC                  
+-57  -25  -17   0   0.000   L Interior Temporal Gyrus                 
+57   -25  -17   0   0.000   R Interior Temporal Gyrus                
