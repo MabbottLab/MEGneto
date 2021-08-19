@@ -1,6 +1,0 @@
-LDIFG                   
-STS                    
-T1a                     
-F3OPD                  
-F3TV                    
-T1p                    
