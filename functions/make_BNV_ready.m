@@ -18,7 +18,7 @@ function make_BNV_ready(paths, brainnet)
 %       .colour         = 1     for one colour for all nodes
 %                         2     for colour range by number of connections 
 %                               per node (node degree)
-%       .size           = 1     for size of each node is the same
+%       .size_nodes           = 1     for size of each node is the same
 %                         2 	for size based on group connectivity
 %                         3     for size based on group connectivity difference
 %       .grp            = division of participants by index into groups,
@@ -69,14 +69,14 @@ elseif strcmp(brainnet.netmetric, 'maxT')
 end
 
 % get difference between groups
-diff_groupadjmat = mean(data_matrix(:,:,brainnet.grp{1}),3) - ...
-                    mean(data_matrix(:,:,brainnet.grp{2}),3);
+diff_groupadjmat = mean(data_matrix(:,:,1:12),3) - ...
+                    mean(data_matrix(:,:,13:24),3);
 
 %% EDGE FILE
 
 % prepare binary mask (sig_nodes)
 if strcmp(brainnet.netmetric,'nbs')
-    sig_nodes   = full(nbs.NBS.con_mat{1,1}+nbs.NBS.con_mat{1,1}');
+    sig_nodes   = (nbs.NBS.con_mat{1,1});
 elseif strcmp(brainnet.netmetric,'maxT')
     sig_nodes   = zeros(90,90);
     for i = 1:length(brainnet.maxT_NOI)
@@ -95,7 +95,7 @@ else
 end
 
 if brainnet.edge_weight == 1
-    sig_nodes = sig_nodes .* diff_groupadjmat;
+    sig_nodes = sig_nodes .* (1-(p_val.*10));
 end
 
 if strcmp(brainnet.netmetric,'nbs')
@@ -108,9 +108,11 @@ end
 
 % SET COLOUR---------------------------------------------------------------
 if brainnet.colour == 1
+    sig_nodes   = (nbs.NBS.con_mat{1,1});
     node_colour                     = squeeze(sum(sig_nodes,1));
     node_colour(node_colour > 0)    = 1;
 elseif brainnet.colour == 2
+    sig_nodes   = full(nbs.NBS.con_mat{1,1}+nbs.NBS.con_mat{1,1}');
     node_colour                     = squeeze(nansum(sig_nodes(noi,noi),1));
 elseif brainnet.colour==3
     error('Sorry - brainnet.colour = 3 is not yet a working option!')
@@ -145,17 +147,16 @@ if strcmp(brainnet.netmetric,'nbs') || strcmp(brainnet.netmetric, 'maxT')
     if brainnet.size_nodes == 1 % size of each node identical
         node_size                   = ones(1,size(sig_nodes(noi,noi),1));
     elseif brainnet.size_nodes == 2 % size based on group connectivity
-        group_nodes                 = groupadjmat(:,:,brainnet.fb_interest,1).*sig_nodes; 
-        node_size                   = strengths_und(group_nodes);
+        group_nodes                 = nbs.NBS.test_stat.*sig_nodes; 
+        node_size                   = group_nodes;
     elseif brainnet.size_nodes == 3 % size based on difference between groups
-        diff_nodes                  = diff_groupadjmat.*sig_nodes(noi,noi);
-        diff_nodes(logical(eye(sum(noi)))) = 0;
-        node_size                   = strengths_und(abs(diff_nodes));
+        group_nodes                 = nbs.NBS.test_stat.*sig_nodes; 
+        node_size                   = mean(group_nodes);
     end
 end
 node_size=abs(round(node_size',4)); % gets rid of negatives... so size is accurately depicted
 
-% Remove spaces in node labels (if there are any)
+%Remove spaces in node labels (if there are any)
 for i = 1:length(nbs.NBS.node_label)
     if contains(nbs.NBS.node_label(i),' ') == 1
         nbs.NBS.node_label(i) = strrep(nbs.NBS.node_label(i), ' ', '.');
@@ -173,7 +174,7 @@ if strcmp(brainnet.netmetric,'nbs')
     for j = 1:size(node_file,1)
         tmp_name                    = strsplit(region_labels{j,1},'_');
         new_region_label            = strjoin(tmp_name,'.');
-        fprintf(fid,'%d\t%d\t%d\t%d\t%d\t%s\n',node_file{j,1},node_file{j,2},node_file{j,3},node_file{j,4},node_file{j,5},new_region_label);
+        fprintf(fid,'%s\t%s\t%s\t%s\t%s\t%s\n',node_file{j,1},node_file{j,2},node_file{j,3}, node_file{j, 4}, node_file{j,5},new_region_label);
     end
     fclose(fid);
 elseif strcmp(brainnet.netmetric, 'maxT')

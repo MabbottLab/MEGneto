@@ -94,7 +94,7 @@ for ss = rangeOFsubj %1:rangeOFsubj
         % load trial definition
         if exist([ssSubjPath(ss) '/' fcp1_output.trial_cfg], 'file')
             % if RESTING STATE
-            if config.task.isRest == true
+            if config.task.isRest == false 
                 samples = loadjson([ssSubjPath(ss) '/' fcp1_output.trial_cfg]);
                 cfg     = [];
                 cfg.trl = samples.trl;

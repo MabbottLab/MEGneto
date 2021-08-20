@@ -542,7 +542,7 @@ Meaning: Email address to which to send pipeline’s progress updates contained 
                     <summary>Resolution</summary>
                     Where: Fcp_4_beamforming when constructing the grid for the T1 template model. 
                     <br>
-                    Meaning: Number of the resolution of the template MNI grid, defined in cm (default = 1).
+                    Meaning: Number of the resolution of the template MNI grid, defined in mm (default = 1).
                   </details>
                 </li>
                 <!--BEAMFORMING.TEMPLATE.TIGHT--> 

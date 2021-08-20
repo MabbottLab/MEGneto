@@ -1,4 +1,4 @@
-function [trl, eventslist] = searchTaskTrialFun(cfg)
+function [trl, eventslist] = freeviewingTrialFun(cfg)
 
 % SEARCHTASKTRIALFUN is the function that filters and organizes trials by 
 % the designated markers. This function is called by:
@@ -62,49 +62,33 @@ hdr         = ft_read_header(cfg.dataset);
 % create functions to calculate:
 timeToSamp  = @(t) round(t * hdr.Fs); % time x sampling rate = sample
 sampToTime  = @(s) s / hdr.Fs; % sample / sampling rate = time
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % extract current ppt 
 pos = find(cfg.dataset == '/', 1, 'last');
 ppt = extractAfter(cfg.dataset, pos);
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-load(['/home/ckim/MEG_processing/clipMarkers_allPpts.mat']);
-clipMarkers_allPpts.Properties.RowNames{1} = 'OIRM02_MEG085_20161213_Free.ds';
-clipMarkers_allPpts.Properties.RowNames{2} = 'OIRM02_MEG085_20161213_Free2.ds';
-clipMarkers_allPpts.Properties.RowNames{3} = 'OIRM03_MEG085_20161219_Free.ds';
-clipMarkers_allPpts.Properties.RowNames{4} = 'OIRM03_MEG085_20161219_Free2.ds';
-clipMarkers_allPpts.Properties.RowNames{5} = 'OIRM04_MEG085_20161219_Free.ds';
-clipMarkers_allPpts.Properties.RowNames{6} = 'OIRM04_MEG085_20161219_Free2.ds';
-clipMarkers_allPpts.Properties.RowNames{7} = 'OIRM06_MEG085_20161208_Free.ds';
-clipMarkers_allPpts.Properties.RowNames{8} = 'OIRM06_MEG085_20161208_Free2.ds';
-clipMarkers_allPpts.Properties.RowNames{9} = 'OIRM07_MEG085_20161216_Free.ds';
-clipMarkers_allPpts.Properties.RowNames{10} = 'OIRM07_MEG085_20161216_Free2.ds';
-clipMarkers_allPpts.Properties.RowNames{11} = 'OIRM10_MEG092_20161110_FreeViewing.ds';
-clipMarkers_allPpts.Properties.RowNames{12} = 'OIRM10_MEG092_20161110_FreeViewing2.ds';
-clipMarkers_allPpts.Properties.RowNames{15} = 'OIRM12_MEG085_20161209_Free.ds';
-clipMarkers_allPpts.Properties.RowNames{16} = 'OIRM12_MEG085_20161209_Free2.ds';
-clipMarkers_allPpts.Properties.RowNames{17} = 'OIRM13_MEG085_20161220_Free.ds';
-clipMarkers_allPpts.Properties.RowNames{18} = 'OIRM13_MEG085_20161220_Free2.ds';
-clipMarkers_allPpts.Properties.RowNames{19} = 'OIRM16_MEG085_20161205_Free.ds';
-clipMarkers_allPpts.Properties.RowNames{20} = 'OIRM17_MEG085_20161212_Free.ds';
-clipMarkers_allPpts.Properties.RowNames{21} = 'OIRM17_MEG085_20161212_Free2.ds';
-clipMarkers_allPpts.Properties.RowNames{22} = 'OIRM08_MEG092_20161031_Free.ds';
-clipMarkers_allPpts.Properties.RowNames{23} = 'OIRM09_MEG092_20161031_Free.ds';
-clipMarkers_allPpts.Properties.RowNames{24} = 'OIRM09_MEG092_20161031_Free2.ds';
 
+load(['/home/ckim/MEG_processing/clipMarkers_allPpts.mat']);
 % create eventslist structure
+eventslist  = struct();
 current_row = clipMarkers_allPpts(strcmp(clipMarkers_allPpts.Properties.RowNames, ppt), :);
 current_col = current_row{:,3};
-eventslist = struct();
-n = 1;  % counter for eventslist
-% not the most efficient way of filling in events list, but oh well
+movieOrder  = current_row{:,2};
+clipEnd     = current_row{:,4};
+n           = 1; % counter for eventslist
+% not the most efficient way of filling in events list
 for i = 1:length(current_col{1})
     for j = 1:length(current_col{1}{i})
-        eventslist(n).sample = current_col{1}{i}(j);
-        eventslist(n).type = 'clipChange';            % add movie number for each sample
+        eventslist(n).sample    = current_col{1}{i}(j);
+        eventslist(n).type      = 'clipChange';
+        eventslist(n).movie     = movieOrder{1}(i);             % add movie number for each sample
+        if j == length(current_col{1}{i})
+            eventslist(n).end   = clipEnd{1}(i);
+        else
+            eventslist(n).end   = 0;
+        end
         n = n+1;
     end
 end
-
 % get list of possible event types
 uniquetypes = unique({eventslist.type});
 
@@ -114,14 +98,15 @@ eventslistnum = cellfun(@(str) find(strcmp(uniquetypes, str),1), {eventslist.typ
 % identify all the t=0 stimulus markers, and search for other markers within the search interval
 t0markernum   = find(ismember(uniquetypes, cfg.trialdef.markers.t0marker));
 
-% setup unfiiltered trials table for all trials
+% setup unfiltered trials table for all trials
 unfiltered_trials               = table(); % instantiate table
 unfiltered_trials.t0sample      = [eventslist(ismember(eventslistnum, t0markernum)).sample]'; % get the sample of each t0marker
+unfiltered_trials.movieNumber   = [eventslist(ismember(eventslistnum, t0markernum)).movie]'; % get the movie of each t0marker
+unfiltered_trials.clipEnd       = [eventslist(ismember(eventslistnum, t0markernum)).end]';   % get clip end, 0 if not at end
 
-% prepare event and event timing columns
+% prepare event, event timing, movie number columns
 unfiltered_trials.event         = cell(height(unfiltered_trials),1); 
 unfiltered_trials.eventTiming   = cell(height(unfiltered_trials),1);
-
 %% ACTUAL PROCESSING OF EVENTS
 
 %%% IDENTIFY START AND END SEARCH INTERVAL --------------------------------
@@ -142,6 +127,8 @@ for rr = 1:height(unfiltered_trials)
                                       & [eventslist.sample] <= sEnd).sample}; % get the sample ordinal 
 end
 
+% unfiltered_trials = sortrows(unfiltered_trials, [2 1]);    % sort by column 2, which is by movie, then by column 1, which is by t0 marker
+
 %%% DETERMINE DESIGNATED MARKER PRESENCE WITHIN EACH TRIAL ----------------
 
 % marker_present keeps track of the sample at which the designated marker
@@ -151,7 +138,6 @@ marker_present = cellfun(@(x) any(ismember(x,cfg.trialdef.markers.Correct)), ...
 marker_present = cell2mat(marker_present);       % make it into a matrix
 deleteRows = marker_present == 0; % get rows of incorrect trials
 marker_present = marker_present(marker_present > 0);  
-
 %% ASSEMBLE TRL MATRIX
 
 %%% INITIALIZE VARIABLES --------------------------------------------------
@@ -171,10 +157,37 @@ tt = 1;
 %       - COL 3:        time in msec of lower bound from t = 0
 %       - COL 4:        don't worry, tracking num_conditions but here = 1
 trl_tmp         = zeros(height(selected_trials), 4 + length(cfg.trialdef.details.include));
-trl_tmp(:,1:2)  = selected_trials.t0sample ... % around the sample of t0marker
-    + timeToSamp(cfg.trialdef.parameters.tEpoch) ... % get [-2, 2]
-    + timeToSamp(cfg.trialdef.parameters.t0shift); % shift by t0shift
-trl_tmp(:,3)    = timeToSamp(cfg.trialdef.parameters.tEpoch(1));
+
+first_change = selected_trials.t0sample(1:end);        % remove clip end
+% find next changes
+temp = selected_trials;
+for ii = 1:height(temp)-1
+    if temp.clipEnd(ii) ~= 0
+        temp.t0sample(ii+1) = temp.clipEnd(ii);
+        temp.movieNumber(ii+1) = temp.movieNumber(ii);
+    end
+end
+next_change = temp.t0sample(2:end);
+next_change(end+1) = temp.clipEnd(end);
+% check if we did this right
+if height(first_change) ~= height(next_change)
+    fprintf('Error with this code');
+end
+
+% epoching within clip boundaries
+epoch_interval = zeros(height(first_change), 2);  % since each epoch interval will be different now
+epoch_interval(:, 1) = timeToSamp(cfg.trialdef.parameters.tEpoch(1));
+epoch_interval(:, 1) = epoch_interval(:, 1) + first_change;     % start of interval is specified value + t0 marker
+
+epoch_interval(:, 2) = next_change;                            
+epoch_interval(:, 2) = epoch_interval(:, 2) - timeToSamp(cfg.trialdef.parameters.tEpoch(2)); % end of interval is next t0 marker - specified value
+
+epoch_interval(:, 3) = selected_trials.movieNumber(1:end);
+epoch_interval = sortrows(epoch_interval, [3 1]);               % sort by movie number, then by start of interval
+epoch_interval(:, 3) = [];                                       % get rid of movie number column
+% make TRL matrix
+trl_tmp(:,1:2)  = epoch_interval + timeToSamp(cfg.trialdef.parameters.t0shift);         % shift by t0shift
+trl_tmp(:,3)    = timeToSamp(cfg.trialdef.parameters.tEpoch(1));                        % indicate offset by samples
 trl_tmp(:,4)    = tt;
 
 % combine include once and includes for stats
@@ -215,6 +228,6 @@ fprintf('--------------------------------------\n');
 fprintf('\n\n');
 
 % sort trl matrix
-trl = sortrows(trl);
+% trl = sortrows(trl);
 
 end

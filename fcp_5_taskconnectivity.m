@@ -1,4 +1,4 @@
-function fcp_5_taskconnectivity(paths)
+function fcp_5_taskconnectivity(paths, option)
 
 % FCP_5_TASKCONNECTIVITY estimates functional connectivity (i.e., analyzes 
 % the synchrony of signals from two regions). 
@@ -108,25 +108,27 @@ else
     num_sources = size(catmatrix, 3); % if not
 end
 
-all_conn_mat = nan(num_sources, num_sources, ... % num_nodes x num_nodes x ...
-                length(subj_match.ds), ...                 % num_subjects x ... 
-                length(config.connectivity.filt_freqs));   % num_freq_bands
-
-%for cc = 1:length(p.condition)
-  % fprintf('Running condition %s... \n', p.condition{cc});
-  
+if option == 1
+    all_conn_mat = nan(num_sources, num_sources, ... % num_nodes x num_nodes x ...
+        length(subj_match.ds), ...                 % num_subjects x ...
+        length(config.connectivity.filt_freqs));   % num_freq_bands
+    
+    %for cc = 1:length(p.condition)
+    % fprintf('Running condition %s... \n', p.condition{cc});
+    
     for ss = 1:length(subj_match.ds)
         right_now = clock;
         fprintf('%02.f:%02.f:%02.f       Working on subject %s!\n', ...
             right_now(4:6), subj_match.pid{ss})
-
-%%% LOAD VIRTUAL SENSOR DATA ----------------------------------------------
+        
+        %%% LOAD VIRTUAL SENSOR DATA ----------------------------------------------
         try
-            load([ssSubjPath(ss) '/atlas_beamforming_results.mat'], '-mat'); 
+            catmatrix = load([feval(ssSubjPath, ss) '/compiledCATmatrix'], '-mat', 'newcatmatrix');
+            catmatrix = catmatrix.newcatmatrix;
         catch
             load([ssSubjPath(ss) '/AAL_beamforming_results.mat'], '-mat');
         end
-    
+        
         % define some dimensions
         num_samples = size(catmatrix, 1);
         num_trials  = size(catmatrix, 2);
@@ -136,51 +138,64 @@ all_conn_mat = nan(num_sources, num_sources, ... % num_nodes x num_nodes x ...
             catmatrix_collapsed = cellfun(@(x) nanmean(catmatrix(:,:,x), 3), ROIs, 'UniformOutput', false);
             catmatrix = cat(3, catmatrix_collapsed{:}); clear catmatrix_collapsed;
         end
-
-%%% INITIALIZE PARTICIPANT CONNECTIVITY MATRIX -------------------------------
-%   Dimensions = [sources] x [sources] x [freq. band]
-        conn_mat  = nan(num_sources, num_sources, length(config.connectivity.filt_freqs)); 
+        
+        %%% INITIALIZE PARTICIPANT CONNECTIVITY MATRIX -------------------------------
+        %   Dimensions = [sources] x [sources] x [freq. band]
+        conn_mat  = nan(num_sources, num_sources, length(config.connectivity.filt_freqs));
         data    = [];
         time_info = config.task.trialdef.parameters.tEpoch;
         for src = 1:num_sources
             data.label{src} = sprintf('ROI%d', src);
         end
-
-%%% RUN CONNECTIVITY ANALYSIS ---------------------------------------------
-    %%% FOR EACH FREQUENCY BAND
-        for fq = 1:length(config.connectivity.filt_freqs) 
-          fprintf('Analyzing the %s band!\n', band_names{fq}); 
-          
-          %%% FOR EACH TRIAL
-          for tt = 1:num_trials
-            fprintf('Processing trial %d...\n', tt);
-            data.time{tt} = (time_info(1)+(1/srate)):(1/srate):time_info(2);
-            %%% FOR EACH OF THE NODES/SOURCES
-            for kk = 1:num_sources
-              % mean center or z-score the timeseries before filtering
-              ts = prefilter(catmatrix(:,tt,kk)); % prepared specified portion of catmatrix         
-              % filter data, calculate hilbert transform, get instantaneous phase
-                if (max(length(fir_coef{fq})-1,length(1)-1)*3) < length(ts)          
-                    data.trial{tt}(kk,:) = filtfilt(fir_coef{fq}, 1, ts);
-                else
-                    data.trial{tt}(kk,:) = filter(fir_coef{fq}, 1, ts);
+        
+        %%% RUN CONNECTIVITY ANALYSIS ---------------------------------------------
+        %%% FOR EACH FREQUENCY BAND
+        for fq = 1:length(config.connectivity.filt_freqs)
+            fprintf('Analyzing the %s band!\n', band_names{fq});
+            
+            counter = 1;
+            %%% FOR EACH TRIAL
+            for tt = 1:num_trials
+                fprintf('Processing trial %d...\n', tt);
+                %           tmp = sum(~isnan(catmatrix(:, tt, 1)));
+                tmp = catmatrix(:, tt, 1);
+                remove_indx = isnan(tmp);
+                tmp(remove_indx) = [];
+                % change if epoch period is different!
+                data.time{counter} = (0.4 + (1/srate)):(1/srate):(0.4 + length(tmp)/srate);
+                %%% FOR EACH OF THE NODES/SOURCES
+                for kk = 1:num_sources
+                    % mean center or z-score the timeseries before filtering
+                    tmp = catmatrix(:, tt, kk);
+                    remove_indx = isnan(tmp);
+                    tmp(remove_indx) = [];
+                    ts = prefilter(tmp); % prepared specified portion of catmatrix
+                    % filter data, calculate hilbert transform, get instantaneous phase
+                    if (max(length(fir_coef{fq})-1,length(1)-1)*3) < length(ts)
+                        data.trial{counter}(kk,:) = filtfilt(fir_coef{fq}, 1, ts);
+                    else
+                        data.trial{counter}(kk,:) = filter(fir_coef{fq}, 1, ts);
+                    end
                 end
+                counter = counter+1;
             end
-          end
-
-%%% CALCULATE CONNECTIVITY ------------------------------------------------
+            
+            %%% CALCULATE CONNECTIVITY ------------------------------------------------
             fprintf('Onto the connectivity calculations!\n')
-            cfg             = []; % set up config for connectivity calculation
+            load([ssSubjPath(ss) '/conditionVector.mat']);
+            interest        = find(interest);
+            cfg             = []; % set up%
             cfg.method      = 'mtmfft';
             cfg.output      = 'powandcsd';
             cfg.channel     = 'all';
-            cfg.trials      = 'all';
+            cfg.trials      = interest;
             cfg.keeptrials  = 'yes';
             cfg.taper       = 'hanning';
             cfg.foilim      = config.connectivity.filt_freqs(fq,:); % calculate connectvity
+            cfg.pad         = 5;
             % GET THE CROSS SPECTRUM
-            freq            = ft_freqanalysis(cfg, data); 
-
+            freq            = ft_freqanalysis(cfg, data);
+            
             % COMPUTE CONNECTIVITY METRIC
             if strcmp(config.connectivity.method, 'pli')
                 % need to trick fieldtrip if we're using PLI, as they don't
@@ -203,21 +218,150 @@ all_conn_mat = nan(num_sources, num_sources, ... % num_nodes x num_nodes x ...
             else % otherwise, use mean
                 conn_mat(:,:,fq) = squeeze(mean(conn.(sprintf('%sspctrm', config.connectivity.method)), 3));
             end
-          
+            
             fprintf('Done this band. ')
         end % repeat for each frequency band
-
-%%% SAVE PARTICIPANT'S CONNECTIVITY MATRIX -----------------------------------
+        
+        %%% SAVE PARTICIPANT'S CONNECTIVITY MATRIX -----------------------------------
         fprintf('Saving the mat file...\n');
-        save([ssSubjPath(ss) '/fcp_5_conn_mat_' config.connectivity.method '.mat'],'conn_mat','-mat','-v7.3')
-
-%%% CALCULATE AND RECORD AVG ACROSS TRIALS FOR THIS PARTICIPANT
+        save([ssSubjPath(ss) '/fcp_5_interest_conn_mat_' config.connectivity.method '.mat'],'conn_mat','-mat','-v7.3')
+        
+        %%% CALCULATE AND RECORD AVG ACROSS TRIALS FOR THIS PARTICIPANT
         all_conn_mat(:,:,ss,:) = conn_mat;
     end
     
-%%% SAVE MASTER CONNECTIVITY MATRIX WITH ALL PARTICIPANTS
-save([paths.anout_grp '/fcp_5_allParticipants_conn_mats_' config.connectivity.method '.mat'],'all_conn_mat','-v7.3');
+    %%% SAVE MASTER CONNECTIVITY MATRIX WITH ALL PARTICIPANTS
+    save([paths.anout_grp '/fcp_5_interest_allParticipants_conn_mats_' config.connectivity.method '.mat'],'all_conn_mat','-v7.3');
+else
+    all_conn_mat = nan(num_sources, num_sources, ... % num_nodes x num_nodes x ...
+        length(subj_match.ds), ...                 % num_subjects x ...
+        length(config.connectivity.filt_freqs));   % num_freq_bands
+    
+    %for cc = 1:length(p.condition)
+    % fprintf('Running condition %s... \n', p.condition{cc});
+    
+    for ss = 1:length(subj_match.ds)
+        right_now = clock;
+        fprintf('%02.f:%02.f:%02.f       Working on subject %s!\n', ...
+            right_now(4:6), subj_match.pid{ss})
+        
+        %%% LOAD VIRTUAL SENSOR DATA ----------------------------------------------
+        try
+            catmatrix = load([feval(ssSubjPath, ss) '/compiledCATmatrix'], '-mat', 'newcatmatrix');
+            catmatrix = catmatrix.newcatmatrix;
+        catch
+            load([ssSubjPath(ss) '/AAL_beamforming_results.mat'], '-mat');
+        end
+        
+        % define some dimensions
+        num_samples = size(catmatrix, 1);
+        num_trials  = size(catmatrix, 2);
+        
+        % collapse across ROIs if indicated
+        if ~isempty(ROIs{1})
+            catmatrix_collapsed = cellfun(@(x) nanmean(catmatrix(:,:,x), 3), ROIs, 'UniformOutput', false);
+            catmatrix = cat(3, catmatrix_collapsed{:}); clear catmatrix_collapsed;
+        end
+        
+        %%% INITIALIZE PARTICIPANT CONNECTIVITY MATRIX -------------------------------
+        %   Dimensions = [sources] x [sources] x [freq. band]
+        conn_mat  = nan(num_sources, num_sources, length(config.connectivity.filt_freqs));
+        data    = [];
+        time_info = config.task.trialdef.parameters.tEpoch;
+        for src = 1:num_sources
+            data.label{src} = sprintf('ROI%d', src);
+        end
+        
+        %%% RUN CONNECTIVITY ANALYSIS ---------------------------------------------
+        %%% FOR EACH FREQUENCY BAND
+        for fq = 1:length(config.connectivity.filt_freqs)
+            fprintf('Analyzing the %s band!\n', band_names{fq});
+            
+            counter = 1;
+            %%% FOR EACH TRIAL
+            for tt = 1:num_trials
+                fprintf('Processing trial %d...\n', tt);
+                %           tmp = sum(~isnan(catmatrix(:, tt, 1)));
+                tmp = catmatrix(:, tt, 1);
+                remove_indx = isnan(tmp);
+                tmp(remove_indx) = [];
+                % change if epoch period is different!
+                data.time{counter} = (0.4 + (1/srate)):(1/srate):(0.4 + length(tmp)/srate);
+                %%% FOR EACH OF THE NODES/SOURCES
+                for kk = 1:num_sources
+                    % mean center or z-score the timeseries before filtering
+                    tmp = catmatrix(:, tt, kk);
+                    remove_indx = isnan(tmp);
+                    tmp(remove_indx) = [];
+                    ts = prefilter(tmp); % prepared specified portion of catmatrix
+                    % filter data, calculate hilbert transform, get instantaneous phase
+                    if (max(length(fir_coef{fq})-1,length(1)-1)*3) < length(ts)
+                        data.trial{counter}(kk,:) = filtfilt(fir_coef{fq}, 1, ts);
+                    else
+                        data.trial{counter}(kk,:) = filter(fir_coef{fq}, 1, ts);
+                    end
+                end
+                counter = counter+1;
+            end
+            
+            %%% CALCULATE CONNECTIVITY ------------------------------------------------
+            fprintf('Onto the connectivity calculations!\n')
+            load([ssSubjPath(ss) '/conditionVector.mat']);
+            content         = interest;
+            interest        = find(content);
+            temp            = find(~content);
+            indices         = randperm(length(temp), length(interest));
+            content         = temp(indices);                     % match number of control trials to interest trials
+            cfg             = []; % set up%
+            cfg.method      = 'mtmfft';
+            cfg.output      = 'powandcsd';
+            cfg.channel     = 'all';
+            cfg.trials      = content;
+            cfg.keeptrials  = 'yes';
+            cfg.taper       = 'hanning';
+            cfg.foilim      = config.connectivity.filt_freqs(fq,:); % calculate connectvity
+            cfg.pad         = 5;
+            % GET THE CROSS SPECTRUM
+            freq            = ft_freqanalysis(cfg, data);
+            
+            % COMPUTE CONNECTIVITY METRIC
+            if strcmp(config.connectivity.method, 'pli')
+                % need to trick fieldtrip if we're using PLI, as they don't
+                % have it implemented in their ft_connectivityanalysis
+                conn.labelcmb      = freq.labelcmb;
+                conn.dimord        = 'chancmb_freq';
+                conn.freq          = freq.freq;
+                conn.cfg           = freq.cfg;
+                conn.plispctrm     = squeeze(abs(mean(sign(freq.crsspctrm), 1)));
+            else
+                cfg             = []; % set up config for computing connectivity metric
+                cfg.method      = config.connectivity.method;
+                conn            = ft_connectivityanalysis(cfg, freq); % compute connectivity metric
+            end
+            
+            % RESHAPE INTO SOURCE X SOURCE CONN MAT AND STORE
+            conn            = ft_checkdata(conn, 'cmbrepresentation', 'full');
+            if ~strcmp(config.connectivity.method, config.connectivity.collapse_band) % default to max across band
+                conn_mat(:,:,fq) = squeeze(max(conn.(sprintf('%sspctrm', config.connectivity.method)),[], 3));
+            else % otherwise, use mean
+                conn_mat(:,:,fq) = squeeze(mean(conn.(sprintf('%sspctrm', config.connectivity.method)), 3));
+            end
+            
+            fprintf('Done this band. ')
+        end % repeat for each frequency band
+        
+        %%% SAVE PARTICIPANT'S CONNECTIVITY MATRIX -----------------------------------
+        fprintf('Saving the mat file...\n');
+        save([ssSubjPath(ss) '/fcp_5_control_conn_mat_' config.connectivity.method '.mat'],'conn_mat', 'content', '-mat','-v7.3')
+        
+        %%% CALCULATE AND RECORD AVG ACROSS TRIALS FOR THIS PARTICIPANT
+        all_conn_mat(:,:,ss,:) = conn_mat;
+    end
+    
+    %%% SAVE MASTER CONNECTIVITY MATRIX WITH ALL PARTICIPANTS
+    save([paths.anout_grp '/fcp_5_control_allParticipants_conn_mats_' config.connectivity.method '.mat'],'all_conn_mat','-v7.3');
 
+end
 %% turn off diary
 right_now = clock;
 fprintf('%02.f:%02.f:%02.f ============== Finished Processing ====================\n', ...

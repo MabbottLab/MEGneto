@@ -120,6 +120,7 @@ end
 %       -- analysis_name #1
 %           -- analysis
 %               -- group
+%               -- ML
 %               -- ST01
 %               -- ...
 %               -- STXX
@@ -127,6 +128,7 @@ end
 %       -- analysis_name #2
 %           -- analysis
 %               -- group
+%               -- ML
 %               -- ST01
 %               -- ...
 %               -- STXX
@@ -140,6 +142,7 @@ mkdir(paths.anhome);            % create analysis-specific home folder
 mkdir(paths.conf_dir);          % create analysis-specific config folder
 mkdir(paths.anout);             % create analysis-specific analysis folder
 mkdir(paths.anout_grp);         % create analysis-specific group folder
+mkdir(paths.anout_ML);          % create analysis-specific machine learning folder
 
 % initialize JSON config file based on existence, template, overwrite
 if overwrite == true || ~exist(paths.mainconf,'file')

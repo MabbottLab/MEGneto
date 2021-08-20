@@ -43,6 +43,7 @@ else % otherwise, define the rest of the paths struct
     paths.name = analysis_name;     % analysis name (e.g., BOTH)
     paths.anout = [paths.anhome '/analysis'];               % specific analysis OUTPUT folder
     paths.anout_grp = [paths.anout '/group'];               % specific analysis GROUP output folder
+    paths.anout_ML  = [paths.anout '/ML'];                  % specific analysis ML output folder
     paths.mainconf = [paths.conf_dir '/' paths.name '.json'];       % location of JSON config file
     paths.all_subj_pids = [paths.conf_dir '/all_subj_pids.csv'];    % CSV of ALL participants under analysis
 
@@ -63,7 +64,7 @@ else % otherwise, define the rest of the paths struct
 
     % individual MRI data paths
     paths = struct2table(paths);
-    all_participants = glob([paths.rawmri '/*.mri']);
+    all_participants = glob([paths.rawmri '/*.nii']);
     pids = cell(length(all_participants),1);
     for ii = 1:length(all_participants)
         startpos = find(all_participants{ii} == '/', 1, 'last');
@@ -72,14 +73,14 @@ else % otherwise, define the rest of the paths struct
             warning('incorrect PID format: more than one underscore or period was found') % throw an error if PID format is wrong
         else
             % startpos = find(all_participants{ii} == '/', 1, 'last'); % find position of the last '/' to be used for PID extraction
-            if contains(all_participants_subset, '_') % check whether the character array contains an underscore 
-                extracted_pid = extractBefore(all_participants_subset, '_'); % extract characters between the last '/' and '_'
+            if contains(all_participants{ii}, '_') % check whether the character array contains an underscore 
+                extracted_pid = extractBetween(all_participants{ii}, startpos+1, '_'); % extract characters between the last '/' and '_'
             else
-                extracted_pid = extractBefore(all_participants_subset, '.'); % extract characters between the last '/' and '.'
+                extracted_pid = extractBetween(all_participants{ii}, startpos+1, '.'); % extract characters between the last '/' and '.'
             end 
         end
-        pids{ii} = extracted_pid; % extract and store content of 1x1 cell array containing the pid 
-        all_participants{ii} = [paths.anout '/' extracted_pid];
+        pids{ii} = extracted_pid{1}; % extract and store content of 1x1 cell array containing the pid 
+        all_participants{ii} = [paths.anout '/' extracted_pid{1}];
         
     end
     all_participants = cell2struct(all_participants,pids);

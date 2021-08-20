@@ -40,31 +40,103 @@ spath = paths.anout; % path to analysis folder
 spath_grp = paths.anout_grp;
 
 % load info on which participants belong to which groups
-groups = readtable([paths.conf_dir '/' nickname '_ParticipantCategories.xlsx']);
-groups = groups(:,1:numGroups);
+% groups = readtable([paths.conf_dir '/' nickname '_ParticipantCategories.xlsx']);
+% groups = groups(:,1:numGroups);
+% groupPLI = cell(1,numGroups); % for each group
+% ppt_list = cell(1,numGroups); % to keep track of all ppts
+% for gg = 1:numGroups
+%     this_ppt_list = rmmissing(groups.(group_names(gg))); % isolate ppt list for this group
+%     groupPLI{gg} = cellfun(@(x) sprintf('%s/%s/fcp_5_conn_mat_%s.mat', spath, x, conn), ...
+%                        config      = load_config(paths, paths.name);
+config      = config.config;
+step        = 'fcp5';
 
-groupPLI = cell(1,numGroups); % for each group
-ppt_list = cell(1,numGroups); % to keep track of all ppts
-for gg = 1:numGroups
-    this_ppt_list = rmmissing(groups.(group_names(gg))); % isolate ppt list for this group
-    groupPLI{gg} = cellfun(@(x) sprintf('%s/%s/fcp_5_conn_mat_%s.mat', spath, x, conn), ...
-                            this_ppt_list, 'UniformOutput', false); % generate filepaths to those folders
-    ppt_list{gg} = this_ppt_list; % add current group's ppt list to over ppt list
+subj_match  = ds_pid_match(paths,step);
+ssSubjPath  = @(x) paths.(subj_match.pid{x});
+
+for trial = 24
+    catmatrix_out = [];
+    for ss = 1:length(subj_match.ds)
+        try
+            load([ssSubjPath(ss) '/NANcompiledCATmatrix.mat'], '-mat');
+        catch
+            load([ssSubjPath(ss) '/AAL_beamforming_results.mat'], '-mat');
+        end
+        if length(newcatmatrix) < length(catmatrix_out)
+            newcatmatrix(length(newcatmatrix)+1:length(catmatrix_out), :, :) = NaN;
+        elseif length(newcatmatrix) > length(catmatrix_out)
+            catmatrix_out(length(catmatrix_out)+1:length(newcatmatrix), :, :) = NaN;
+        end
+        if ss == 1
+            catmatrix_out = newcatmatrix(:, trial, :);
+        else
+            catmatrix_out = cat(2, catmatrix_out, newcatmatrix(:, trial, :));
+        end
+    end
+    save([paths.anout '/trial/trial' num2str(trial) 'compiledCATmatrix' '.mat'],'catmatrix_out','-v7.3');
 end
-
-ordered_ppt_list = [];
-for i = 1:length(ppt_list)
-    ordered_ppt_list = cat(1, ordered_ppt_list, cell2mat(ppt_list{i}));
-end
-
-% save ordered participant list
-orderedpptlist_output = [spath_grp,'/' nickname '_orderedpptlist.txt'];
-dlmwrite(orderedpptlist_output, ordered_ppt_list, '');
-fprintf(['\nParticipant list saved to: ',orderedpptlist_output,'\n\n']);
+     this_ppt_list, 'UniformOutput', false); % generate filepaths to those folders
+%     ppt_list{gg} = this_ppt_list; % add current group's ppt list to over ppt list
+% end
+% 
+% ordered_ppt_list = [];
+% for i = 1:length(ppt_list)
+%     ordered_ppt_list = cat(1, ordered_ppt_list, cell2mat(ppt_list{i}));
+% end
+% 
+% % save ordered participant list
+% orderedpptlist_output = [spath_grp,'/' nickname '_orderedpptlist.txt'];
+% dlmwrite(orderedpptlist_output, ordered_ppt_list, '');
+% fprintf(['\nParticipant list saved to: ',orderedpptlist_output,'\n\n']);
 
 %% initialize subjects in conditions - load PLI conn. matrix
+step        = 'fcp5';
+subj_match  = ds_pid_match(paths,step);
+ssSubjPath  = @(x) paths.(subj_match.pid{x});
+
+groupPLI = cell(1, numGroups);
+for ss = 1:length(subj_match.ds)
+
+    for gg = 1:numGroups
+        if gg == 1
+            groupPLI{gg} = {[ssSubjPath(ss) '/fcp_5_controls_conn_mat_wpli_debiased.mat'], '-mat'}; % generate filepaths to those folders
+        else
+            groupPLI{gg} config      = load_config(paths, paths.name);
+config      = config.config;
+step        = 'fcp5';
+
+subj_match  = ds_pid_match(paths,step);
+ssSubjPath  = @(x) paths.(subj_match.pid{x});
+
+for trial = 24
+    catmatrix_out = [];
+    for ss = 1:length(subj_match.ds)
+        try
+            load([ssSubjPath(ss) '/NANcompiledCATmatrix.mat'], '-mat');
+        catch
+            load([ssSubjPath(ss) '/AAL_beamforming_results.mat'], '-mat');
+        end
+        if length(newcatmatrix) < length(catmatrix_out)
+            newcatmatrix(length(newcatmatrix)+1:length(catmatrix_out), :, :) = NaN;
+        elseif length(newcatmatrix) > length(catmatrix_out)
+            catmatrix_out(length(catmatrix_out)+1:length(newcatmatrix), :, :) = NaN;
+        end
+        if ss == 1
+            catmatrix_out = newcatmatrix(:, trial, :);
+        else
+            catmatrix_out = cat(2, catmatrix_out, newcatmatrix(:, trial, :));
+        end
+    end
+    save([paths.anout '/trial/trial' num2str(trial) 'compiledCATmatrix' '.mat'],'catmatrix_out','-v7.3');
+end
+= cellfun(@(x) sprintf('%s/%s/fcp_5_%s_conn_mat_%s.mat', spath, x, 'social', conn), ...
+                'UniformOutput', false); % generate filepaths to those folders
+        end
+    end
+end
 
 nbs_datamat = [];
+
 for gg = 1:numGroups
     fprintf(['\t---- Group ',num2str(gg),' ----\n']);
         for ss = 1:length(groupPLI{gg})
@@ -96,6 +168,12 @@ for gg = 1:numGroups
     design_matrix = vertcat(design_matrix, repmat(this_gp, length(groupPLI{gg}), 1));
 end
 
+%% make design matrix for dorsal prefrontal cortex, inferior parietal lobe, FEF, and PEF
+indices = [18, 19, 20, 21, 10, 29]';
+tmp = indices + 50;
+indices = [indices;tmp];
+data_matrix = cat(3, social(indices, indices, :, 2), control(indices, indices, :, 2));
+data_matrix = nbs_datamat(:, :, :, 1);
 % save 
 designmat_output = [spath_grp,'/' nickname '_designmatrix.mat'];
 save(designmat_output,'design_matrix','-mat');

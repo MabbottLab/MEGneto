@@ -1,4 +1,4 @@
-function fcp_1_TaskEpoching(paths)
+function FORGRADfcp_1_TaskEpoching(paths)
 
 % FCP_1_TASKEPOCHING will epoch MEG data into trials depending on the
 % desired marker, detect and reject muscle/jump artifacts, and bad
@@ -154,7 +154,7 @@ for ss = 1:length(subj_match.ds) % for each participant that has both MEG and MR
         cfg.trialdef.overlap     = config.epoching.overlap; % proportion overlap
         cfg.trialdef.endbound    = last_sample;
         cfg                      = ft_definetrial(cfg);
-        clear data last_sample
+        clear data, last_sample
     end
     
     cfg_orig                    = cfg; % keep the original epoched data
@@ -189,95 +189,99 @@ for ss = 1:length(subj_match.ds) % for each participant that has both MEG and MR
     save_to_json(cfg,...                % save the HM-removed data
         [paths.(subj_match.pid{ss}) '/' fcp1_output.trial_cfgHM],...
         true);
-
-%% ARTIFACT DETECTION ----------------------------------------------------
-    right_now = clock;
-    fprintf('%02.f:%02.f:%02.f       Detecting muscle and jump artifacts...\n', right_now(4:6))
-
-    if config.cleaningOptions.artifact.detection == 1 % if user indicated they wish to perform artifact detection
-        
-        %% Muscle Artifacts %%%
-        % set up config for muscle artifact detection
-        cfg.artfctdef.muscle.bpfilter    = config.cleaningOptions.artifact.muscle.bpfilter;
-        cfg.artfctdef.muscle.bpfreq      = config.cleaningOptions.artifact.muscle.bpfreq;
-        cfg.artfctdef.muscle.bpfiltord   = config.cleaningOptions.artifact.muscle.bpfiltord;
-        cfg.artfctdef.muscle.bpfilttype  = config.cleaningOptions.artifact.muscle.bpfilttype;
-        cfg.artfctdef.muscle.hilbert     = config.cleaningOptions.artifact.muscle.hilbert;
-        cfg.artfctdef.muscle.boxcar      = config.cleaningOptions.artifact.muscle.boxcar;
-        cfg.artfctdef.muscle.cutoff      = config.cleaningOptions.artifact.muscle.cutoff;
-        if ~config.task.isRest % if task
-            cfg.artfctdef.muscle.trlpadding  = config.cleaningOptions.artifact.muscle.trlpadding; 
-            cfg.artfctdef.muscle.fltpadding  = config.cleaningOptions.artifact.muscle.fltpadding;
-            cfg.artfctdef.muscle.artpadding  = config.cleaningOptions.artifact.muscle.artpadding;
-        else % if rest
-            cfg.artfctdef.muscle.trlpadding  = 0; 
-            cfg.artfctdef.muscle.fltpadding  = 0;
-            cfg.artfctdef.muscle.artpadding  = 0;
-        end
-        [cfg, muscle_artifact]           = ft_artifact_muscle(cfg); % detect muscle artifacts
-        
-        %%% Jump Artifacts %%%
-        % set up config for jump artifact detection 
-        cfg.artfctdef.jump.cutoff        = config.cleaningOptions.artifact.jump.cutoff;
-        [cfg, jump_artifact]             = ft_artifact_jump(cfg); % detect jump artifacts
-        
-%% ARTIFACT REJECTION ----------------------------------------------------
-        % set up config for artifact rejection
-        cfg.artfctdef.reject             = 'complete'; % remove complete trials
-        cfg                              = ft_rejectartifact(cfg); % reject artifacts
-        fcp1_output.noisy_trl{ss,1}      = [muscle_artifact; jump_artifact]; % record noisy trials
-        fcp1_output.Nremove_trls{ss,1}   = length(cfg.trlold)-length(cfg.trl); % record number of removed trials
-    end
-    
-    % save cleaned data progress
-    save_to_json(cfg,... 
-        [paths.(subj_match.pid{ss}) '/' fcp1_output.trial_cfg],...
-        true);
     save_to_json(grad,...
-        [paths.(subj_match.pid{ss}) '/' fcp1_output.grad_cfg],...
+         [paths.(subj_match.pid{ss}) '/' fcp1_output.trial_cfg],...
         true);
-
-%% BAD CHANNEL DETECTION -------------------------------------------------
-    right_now = clock;
-    fprintf('%02.f:%:02.f%02.f       Detecting bad channels...\n', right_now(4:6))
-    
-    cfg             = []; % set up config for detecting bad channels
-    cfg.dataset     = [paths.rawdata '/' subj_match.ds{ss}];
-    cfg.bchthr      = 60; % threshold; 75-85 quantile
-    cfg.sections    = 3; % divide into 3 sections
-    badChannels     = detectBadChannels(cfg,paths.name); % detect bad channels
-    
-    % record bad channels for that participant
-    fcp1_output.bad_chann{ss,1} = badChannels;
-    save_to_json(badChannels,...
-        [paths.(subj_match.pid{ss}) '/badChannels.json'],...
-        true);
-
-%% CELEBRATORY MESSAGE ---------------------------------------------------
-    right_now = clock;
-    fprintf('%02.f:%02.f:%02.f       Done subject %s!\n', ...
-        right_now(4:6), subj_match.pid{ss})
-    close all    
-end % repeat for next participant
-
-%% FLAG PARTICIPANTS WITH MANY BAD CHANNELS ------------------------------
-
-% who has more than 15 bad channels detected?
-bad_subj = subj_match.pid(cellfun('length',fcp1_output.bad_chann) > 15); 
-for i=1:length(bad_subj)
-    warning([bad_subj{i},' has more than 15 BAD CHANNELS.']);
 end
 
-% save all output
-save_to_json(fcp1_output, [paths.anout_grp '/fcp1_output.json'], true);
-
-% turn off diary
-right_now = clock;
-fprintf('%02.f:%02.f:%02.f       Done running **%s**.\n', ...
-    right_now(4:6), mfilename)
-diary off
-
-% let the users know that epoching is complete
-sendEmail("epoching", string(config.contact));
-
-end
+% %% ARTIFACT DETECTION ----------------------------------------------------
+%     right_now = clock;
+%     fprintf('%02.f:%02.f:%02.f       Detecting muscle and jump artifacts...\n', right_now(4:6))
+% 
+%     if config.cleaningOptions.artifact.detection == 1 % if user indicated they wish to perform artifact detection
+%         
+%         %% Muscle Artifacts %%%
+%         % set up config for muscle artifact detection
+%         cfg.artfctdef.muscle.bpfilter    = config.cleaningOptions.artifact.muscle.bpfilter;
+%         cfg.artfctdef.muscle.bpfreq      = config.cleaningOptions.artifact.muscle.bpfreq;
+%         cfg.artfctdef.muscle.bpfiltord   = config.cleaningOptions.artifact.muscle.bpfiltord;
+%         cfg.artfctdef.muscle.bpfilttype  = config.cleaningOptions.artifact.muscle.bpfilttype;
+%         cfg.artfctdef.muscle.hilbert     = config.cleaningOptions.artifact.muscle.hilbert;
+%         cfg.artfctdef.muscle.boxcar      = config.cleaningOptions.artifact.muscle.boxcar;
+%         cfg.artfctdef.muscle.cutoff      = config.cleaningOptions.artifact.muscle.cutoff;
+%         if ~config.task.isRest % if task
+%             cfg.artfctdef.muscle.trlpadding  = config.cleaningOptions.artifact.muscle.trlpadding; 
+%             cfg.artfctdef.muscle.fltpadding  = config.cleaningOptions.artifact.muscle.fltpadding;
+%             cfg.artfctdef.muscle.artpadding  = config.cleaningOptions.artifact.muscle.artpadding;
+%         else % if rest
+%             cfg.artfctdef.muscle.trlpadding  = 0; 
+%             cfg.artfctdef.muscle.fltpadding  = 0;
+%             cfg.artfctdef.muscle.artpadding  = 0;
+%         end
+%         [cfg, muscle_artifact]           = ft_artifact_muscle(cfg); % detect muscle artifacts
+%         
+%         %%% Jump Artifacts %%%
+%         % set up config for jump artifact detection 
+%         cfg.artfctdef.jump.cutoff        = config.cleaningOptions.artifact.jump.cutoff;
+%         [cfg, jump_artifact]             = ft_artifact_jump(cfg); % detect jump artifacts
+%         
+% %% ARTIFACT REJECTION ----------------------------------------------------
+%         % set up config for artifact rejection
+%         cfg.artfctdef.reject             = 'complete'; % remove complete trials
+%         cfg                              = ft_rejectartifact(cfg); % reject artifacts
+%         fcp1_output.noisy_trl{ss,1}      = [muscle_artifact; jump_artifact]; % record noisy trials
+%         fcp1_output.Nremove_trls{ss,1}   = length(cfg.trlold)-length(cfg.trl); % record number of removed trials
+%     end
+%     
+%     % save cleaned data progress
+%     save_to_json(cfg,... 
+%         [paths.(subj_match.pid{ss}) '/' fcp1_output.trial_cfg],...
+%         true);
+%     save_to_json(grad,...
+%         [paths.(subj_match.pid{ss}) '/' fcp1_output.grad_cfg],...
+%         true);
+% 
+% %% BAD CHANNEL DETECTION -------------------------------------------------
+%     right_now = clock;
+%     fprintf('%02.f:%:02.f%02.f       Detecting bad channels...\n', right_now(4:6))
+%     
+%     cfg             = []; % set up config for detecting bad channels
+%     cfg.dataset     = [paths.rawdata '/' subj_match.ds{ss}];
+%     cfg.bchthr      = 60; % threshold; 75-85 quantile
+%     cfg.sections    = 3; % divide into 3 sections
+%     badChannels     = detectBadChannels(cfg,paths.name); % detect bad channels
+%     
+%     % record bad channels for that participant
+%     fcp1_output.bad_chann{ss,1} = badChannels;
+%     save_to_json(badChannels,...
+%         [paths.(subj_match.pid{ss}) '/badChannels.json'],...
+%         true);
+% 
+% %% CELEBRATORY MESSAGE ---------------------------------------------------
+%     right_now = clock;
+%     fprintf('%02.f:%02.f:%02.f       Done subject %s!\n', ...
+%         right_now(4:6), subj_match.pid{ss})
+%     close all    
+% end % repeat for next participant
+% 
+% %% FLAG PARTICIPANTS WITH MANY BAD CHANNELS ------------------------------
+% 
+% % who has more than 15 bad channels detected?
+% bad_subj = subj_match.pid(cellfun('length',fcp1_output.bad_chann) > 15); 
+% for i=1:length(bad_subj)
+%     warning([bad_subj{i},' has more than 15 BAD CHANNELS.']);
+% end
+% 
+% % save all output
+% save_to_json(fcp1_output, [paths.anout_grp '/fcp1_output.json'], true);
+% 
+% % turn off diary
+% right_now = clock;
+% fprintf('%02.f:%02.f:%02.f       Done running **%s**.\n', ...
+%     right_now(4:6), mfilename)
+% diary off
+% 
+% % let the users know that epoching is complete
+% sendEmail("epoching", string(config.contact));
+% 
+% end

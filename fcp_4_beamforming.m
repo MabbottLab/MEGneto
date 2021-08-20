@@ -153,14 +153,36 @@ for ss = rangeOFsubj % for each participant that has matched MEG/MRI data
         right_now(4:6), subj_match.pid{ss})
 
 %%% LOAD ANATOMICAL MRI DATA ----------------------------------------------
-    mri     = ft_read_mri([paths.rawmri '/' subj_match.pid{ss} '_V2.mri']);
+    mri     = ft_read_mri([paths.rawmri '/' subj_match.pid{ss} '.nii']);
     mri     = ft_convert_units(mri,'cm');
+%     
+%     % check for fiducials which help to localize head position relative to
+%     % the sensors
+%     if any(mri.hdr.fiducial.mri.nas) == 0 || any(mri.hdr.fiducial.mri.lpa) == 0  || any(mri.hdr.fiducial.mri.rpa) == 0
+%         error('No fiducials found for subject %s!', subj_match.pid{ss});
+%     end
     
-    % check for fiducials which help to localize head position relative to
-    % the sensors
-    if any(mri.hdr.fiducial.mri.nas) == 0 || any(mri.hdr.fiducial.mri.lpa) == 0  || any(mri.hdr.fiducial.mri.rpa) == 0
-        error('No fiducials found for subject %s!', subj_match.pid{ss});
-    end
+    %%% ADD FIDUCIALS
+    
+    % This was a specific problem for the dataset used
+%     if matches(subj_match.pid{ss}(5:end), 'P01')
+%         fid_info = load('/home/ckim/OIRM_PILOT/MRI/08_MRI/08.mat');
+%     elseif matches(subj_match.pid{ss}(5:end), 'P02')
+%         fid_info = load('/home/ckim/OIRM_PILOT/MRI/09_MRI/09.mat');
+%     else
+%         fid_info = load(['/home/ckim/OIRM_PILOT/MRI/' subj_match.pid{ss}(5:end) '_MRI/' subj_match.pid{ss}(5:end) '.mat']);
+%     end
+%     
+%     cfg = [];
+%     cfg.method = 'interactive';
+    
+    cfg = [];
+    cfg.method = 'fiducial';
+    cfg.fiducial.nas = fid_info.na;
+    cfg.fiducial.lpa = fid_info.le;
+    cfg.fiducial.rpa = fid_info.re;
+
+    mri = ft_volumerealign(cfg, mri);
 
 %%% SEGMENT ANATOMICAL MRI ------------------------------------------------
     cfg        = []; % set up config for volume segmentation
@@ -254,9 +276,19 @@ for ss = rangeOFsubj % for each participant that has matched MEG/MRI data
     right_now = clock;
     fprintf('%02.f:%02.f:%02.f       Now, for actual beamforming...\n', ...
         right_now(4:6))
-
-%%% VECTOR - Time Domain Source Reconstruction ----------------------------
-
+ %%% Remove channel specific NaNs
+    trial_data = data.trial{1,1};
+    for dd = 1:size(trial_data, 1)
+        if isnan(trial_data(dd,:))
+            for tt = 1:size(data.trial, 2)
+                data.trial{1,tt}(dd,:) = [];
+            end
+            data.label(dd) = [];
+        end
+    end
+    
+    %%% VECTOR - Time Domain Source Reconstruction ----------------------------
+    
     %%% compute common spatial filter (returns: COVARIANCE MATRIX)
     % the covariance matrix tells us how related the sensors are
     cfg                    = []; % set up config to compute covariance matrix
@@ -266,7 +298,7 @@ for ss = rangeOFsubj % for each participant that has matched MEG/MRI data
     cfg.vartrllength       = config.beamforming.timeDomain.vartrllength;
     cfg.keeptrials         = config.beamforming.options.keeptrials;
     tlock                  = ft_timelockanalysis(cfg, data); % compute covariance matrix
-
+    
     %%% calculate sensor weights (actual beamforming)
     cfg                 = []; % set up config for sensor weight calculation
     cfg.grad            = data.grad;            % sensor position (gradiometer)
@@ -276,104 +308,128 @@ for ss = rangeOFsubj % for each participant that has matched MEG/MRI data
     cfg.keepfilter      = config.beamforming.options.keepfilter;
     source_t_avg        = ft_sourceanalysis(cfg, tlock);
     
-    %%% project all trials thru spatial filter
-    cfg                 = []; % set up config for beamforming
-    cfg.grid             = grid; % source model
-    cfg.grid.filter      = source_t_avg.avg.filter;
-    cfg.grid.leadfield   = leadfield.leadfield;
-    cfg.grad             = data.grad; % sensor position (gradiometer)
-    cfg.headmodel        = hdm;
-    cfg.method           = config.beamforming.method;
-    cfg.keeptrials       = 'yes';
-    cfg.rawtrial         = 'yes';       
-    source_t_trials      = ft_sourceanalysis(cfg, tlock); % perform beamforming
-        
-    %%% project virtual sources to strongest (dominant) orientation
-    %%% (taking the largest eigenvector of the sources timeseries)
-    cfg                  = []; % set up config for projecting to dominant orientation
-    cfg.projectmom       = config.beamforming.timeDomain.projectmom;
-    cfg.keeptrials       = 'yes';
-    projection           = ft_sourcedescriptives(cfg, source_t_trials); % project to dominant orientation
-    
-%%% INTERPOLATE ATLAS ONTO VIRTUAL SOURCES ----------------------------
-
-    % setup for atlas interpolation - get coordinates
-    sourcemodel.pos = template_grid.pos; 
-    
-    % load atlas
-    if contains(config.beamforming.atlas.filepath, 'mmp') % if MMP glasser atlas
-        megneto_path        = fileparts(which('fcp_4_beamforming.m'));
-        atlas               = ft_read_atlas([megneto_path '/external/atlas/mmp.mat']);
-    else
-        fullPath                = which('ft_preprocessing.m');
-        [pathstr,~,~]           = fileparts(fullPath);
-        atlas                   = ft_read_atlas([pathstr config.beamforming.atlas.filepath]);
-        if contains(config.beamforming.atlas.filepath, 'aal')
-            atlas.tissuelabel   = atlas.tissuelabel(1:90); % we only want non-cerebellar regions (isolate desired regions)
-            atlas.tissue(atlas.tissue > 90) = 0;
+    for split = 1:2
+        cfg               = [];
+        cfg.dataset       = tlock;
+        if split == 1
+            cfg.trials        = [1:round((length(tlock.trialinfo))/2)];
+        else
+            cfg.trials        = [round((length(tlock.trialinfo))/2) + 1 :length(tlock.trialinfo)];
         end
-    end
-    atlas           = ft_convert_units(atlas, 'cm'); % convert atlas units to centimeters
+        tlock_tmp             = ft_selectdata(cfg, tlock);
+        
+        %%% project half trials thru spatial filter
+        cfg                 = []; % set up config for beamforming
+        cfg.grid             = grid; % source model
+        cfg.grid.filter      = source_t_avg.avg.filter;
+        cfg.grid.leadfield   = leadfield.leadfield;
+        cfg.grad             = data.grad; % sensor position (gradiometer)
+        cfg.headmodel        = hdm;
+        cfg.method           = config.beamforming.method;
+        cfg.keeptrials       = 'yes';
+        cfg.rawtrial         = 'yes';
+        source_t_trials      = ft_sourceanalysis(cfg, tlock_tmp); % perform beamforming
+        
 
-    % source interpolate
-    cfg              = [];
-    cfg.interpmethod = 'nearest';
-    cfg.parameter    = 'tissue';
-    source_atlas       = ft_sourceinterpolate(cfg,atlas,sourcemodel); % interpolate source activity onto voxels of anatomical description of the brain
-
-    % actual interpolation
-    catmatrix      = NaN(length(projection.time), ... % set up empty matrix to store reconstructed timeseries for each trial and region of interest
-                         length(projection.trial), ...
-                         length(source_atlas.tissuelabel));   % over all ROI timeseries across trial
-
-    var_explained  = NaN(1, ... % set up empty matrix to store variance explained of first principial component for each trial and region of interest 
-                         length(projection.trial), ...
-                         length(source_atlas.tissuelabel));
-    %%% FOR EACH TRIAL ----------------------------------------------------
-    right_now = clock;
-    fprintf('%02.f:%02.f:%02.f       Identifying ROI timeseries!\n', ...
-        right_now(4:6))
-    
-    for t = 1:projection.df
-        %%% AND FOR EACH NODE ---------------------------------------------
-        for i = 1:max(size(atlas.tissuelabel))
-            % identify source coords that fall within ROI
-            node                     = find(source_atlas.tissue==i); 
-            source_timeseries        = cell2mat(projection.trial(t).mom(node)); % get the timeseries; num_nodes x time
-            % ori_region               = cell2mat(projection.trial(t).ori(node)); % orientations; num_nodes x time
-            
-            % IF NODE EXISTS
-            if size(source_timeseries, 1) >= 1 
-                if config.beamforming.rep_timeseries == "mean"
-                    catmatrix(:,t,i) = nanmean(source_timeseries,1); % take avg across source points
-                elseif config.beamforming.rep_timeseries == "pca"
-                    [~, score, ~, ~, explained] = pca(transpose(source_timeseries)); % perform pca
-                    catmatrix(:,t,i) = transpose(score(:, 1)); % store first principal component across timeseries
-                    var_explained(:,t,i) = explained(1);
-                end
-                % ori_avg(:,t,i) = nanmean(ori_region,1);
-            % IF NO SOURCE POINTS W/IN NODE
-            else
-                warning('No sources in ROI %s.\n',atlas.tissuelabel{i});
+        %%% project virtual sources to strongest (dominant) orientation
+        %%% (taking the largest eigenvector of the sources timeseries)
+        cfg                  = []; % set up config for projecting to dominant orientation
+        cfg.projectmom       = config.beamforming.timeDomain.projectmom;
+        cfg.keeptrials       = 'yes';
+        projection           = CAROLINEft_sourcedescriptives(cfg, source_t_trials); % project to dominant orientation
+        
+        %%% INTERPOLATE ATLAS ONTO VIRTUAL SOURCES ----------------------------
+        
+        % setup for atlas interpolation - get coordinates
+        sourcemodel.pos = template_grid.pos;
+        
+        % load atlas
+        if contains(config.beamforming.atlas.filepath, 'mmp') % if MMP glasser atlas
+            megneto_path        = fileparts(which('fcp_4_beamforming.m'));
+            atlas               = ft_read_atlas([megneto_path '/external/atlas/mmp.mat']);
+        else
+            fullPath                = which('ft_preprocessing.m');
+            [pathstr,~,~]           = fileparts(fullPath);
+            atlas                   = ft_read_atlas([pathstr config.beamforming.atlas.filepath]);
+            if contains(config.beamforming.atlas.filepath, 'aal')
+                atlas.tissuelabel   = atlas.tissuelabel(1:90); % we only want non-cerebellar regions (isolate desired regions)
+                atlas.tissue(atlas.tissue > 90) = 0;
             end
         end
+        atlas           = ft_convert_units(atlas, 'cm'); % convert atlas units to centimeters
+        
+        % source interpolate
+        cfg              = [];
+        cfg.interpmethod = 'nearest';
+        cfg.parameter    = 'tissue';
+        source_atlas       = ft_sourceinterpolate(cfg,atlas,sourcemodel); % interpolate source activity onto voxels of anatomical description of the brain
+        
+        % actual interpolation
+        catmatrix      = NaN(length(projection.time), ... % set up empty matrix to store reconstructed timeseries for each trial and region of interest
+            length(projection.trial), ...
+            length(source_atlas.tissuelabel));   % over all ROI timeseries across trial
+        
+        var_explained  = NaN(1, ... % set up empty matrix to store variance explained of first principial component for each trial and region of interest
+            length(projection.trial), ...
+            length(source_atlas.tissuelabel));
+        %%% FOR EACH TRIAL ----------------------------------------------------
+        right_now = clock;
+        fprintf('%02.f:%02.f:%02.f       Identifying ROI timeseries!\n', ...
+            right_now(4:6))
+        for t = 1:projection.df
+            
+            %%% AND FOR EACH NODE ---------------------------------------------
+            for i = 1:max(size(atlas.tissuelabel))
+                % identify source coords that fall within ROI
+                node                     = find(source_atlas.tissue==i);
+                source_timeseries        = cell2mat(projection.trial(t).mom(node));
+                % ori_region               = cell2mat(projection.trial(t).ori(node)); % orientations; num_nodes x time
+                
+                % IF NODE EXISTS
+                if size(source_timeseries, 1) >= 1
+                    if config.beamforming.rep_timeseries == "mean"
+                        catmatrix(:,t,i) = nanmean(source_timeseries,1); % take avg across source points
+                    elseif config.beamforming.rep_timeseries == "pca"
+                        [~, score, ~, ~, explained] = pca(transpose(source_timeseries)); % perform pca
+                        catmatrix(:,t,i) = transpose(score(:, 1)); % store first principal component across timeseries
+                        var_explained(:,t,i) = explained(1);
+                    end
+                    % ori_avg(:,t,i) = nanmean(ori_region,1);
+                    % save source_timeseries for all ppts in same variable
+                    
+                    % IF NO SOURCE POINTS W/IN NODE
+                else
+                    warning('No sources in ROI %s.\n',atlas.tissuelabel{i});
+                end
+            end
+        end
+        
+        %%% FINAL PARTICIPANT OUTPUT VARIABLES ------------------------------------
+        srate     = data.fsample;                            % keep track of sampling rate
+        coords    = projection.pos;                          % coordinates
+        
+        %%% SAVE OUTPUT -----------------------------------------------------------
+        if split == 1
+            if isnan(var_explained) % if the variance explained has not been populated, don't save it
+                save([ssSubjPath(ss) '/atlas_beamforming_results1.mat'],'catmatrix', 'srate','coords','-mat','-v7.3')
+            else
+                save([ssSubjPath(ss) '/atlas_beamforming_results1.mat'],'catmatrix', 'var_explained', 'srate','coords','-mat','-v7.3')
+            end
+        else
+            if isnan(var_explained) % if the variance explained has not been populated, don't save it
+                save([ssSubjPath(ss) '/atlas_beamforming_results2.mat'],'catmatrix', 'srate','coords','-mat','-v7.3')
+            else
+                save([ssSubjPath(ss) '/atlas_beamforming_results2.mat'],'catmatrix', 'var_explained', 'srate','coords','-mat','-v7.3')
+            end
+        end
+        
+        %%% OPTIMIZING RUN SPACE --------------------------------------------------
+        clear coords catmatrix srate source_timeseries source_t_trials projection
+        
     end
     
-%%% FINAL PARTICIPANT OUTPUT VARIABLES ------------------------------------
-    srate     = data.fsample;                            % keep track of sampling rate
-    coords    = projection.pos;                          % coordinates
-
-%%% SAVE OUTPUT -----------------------------------------------------------
-    if isnan(var_explained) % if the variance explained has not been populated, don't save it
-        save([ssSubjPath(ss) '/atlas_beamforming_results.mat'],'catmatrix', 'srate','coords','-mat','-v7.3')
-    else
-        save([ssSubjPath(ss) '/atlas_beamforming_results.mat'],'catmatrix', 'var_explained', 'srate','coords','-mat','-v7.3')
-    end 
-        
-%%% OPTIMIZING RUN SPACE --------------------------------------------------
-    clear coords catmatrix srate source_timeseries ...
-        atlas sourcemodel source_t_trials projection seg mri data grid hdm ...
-        source_t_avg tlock leadfield 
+    clear atlas sourcemodel seg mri data grid hdm ...
+    leadfield source_t_avg tlock
     
     right_now = clock;
     fprintf('%02.f:%02.f:%02.f       Done subject %s!\n', ...
