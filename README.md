@@ -38,21 +38,22 @@ Download the repo through the Github website or use git in the command line to c
 
 ## How to Use
 
-A template "main" function is provided under `templates/main_template.m` which guides the user through the pipeline steps. You should begin by making a copy of this file and renaming it. A unique main file should be created for each of your analyses, as it can serve as a record of what settings you used. 
+A template "main" file is provided under `templates/main_template.m` which guides the user through the pipeline steps. You should begin by making a copy of this file and renaming it. A unique main file should be created for each of your analyses, as it can serve as a record of what settings you used. 
 
 A few important notes to remember before running the pipeline are:
 1. The functions associated with the steps laid out below are found in the top-level MEGneto folder. Any related functions listed below are found in subfolders of the repo (e.g., the `functions` folder). 
 2. The naming convention of your MRI files (which must have a .mri extension) is as follows. These file names should not have more than one underscore or period (i.e., the only period should be the file's extension `.mri`). If there is an underscore, the typical naming convention is `PID_version.mri`. 
 3. Participant IDs follow the structure of study name prepended to participant number. For example, OIRM01 would mean that OIRM is the study name and 01 is the first participant. Other examples (for different studies) include ST05 and MEG04. The participant IDs do not require changing - they should be left as they already are. 
 4. The pipeline can only process one task and condition at a time. If multiple tasks/conditions are fed in, there will be one set of .ds files for participants for task/condition 1 and one for task/condition 2, meaning there will be multiple .ds files for one participant. The pipeline is not equipped to handle this. If you have multiple tasks/conditions you wish to analyze, please do one at a time.
+5. Some of the primary functions (freeviewing_fcp_1 - freeviewing_fcp_5_5) are not meant to be run as functions but rather the user should run individual sections of those scripts. This includes freeviewing_fcp_4_5_reinsertingtrials.m and freeviewing_fcp_5_5_analyzeFreqanalysis.m.
 
 ### Extracting Clip Times
 
 Please navigate to the Extrapolating_clipTimes folder which contains two files (generate_markerTimes.m and read_data.m). 
 
-The read_data.m file is the script for a function which is used in the generate_markerTimes.m script. 
+The read_data.m file is a function which is used within the generate_markerTimes.m script. 
 
-The generate_markerTimes.m script is used to generate a .mat file containing the clip marks (also known as clip samples or clip times), the movie order for each run of MEG data, and the clippet marks (or samples/times). A pseudocode run-down of how this script operates can be found at the top of the script when it is opened. To run this file, you will need the OIRM dataset containing MEG data and .psy files (these files indicate the movie order for a given run of MEG data). You will also need a file that indicates the frame number where a clip/clippet change occured for each movie. This file should be provided to you and is titled main_cliptimes.mat or clipTimes.mat.
+The generate_markerTimes.m script is used to generate a .mat file containing the clip marks (also known as clip samples or clip times), the movie order for each run of MEG data, and the clippet marks (or samples/times). A pseudocode run-down of how this script operates can be found at the top of the script when it is opened. To run this file, you will need the OIRM dataset which contains MEG data and .psy files (these files indicate the movie order for a given run of MEG data). You will also need a file that indicates the frame number where a clip/clippet change occured for each movie. This file should be provided to you and is titled main_cliptimes.mat or clipTimes.mat.
 
 Note: keep in mind for conversion purposes that each frame is equal to 20 samples. 
 
