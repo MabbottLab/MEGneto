@@ -283,7 +283,12 @@ See also:
 ### Permutation-based statistics
 'PERMUTATIONS.m' performs 500 random permutations of control trials and controls for sample size bias by using the same number of controls as interest content for each participant. 
 
-'PERMUTATION_STATISTICS.m' performs permutation-based statistics using t-statistics. You can specifiy and alpha value and the direction that you want to look at (default is that interest > control). 
+'PERMUTATION_STATISTICS.m' performs permutation-based statistics using t-statistics. You can specifiy and alpha value and the direction that you want to look at (default is that interest > control).  
+
+Output includes the 500 permutations per participant for each frequency band.
+
+### Machine learning
+
 
 ## Credits
 
@@ -295,6 +300,7 @@ See also:
 - June 2019: Ming Scott
 - October 2019: Julie Tseng 
 - December 2020: Dunja Matic
+- August 2021: Caroline Kim
 
 ## On Downsampling
 
