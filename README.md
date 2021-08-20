@@ -1,4 +1,4 @@
-# MEGneto 3.0 
+# MEGneto 3.001 FREE-VIEWING CONNECTIVITY
 
 This functional connectivity pipeline (fcp) is built on MATLAB using the FieldTrip toolbox to analyze MEG data. Developed @ SickKids Research Institute, Toronto, Canada. See docs folder for additional documentation.
 
@@ -58,6 +58,8 @@ The pipeline is continuiously updated and as such, users may encounter changes t
 
 A template "main" function is provided under `templates/main_template.m` which guides the user through the pipeline steps. You should begin by making a copy of this file and renaming it (e.g., main_motor_both if you're running a motor analysis). A unique main file should be created for each of your analyses, as it can serve as a record of what settings you used. 
 
+NOTE: For free-viewing, only thing that was changed was that another folder for ML results was added to paths and generated. 
+
 Also, please note the following naming convention tipes:
 A few important notes to remember before running the pipeline are:
 1. The functions associated with the steps laid out below are found in the top-level MEGneto folder. Any related functions listed below are found in subfolders of the repo (e.g., the `functions` folder). Anything under development is, accordingly, under `dev_functions`. 
@@ -101,6 +103,8 @@ For more detail on the meaning of each parameter in the JSON Config please see t
 ### Epoching
 
 `FCP_1_TASKEPOCHING.m` will epoch MEG data into trials depending on the desired marker, detect trials with excessive head motion, muscle/jump artifacts, and bad channels. However, the epoching only rejects trials for excessive head motion and muscle/jump artifacts. Bad channels are detected and recorded, but repaired later on in the pipeline, after the ICA process at the final stage of preprocessing.
+
+NOTE: For free-viewing, I changed this so that the trials are split based on clip onset. In the json file, tEpoch should be filled in so that the first value is the start of the epoch relative to the clip onset and the second value is the end of the epoch relative to the next clip onset. (e.g. [0.4, 0.05] means that epoch is 0.4 seconds after first clip onset to 0.05 seconds before next clip onset).
 
 Note: if there are participants who do not have a matching MRI file, this step will not run until you: a) find the missing MRI and put it in the MRI folder, or b) remove their entry from the `subj_fcp1.csv`. 
 
@@ -205,6 +209,8 @@ For each participant, their anatomical MRI data is loaded in and fiducials are i
 
 Finally, beamforming is performed. A covariance matrix is computed to inform us how related sensor signals are to each other, and sensor weights are computed using the gradiometers (sensor position), leadfield and head model. This information is used for beamforming. The participant’s trials are projected through a spatial filter (which transforms data from sensor to source space) and the resulting virtual sources are projected to their dominant orientation. The output at this point is a matrix with the timeseries for each source, trial, and participant. Next, an atlas is loaded into the pipeline and the source data is interpolated onto that atlas. In that interpolation process, all reconstructed sources that fall into regions as parcellated by the atlas are averaged or principal component analysis ([PCA](https://www.mathworks.com/help/stats/pca.html)) is performed and the first principal component is extracted, generating a representative time series for the region. 
 
+NOTE: For free-viewing, beamforming was split into 2 halves so that a higher resolution could be used for MMP/Glasser atlas purposes. So, output is two separate files with the description of the output below, but just for half of the trials. 
+
 Output: A matrix with three dimensions: [number of participants] x [number of trials] x [number of timepoints]. Thus, you can isolate the timeseries for a certain participant and trial etc.
 
 The following source reconstruction algorithms are currently recommended/supported:
@@ -239,6 +245,13 @@ See also:
 - `ft_sourceinterpolate.m` to interpolate functional data onto anatomical data using prev as input, subject MRI
 - `ft_volumelookup.m` to create binary mask; once applied, will isolate desired regions
 
+### Concatenation and Condition Vectors
+'FCP_4_5_trialalignment.m' concatenates the cat matrices from fcp_4 into one compiled cat matrix for later use. 
+
+The condition vector must be made by the user and saved in the format given in the main_freeviewing instructions. The condition vector is a num_trials x 1 vector that specificies the content of the clip (1 = interest, 0 = control). 
+
+The user must also go back to fcp_1 output and find which trials were removed from each participant and make a table that shows missing trials for each run (example table in MEG_processing folder). The second part of FCP_4_5 aligns the overall condition vector with the missing trials from each participant, giving a unique condition vector for each participant. 
+
 ### Pipeline Endpoints
 
 After beamforming, you now have a set of timeseries for each participant describing brain activity over time within each atlas ROI and for each trial. 
@@ -247,21 +260,11 @@ If you have hypotheses about whether some ROI has more or less activity within a
 
 Otherwise, if you have hypotheses about the _functional connectivity_ between ROIs and within certain frequency bands, proceed with `fcp_5_taskconnectivity`. 
 
-#### Frequency Analysis
-`FCP_5_FREQANALYSIS.m` uses spectral analysis on time-frequency representations of data to test hypotheses based on spectral power. The virtual sensor data from the beamforming step is loaded in and frequency analysis is performed on sliding timewindows of the data. Thus, for each subject and each interpolated atlas region, a power spectrum is calculated and corrected to a baseline to control for general/random spikes in power. 
-
-Output: A 4-D matrix containing power spectrum data. Matrix dimensions are [participants] x [regions] x [frequency] x [time]. Users can plot a power spectrum (frequency by time) for a specific region of a given participant’s data by plotting a slice of the matrix's first (participant) dimension (e.g., `imagesc(squeeze(powspctrm(participant_number, :, :, :)))`. 
-
-Notes:
-- Prior to running the function, ensure that subj_fcp5.csv is populated with the subject IDs of participants you want to include.
-- At the start of this step, outputs from fcp_4 will be loaded in and a logging file will be set up to keep track of progress. Also, the pipeline will check for matching MEG/MRI data.
-
-See also: `ft_freqanalysis.m`
-
-
 #### Functional Connectivity
 
 `FCP_5_TASKCONNECTIVITY.m` estimates functional connectivity (i.e., analyzes the synchrony of signals from two regions). At the start of this step, outputs from fcp_4 will be loaded in and a logging file will be set up to keep track of progress. Also, the pipeline will check for matching MEG/MRI data.
+
+Functional connectivity is performed for all trials of interest, then finds a random combination of the same number of control trials (to decrease sample size bias). These are saved for each frequency band. 
 
 Currently supports the following connectivity metrics (relevant FieldTrip documentation [here](https://www.fieldtriptoolbox.org/reference/ft_connectivityanalysis/):
 - 'plv' (phase locking value)
@@ -276,6 +279,11 @@ See also:
 - `ft_freqanalysis.m` to perform time-frequency and frequency analysis on the time series data 
 - `ft_connectivityanalysis.m` to calculate connectivity between channels
 - `ft_checkdata.m` to check the input data of the main FieldTrip functions 
+
+### Permutation-based statistics
+'PERMUTATIONS.m' performs 500 random permutations of control trials and controls for sample size bias by using the same number of controls as interest content for each participant. 
+
+'PERMUTATION_STATISTICS.m' performs permutation-based statistics using t-statistics. You can specifiy and alpha value and the direction that you want to look at (default is that interest > control). 
 
 ## Credits
 
