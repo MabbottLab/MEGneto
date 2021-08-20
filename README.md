@@ -11,17 +11,17 @@ Please note that for extensive detail on how each step of the pipeline works, th
 - [System Requirements](#system-requirements)
 - [Installation Guide](#installation-guide)
 - [How to Use](#how-to-use)
-   1. Extracting Clip Times
-   2. Initial Setup
-   3. JSON Config Setup
-   4. Epoching
-   5. Preprocessing
-   6. ICA Checkpoint
-   7. Channel Repair
-   8. Beamforming
-   9. Re-inserting Trials
-   10. Frequency Analysis
-   11. Statistical Analysis
+   1. [Extracting Clip Times](#extracting-clip-times)
+   2. [Initial Setup](#initial-setup)
+   3. [JSON Config Setup](#json-config-setup)
+   4. [Epoching](#epoching)
+   5. [Preprocessing](#preprocessing)
+   6. [ICA Checkpoint](#ica-checkpoint)
+   7. [Channel Repair](#channel-repair)
+   8. [Beamforming](#beamforming)
+   9. [Reinserting Trials](#reinserting-trials)
+   10. [Frequency Analysis](#frequency-analysis)
+   11. [Statistical Analysis](#statistical-analysis)
 - [Credits](#credits)
 
 ## System Requirements
@@ -47,7 +47,7 @@ A few important notes to remember before running the pipeline are:
 4. The pipeline can only process one task and condition at a time. If multiple tasks/conditions are fed in, there will be one set of .ds files for participants for task/condition 1 and one for task/condition 2, meaning there will be multiple .ds files for one participant. The pipeline is not equipped to handle this. If you have multiple tasks/conditions you wish to analyze, please do one at a time.
 5. Some of the primary functions (freeviewing_fcp_1 - freeviewing_fcp_5_5) are not meant to be run as functions but rather the user should run individual sections of those scripts. This includes freeviewing_fcp_4_5_reinsertingtrials.m and freeviewing_fcp_5_5_analyzeFreqanalysis.m.
 
-### Extracting Clip Times
+## [Extracting Clip Times](#extracting-clips)
 
 Please navigate to the Extrapolating_clipTimes folder which contains two files (generate_markerTimes.m and read_data.m). 
 
@@ -59,7 +59,7 @@ Note: keep in mind for conversion purposes that each frame is equal to 20 sample
 
 Output: a *.mat file containing the clip/clippet times (the file's title should be something similiar to clipMarkers_allPpts.mat).
 
-### Initial Setup
+## Initial Setup
 
 After making a copy of the main template and renaming it, open it and:
 * Fill in the relevant folder paths and analysis name (lines 16-25)
@@ -82,7 +82,7 @@ See also:
 - `freeviewing_path_generation.m` to generate path locations
 - `path_check.m` to check that all paths are properly initialized
 
-### JSON Config Setup
+## JSON Config Setup
 
 Prior to running the first step of the pipeline, the user must ensure that the JSON config file is populated with their desired parameters. `interactive_JSON_config.m` will prompt users to fill this JSON config file through an interactive graphical user interface (GUI). The user is repsonsible for filling in each field and sample inputs are presented to the user to demonstrate each field's format (note: the user can leave the sample input as is, if they wish to use that value for their analysis).
 
@@ -101,7 +101,7 @@ For the OIRM data set analysis conducted in the summer of 2021, the following fi
 
 For more detail on the meaning of each parameter in the JSON Config please see the main MEGneto repository's documentation.
 
-### Epoching
+## Epoching
 
 `FREEVIEWING_FCP_1_TASKEPOCHING.m` will epoch MEG data into trials depending on the desired marker, detect trials with excessive head motion, muscle/jump artifacts, and bad channels. However, the epoching only rejects trials for excessive head motion and muscle/jump artifacts. Bad channels are detected and recorded, but repaired later on in the pipeline, after the ICA process at the final stage of preprocessing.
 
@@ -118,7 +118,7 @@ Notes:
 - Prior to running this step, all desired parameters should be defined in the JSON config file. The user should double-check that the JSON config file is populated appropriately, especially if a template JSON was copied over. Information on the meaning of each parameter in the JSON config file can be found in the [Config Params Guide](https://github.com/dunjamatic/MEGneto/blob/configParams/ConfigParams.md).
 - To see which lines differ from the fcp_1_taskepoching.m file in the MEGneto repository, please open the freeviewing_fcp_1_taskepoching.m file and find this information at the top of the script. 
 
-### Preprocessing
+## Preprocessing
 
 `FREEVIEWING_FCP_2_PREPROCESSINGICA.m` will prepare epoched data for ICA preprocessing by downsampling and filtering with 3rd order gradients (derived from measurements taken by gradiometers). If indicated in the config JSON file, ICA will be carried out and the ICA components will be saved. The pipeline will downsample to whatever frequency the user specified in the config JSON.
 
@@ -131,7 +131,7 @@ Notes:
 - Need to remove bad channels from ica - if not you will get complex numbers. Because during repair channels procedure bad channels are repaired according to neighbours, thus the new ones are not unique (no independent components).
 - To see which lines differ from the fcp_2_preprocessingica.m file in the MEGneto repository, please open the freeviewing_fcp_2_preprocessingica.m file and find this information at the top of the script. 
 
-### ICA Checkpoint
+## ICA Checkpoint
 
 `FREEVIEWING_FCP_2_5_CHECKPOINT.m` is an interactive session that guides the user through inspection of ICA components to identify components associated with artifacts such as heartbeats, blinks, etc. After inspection, the pipeline backprojects ICA components to remove the signal corresponding with the bad ICA components. For help on identifying components containing artifacts, see [ICA Inspection Guide](https://github.com/MabbottLab/MEGneto/blob/master/docs/ICA%20Inspection%20Guide%20v1.0.pdf).
 
@@ -141,7 +141,7 @@ Notes:
 - Prior to running the function, ensure that subj_fcp2_5.csv is populated with the subject IDs of participants you want to include.
 - To see which lines differ from the fcp_2_5_checkpoint.m file in the MEGneto repository, please open the freeviewing_fcp_2_5_checkpoint.m file and find this information at the top of the script. 
 
-### Channel Repair
+## Channel Repair
 
 `FREEVIEWING_FCP_3_CHANNELREPAIR.m` repairs bad channels detected from freeiviewing_fcp_1, but we held off on removing until the data had been ICA-cleaned. The channels are repaired by replacing them with some combination of neighbouring channels (default is 'weighted' average, other options include 'average', 'spline', or 'slap').
 
@@ -153,7 +153,7 @@ Notes:
 - The output data of this step is in the sensor space MEG data (fully processed).
 - To see which lines differ from the fcp_3_channelrepair.m file in the MEGneto repository, please open the freeviewing_fcp_3_channelrepair.m file and find this information at the top of the script. 
 
-### Beamforming
+## Beamforming
 
 `FCP_4_BEAMFORMING.m` maps functional data onto the source model and interpolates to an atlas. Here, be careful about conversions between mm and cm units in MEG and MRI data. A T1 template head model is loaded in (to normalize all participant head models), and is segmented to set the boundaries of which dipoles are actually located in the brain (ie. removes the skull). Once the head model is properly prepared to create the volume conduction model (which specifies how currents are generated by sources in the brain) a source model is prepared. The source model is a 3D grid/cortical sheet that specifies the set of positions of electric dipole currents that are considered in source reconstruction. 
 
@@ -168,14 +168,14 @@ Notes:
 - At the start of the function, outputs from fcp_3 will be loaded in and a logging file will be set up to keep track of progress. Also, the pipeline will check for matching MEG/MRI data.
 - To see which lines differ from the fcp_4_beamforming.m file in the MEGneto repository, please open the freeviewing_fcp_4_beamforming.m file and find this information at the top of the script. 
 
-### Re-inserting Trials
+## Reinserting Trials
 `FREEVIEWING_FCP_4_5_REINSERTINGTRIALS.m` stacks the output of the beamforming step for each participant (i.e., it combines all beamforming from both runs of a participant's MEG data) and inserts blank columns for trials that were rejected in the task epoching step. 
 
 Note: Please open the script of this code to see more details on this step.
 
 Output: A matrix (with each run of a participant's data stacked together) with reconstructed timeseries for each trial and region of interest across both runs of MEG data for each participant. The output is stored in participant-specific folders under the name "revamped_beamforming_results.mat". 
 
-### Frequency Analysis
+## Frequency Analysis
 `FREEVIEWING_FCP_5_FREQANALYSIS.m` uses spectral analysis on time-frequency representations of data to test hypotheses based on spectral power. The virtual sensor data from the reinserting trials step is loaded in and frequency analysis is performed on sliding timewindows of the data. Thus, for each subject and each interpolated atlas region, a power spectrum is calculated and corrected to a baseline to control for general/random spikes in power. 
 For the free-viewing data analysis conducted in summer 2021, this function removes the previously inserted NaN trials (lines 117-128). The user is required to load in a feature vector that indicates which trials contain which category of visual content. Currently, this function is set up to load in a faces versus scenes feature vector (lines 83-85), and the user must specify in lines 135-137 which category of visual content is being analyzed (i.e., 0 for scenes, and 1 for faces) as the function outputs one result per category of visual content. If the user does not wish to separate by category of visual content they should specify that all trials should be included in the analysis (line 137).
 
@@ -188,7 +188,7 @@ Notes:
 - At the start of this step, outputs from fcp_4 will be loaded in and a logging file will be set up to keep track of progress. Also, the pipeline will check for matching MEG/MRI data.
 - To see which lines differ from the fcp_5_freqanalysis.m file in the MEGneto repository, please open the freeviewing_fcp_5_freqanalysis.m file and find this information at the top of the script. 
 
-### Statistical Analysis
+## Statistical Analysis
 `FREEVIEWING_FCP_5_5_ANALYZEFREQANALYSIS.m` is used to perform statistical analysis and create visual representation of results for each aim and hypothesis of the OIRM Faces v Scenes Summer 2021 research project. This script is meant to be run in sections, not as a function, and the user should refer to the script for detailed instructions on each section of the script.
 
 Note: Please open the script of this code to see more details on this step.
