@@ -1,25 +1,27 @@
 # Free-Viewing MEGneto
 
-This functional connectivity pipeline (fcp) is an add-on to the existing MEGneto fcp and is to be used for analysing Free-Viewing Data from the OIRM study. This Free-Viewing branch is intended to be used in tandem with the original MEGneto pipeline (i.e., both fcp's are required to conduct the analysis).
+This functional connectivity pipeline (fcp) is an add-on to the existing MEGneto fcp and is used for analysing Free-Viewing Data from the OIRM study. This Free-Viewing branch is intended to be used in tandem with the original MEGneto pipeline (i.e., both fcp's are required to conduct the analysis).
 
-This pipeline was first developed and use throughout the months of June-August 2021. It was created for analyzing the difference between categories of visual content in the OIRM study. 
+This pipeline was first developed and used throughout the months of June-August 2021. It was created for analyzing changes in neural oscillatory power in response to visual stimuli in the OIRM study. 
 
-This pipeline is built on MATLAB using the FieldTrip toolbox. Developed @ SickKids Research Institute, Toronto, Canada. Please note that for extensive detail on how each step of the pipeline works, the user should navigate over to the main MEGneto repository's documentation, as the idea of each step remains consistent with the original pipeline.
+This pipeline is built on MATLAB using the FieldTrip toolbox. Developed @ SickKids Research Institute, Toronto, Canada. 
+
+Please note that for extensive detail on how each step of the pipeline works, the user should navigate over to the main MEGneto repository's documentation, as the general idea of most steps (fcp_1-fcp_4 and fcp_5) remains consistent with the original pipeline.
 
 - [System Requirements](#system-requirements)
 - [Installation Guide](#installation-guide)
 - [How to Use](#how-to-use)
-   1. [Extracting Clips Times)(#extract-clip-times)
-   2. [Initial Setup](#initial-setup)
-   3. [JSON Config Setup](#json-config-setup)
-   4. [Epoching](#epoching)
-   5. [Preprocessing](#preprocessing)
-   6. [ICA Checkpoint](#ica-checkpoint)
-   7. [Channel Repair](#channel-repair)
-   8. [Beamforming](#beamforming)
-   9. [Re-inserting Trials](#reinserting-trials)
-   10. [Frequency Analysis](#frequency-analysis)
-   11. [Statistical Analysis](#stats)
+   1. Extracting Clip Times
+   2. Initial Setup
+   3. JSON Config Setup
+   4. Epoching
+   5. Preprocessing
+   6. ICA Checkpoint
+   7. Channel Repair
+   8. Beamforming
+   9. Re-inserting Trials
+   10. Frequency Analysis
+   11. Statistical Analysis
 - [Credits](#credits)
 
 ## System Requirements
@@ -29,14 +31,15 @@ This pipeline is built on MATLAB using the FieldTrip toolbox. Developed @ SickKi
 * Machine with enough RAM
 
 Note that, depending on available RAM on your system, the pipeline may crash during [beamforming](#beamforming) if your MEG data is not adequately downsampled or if you have requested too many virtual sources to be reconstructed (e.g., dipole grid resolution is too high). 
+
 ## Installation Guide
 
 Download the repo through the Github website or use git in the command line to clone it on your machine. 
 
 ## How to Use
-A template "main" function is provided under `templates/main_template.m` which guides the user through the pipeline steps. You should begin by making a copy of this file and renaming it (e.g., main_motor_both if you're running a motor analysis). A unique main file should be created for each of your analyses, as it can serve as a record of what settings you used. 
 
-Also, please note the following naming convention tipes:
+A template "main" function is provided under `templates/main_template.m` which guides the user through the pipeline steps. You should begin by making a copy of this file and renaming it. A unique main file should be created for each of your analyses, as it can serve as a record of what settings you used. 
+
 A few important notes to remember before running the pipeline are:
 1. The functions associated with the steps laid out below are found in the top-level MEGneto folder. Any related functions listed below are found in subfolders of the repo (e.g., the `functions` folder). 
 2. The naming convention of your MRI files (which must have a .mri extension) is as follows. These file names should not have more than one underscore or period (i.e., the only period should be the file's extension `.mri`). If there is an underscore, the typical naming convention is `PID_version.mri`. 
@@ -44,13 +47,14 @@ A few important notes to remember before running the pipeline are:
 4. The pipeline can only process one task and condition at a time. If multiple tasks/conditions are fed in, there will be one set of .ds files for participants for task/condition 1 and one for task/condition 2, meaning there will be multiple .ds files for one participant. The pipeline is not equipped to handle this. If you have multiple tasks/conditions you wish to analyze, please do one at a time.
 
 ### Extracting Clip Times
+
 Please navigate to the Extrapolating_clipTimes folder which contains two files (generate_markerTimes.m and read_data.m). 
 
-The read_data.m file contains a function which is used in the generate_markerTimes.m script. To run this file you will need the OIRM dataset containing MEG data and .psy files (these will indicate movie order for a given run of MEG data). You will also need a clipTimes.mat file where for each movie there is an array that indicates the frame number where a scene change occured.
+The read_data.m file is the script for a function which is used in the generate_markerTimes.m script. 
+
+The generate_markerTimes.m script is used to generate a .mat file containing the clip marks (also known as clip samples or clip times), the movie order for each run of MEG data, and the clippet marks (or samples/times). A pseudocode run-down of how this script operates can be found at the top of the script when it is opened. To run this file, you will need the OIRM dataset containing MEG data and .psy files (these files indicate the movie order for a given run of MEG data). You will also need a file that indicates the frame number where a clip/clippet change occured for each movie. This file should be provided to you and is titled main_cliptimes.mat or clipTimes.mat.
 
 Note: keep in mind for conversion purposes that each frame is equal to 20 samples. 
- 
-The generate_markerTimes.m script is used to generate a .mat file containing the clip marks (also known as clip samples or clip times), the movie order for each run of MEG data, and the clippet marks (or samples/times). A pseudocode run-down of how this script operates can be found at the top of the script when it is opened.
 
 Output: a *.mat file containing the clip/clippet times (the file's title should be something similiar to clipMarkers_allPpts.mat).
 
@@ -78,6 +82,7 @@ See also:
 - `path_check.m` to check that all paths are properly initialized
 
 ### JSON Config Setup
+
 Prior to running the first step of the pipeline, the user must ensure that the JSON config file is populated with their desired parameters. `interactive_JSON_config.m` will prompt users to fill this JSON config file through an interactive graphical user interface (GUI). The user is repsonsible for filling in each field and sample inputs are presented to the user to demonstrate each field's format (note: the user can leave the sample input as is, if they wish to use that value for their analysis).
 
 For the OIRM data set analysis conducted in the summer of 2021, the following fields were altered:
@@ -165,6 +170,8 @@ Notes:
 ### Re-inserting Trials
 `FREEVIEWING_FCP_4_5_REINSERTINGTRIALS.m` stacks the output of the beamforming step for each participant (i.e., it combines all beamforming from both runs of a participant's MEG data) and inserts blank columns for trials that were rejected in the task epoching step. 
 
+Note: Please open the script of this code to see more details on this step.
+
 Output: A matrix (with each run of a participant's data stacked together) with reconstructed timeseries for each trial and region of interest across both runs of MEG data for each participant. The output is stored in participant-specific folders under the name "revamped_beamforming_results.mat". 
 
 ### Frequency Analysis
@@ -182,6 +189,8 @@ Notes:
 
 ### Statistical Analysis
 `FREEVIEWING_FCP_5_5_ANALYZEFREQANALYSIS.m` is used to perform statistical analysis and create visual representation of results for each aim and hypothesis of the OIRM Faces v Scenes Summer 2021 research project. This script is meant to be run in sections, not as a function, and the user should refer to the script for detailed instructions on each section of the script.
+
+Note: Please open the script of this code to see more details on this step.
 
 ## Credits
 
