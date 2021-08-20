@@ -37,6 +37,8 @@ for fq = 1:length(config.connectivity.filt_freqs)
     classes(num_interest + 1:total_num) = "control";
     training_classes(1:training_interest) = "interest";
     training_classes(training_interest + 1:training_interest + training_control) = "control";
+    testing_classes(1:split_1)              = "interest";
+    testing_classes(split_1 + 1:test_split) = "control";
     
     CV_SVM                            = struct();
     boxConstraint                     = [];
@@ -91,7 +93,7 @@ for fq = 1:length(config.connectivity.filt_freqs)
     acc    = 0;
     for ss = 1:height(thresholds)
         classificationSVM_true = fitcsvm(...
-            ml_data, classes, ...
+            training_data, training_classes, ...
             'KernelFunction', 'rbf', ...
             'PolynomialOrder', [], ...
             'KernelScale', thresholds(ss, 2), ...
@@ -99,7 +101,7 @@ for fq = 1:length(config.connectivity.filt_freqs)
             'Standardize', true, ...
             'ClassNames', {'interest'; 'control'});
         
-        partitionedModel_true = crossval(classificationSVM_true, 'KFold', 20);
+        partitionedModel_true = crossval(classificationSVM_true, 'KFold', height(training_data));
         
         % Compute validation predictions
         [validationPredictions_true, ~] = kfoldPredict(partitionedModel_true);
@@ -108,17 +110,26 @@ for fq = 1:length(config.connectivity.filt_freqs)
         validationAccuracy_true = 1 - kfoldLoss(partitionedModel_true, 'LossFun', 'ClassifError');
         
         % Test on reserved testing set
-        [test_labels_true, test_accuracy_true] = predict(classificationSVM_true, testing_data);
+        [test_labels_true, ~] = predict(classificationSVM_true, testing_data);
+        
+        count = 0;
+        for jj = 1:height(testing_data)
+            if ~strcmp(test_labels_true{jj}, testing_classes(jj))
+                count = count + 1;
+            end
+        end
+        test_accuracy_true = 1 - count * (1 / height(testing_data));
+            
         
         classificationSVM_false = fitcsvm(...
-            ml_data, classes, ...
+            training_data, training_classes, ...
             'KernelFunction', 'rbf', ...
             'PolynomialOrder', [], ...
             'KernelScale', thresholds(ss, 2), ...
             'BoxConstraint', thresholds(ss, 1), ...
             'Standardize', false, ...
-            'ClassNames', {'nonsocial'; 'social'});
-        partitionedModel_false = crossval(classificationSVM_false, 'KFold', 20);
+            'ClassNames', {'interest'; 'control'});
+        partitionedModel_false = crossval(classificationSVM_false, 'KFold', height(training_data));
         
         % Compute validation predictions
         [validationPredictions_false, ~] = kfoldPredict(partitionedModel_false);
@@ -127,7 +138,15 @@ for fq = 1:length(config.connectivity.filt_freqs)
         validationAccuracy_false = 1 - kfoldLoss(partitionedModel_false, 'LossFun', 'ClassifError');
         
         % Test on reserved testing set
-        [test_labels_false, test_accuracy_false] = predict(classificationSVM_false, testing_data);
+        [test_labels_false, ~] = predict(classificationSVM_false, testing_data);
+        
+        count = 0;
+        for jj = 1:height(testing_data)
+            if ~strcmp(test_labels_false{jj}, testing_classes(jj))
+                count = count + 1;
+            end
+        end
+        test_accuracy_false = 1- count * (1 / height(testing_data));
         
         if (validationAccuracy_true > acc) || (validationAccuracy_false > acc)
             if validationAccuracy_true >= validationAccuracy_false
@@ -149,9 +168,6 @@ for fq = 1:length(config.connectivity.filt_freqs)
                 testingPredictions                                  = test_labels_false;
                 standardized                                        = 'False';
             end
-            %             else
-            %                 validationAccuracy                             = [validationAccuracy; 0];
-            %                 finalPredictions                               = [finalPredictions; num2cell(0)];
         end
     end
     for_later.validationAccuracy     = validationAccuracy;
