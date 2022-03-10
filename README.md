@@ -224,11 +224,11 @@ The following source reconstruction algorithms are currently recommended/support
 - Linear constrained minimum variance (LCMV) beamformer
 
 The following atlases are currently supported:
-- MMP 180 region atlas from Glasser et al.'s 2016 multimodal parcellation paper
 - AAL 116 region atlas, but truncated to just regions 1-90 to exclude cerebellar regions
 - Yeo 7-network parcellation into visual, somatomotor, dorsal and ventral attention, default, limbic, frontoparietal
 - Yeo 17-network parcellation
 - Brainnetome parcellation (although the number of regions here greatly outranks the rank of the sensors)
+- MMP 180 region atlas from Glasser et al.'s 2016 multimodal parcellation paper. If using this atlas, the user must take care in considering the dipole grid resolution as some ROIs are so small that no dipoles may be found within them after interpolation to the atlas. Furthermore, the user should visualize which dipoles are found within critical ROIs as a sanity check, given that ANTS was used to transform the volumetric version of this atlas to the MNI152 space. 
 
 Notes:
 - Prior to running the function, ensure that subj_fcp4.csv is populated with the subject IDs of participants you want to include.
