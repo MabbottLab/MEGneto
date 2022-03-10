@@ -2,6 +2,7 @@
 
 This functional connectivity pipeline (fcp) is built on MATLAB using the FieldTrip toolbox to analyze MEG data. Developed @ SickKids Research Institute, Toronto, Canada. See docs folder for additional documentation.
 
+- [Credits](#credits)
 - [System Requirements](#system-requirements)
 - [Installation Guide](#installation-guide)
 - [Common Terms](#common-terms)
@@ -17,9 +18,20 @@ This functional connectivity pipeline (fcp) is built on MATLAB using the FieldTr
    8. [Pipeline Endpoints](#pipeline-endpoints)
       * [Frequency Analysis](#frequency-analysis)
       * [Functional Connectivity](#functional-connectivity)
-- [Credits](#credits)
 - [On Downsampling](#on-downsampling)
 - [Supplementary Reading Material](#supplementary-reading-material)
+
+## Credits
+
+Many individuals have contributed to this pipeline prior to its upload onto Github:
+
+- Sam Doesburg
+- Sonya Bells
+- Simeon Wong
+- Diana Markova
+- Ming Scott
+- Julie Tseng 
+- Dunja Matic
 
 ## System Requirements
 
@@ -276,17 +288,6 @@ See also:
 - `ft_freqanalysis.m` to perform time-frequency and frequency analysis on the time series data 
 - `ft_connectivityanalysis.m` to calculate connectivity between channels
 - `ft_checkdata.m` to check the input data of the main FieldTrip functions 
-
-## Credits
-
-**This list is incomplete!**
-
-- Pre-2016: Marc Lalancette
-- March 2016: Simeon Wong, Anne Keller
-- November 2016: Sonya Bells
-- June 2019: Ming Scott
-- October 2019: Julie Tseng 
-- December 2020: Dunja Matic
 
 ## On Downsampling
 
