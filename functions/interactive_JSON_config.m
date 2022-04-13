@@ -64,7 +64,8 @@ prompt{5}     = {'Enter the name of the function used to parse data into trials'
                  'Specify the type of function for the previous file',...
                  'Enter file',... 
                  'Enter within_file_path'}; 
-prompt{6}     = {'Enter 0 (no) or 1 (yes) to specify if there is rest data', ...
+prompt{6}     = {'Enter the total resting state time to epoch in seconds (leave empty if not used)',...
+                 'Enter 0 (no) or 1 (yes) to specify if there is rest data', ...
                  'Enter marker to gain reaction time information on', ... % need clarity
                  'Specify delay time to correct for',... % need clarity
                  'Enter epoching period',...
@@ -115,7 +116,7 @@ definput{3}   = {'0.1', '0.1', '35', '1', '1', '1'};
 definput{4}   = {'MEG,MEGREF,REFGRAD,REFMAG','yes', '[60,120]', 'yes',...
                  '[1,150]', '5', '300', 'CTF151.lay'};
 definput{5}   = {'@searchTaskTrialFun', 'anonymous', '', '__base_function'};
-definput{6}   = {'0', 'Correct', '0.023',...
+definput{6}   = {'', '0', 'Correct', '0.023',...
                  '[-2.0, 2.0]', 'LeftCorrect,RightCorrect',...
                  'OfflineLightOn'};
 definput{7}   = {'singleshell', 'cm', '1', 'yes', '-0.8', 'spm',...
@@ -186,12 +187,13 @@ for cfg_part = 1:11
             decode.config.taskFunc.file = answers{3};
             decode.config.taskFunc.within_file_path = answers{4};
         case 6
-            decode.config.task.isRest = str2double(answers{1});
-            decode.config.task.trialdef.details.include = {answers{2}};
-            decode.config.task.trialdef.parameters.t0shift = str2double(answers{3});
-            decode.config.task.trialdef.parameters.tEpoch = str2num(answers{4});
-            decode.config.task.trialdef.markers.Correct = split(answers{5}, ',');
-            decode.config.task.trialdef.markers.t0marker = answers{6};
+            decode.config.maxRest = str2double(answers{1});
+            decode.config.task.isRest = str2double(answers{2});
+            decode.config.task.trialdef.details.include = {answers{3}};
+            decode.config.task.trialdef.parameters.t0shift = str2double(answers{4});
+            decode.config.task.trialdef.parameters.tEpoch = str2num(answers{5});
+            decode.config.task.trialdef.markers.Correct = split(answers{6}, ',');
+            decode.config.task.trialdef.markers.t0marker = answers{7};
         case 7
             decode.config.beamforming.headmodel.method = answers{1};
             decode.config.beamforming.headmodel.units = answers{2};

@@ -2,6 +2,7 @@
 
 This functional connectivity pipeline (fcp) is built on MATLAB using the FieldTrip toolbox to analyze MEG data. Developed @ SickKids Research Institute, Toronto, Canada. See docs folder for additional documentation.
 
+- [Credits](#credits)
 - [System Requirements](#system-requirements)
 - [Installation Guide](#installation-guide)
 - [Common Terms](#common-terms)
@@ -17,9 +18,20 @@ This functional connectivity pipeline (fcp) is built on MATLAB using the FieldTr
    8. [Pipeline Endpoints](#pipeline-endpoints)
       * [Frequency Analysis](#frequency-analysis)
       * [Functional Connectivity](#functional-connectivity)
-- [Credits](#credits)
 - [On Downsampling](#on-downsampling)
 - [Supplementary Reading Material](#supplementary-reading-material)
+
+## Credits
+
+Many individuals have contributed to this pipeline prior to its upload onto Github:
+
+- Sam Doesburg
+- Sonya Bells
+- Simeon Wong
+- Diana Markova
+- Ming Scott
+- Julie Tseng 
+- Dunja Matic
 
 ## System Requirements
 
@@ -212,11 +224,11 @@ The following source reconstruction algorithms are currently recommended/support
 - Linear constrained minimum variance (LCMV) beamformer
 
 The following atlases are currently supported:
-- MMP 180 region atlas from Glasser et al.'s 2016 multimodal parcellation paper
 - AAL 116 region atlas, but truncated to just regions 1-90 to exclude cerebellar regions
 - Yeo 7-network parcellation into visual, somatomotor, dorsal and ventral attention, default, limbic, frontoparietal
 - Yeo 17-network parcellation
 - Brainnetome parcellation (although the number of regions here greatly outranks the rank of the sensors)
+- MMP 180 region atlas from Glasser et al.'s 2016 multimodal parcellation paper. If using this atlas, the user must take care in considering the dipole grid resolution as some ROIs are so small that no dipoles may be found within them after interpolation to the atlas. Furthermore, the user should visualize which dipoles are found within critical ROIs as a sanity check, given that ANTS was used to transform the volumetric version of this atlas to the MNI152 space. 
 
 Notes:
 - Prior to running the function, ensure that subj_fcp4.csv is populated with the subject IDs of participants you want to include.
@@ -276,17 +288,6 @@ See also:
 - `ft_freqanalysis.m` to perform time-frequency and frequency analysis on the time series data 
 - `ft_connectivityanalysis.m` to calculate connectivity between channels
 - `ft_checkdata.m` to check the input data of the main FieldTrip functions 
-
-## Credits
-
-**This list is incomplete!**
-
-- Pre-2016: Marc Lalancette
-- March 2016: Simeon Wong, Anne Keller
-- November 2016: Sonya Bells
-- June 2019: Ming Scott
-- October 2019: Julie Tseng 
-- December 2020: Dunja Matic
 
 ## On Downsampling
 

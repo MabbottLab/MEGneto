@@ -149,6 +149,7 @@ for ss = 1:length(subj_match.ds) % for each participant that has both MEG and MR
         cfg                      = [];
         cfg.continuous           = 'yes';
         cfg.dataset              = [paths.rawdata '/' subj_match.ds{ss}]; 
+        cfg.origFs               = data.hdr.Fs;
         cfg.trialfun             = config.taskFunc; % rest_trialfun.m
         cfg.trialdef.triallength = config.epoching.period;
         cfg.trialdef.overlap     = config.epoching.overlap; % proportion overlap
@@ -226,7 +227,7 @@ for ss = 1:length(subj_match.ds) % for each participant that has both MEG and MR
     
 %%% EXCESS TRIAL CLEAN-UP (REST)-------------------------------------------
     % if you have resting state data and specified a max length of time
-    if config.task.isRest == 1 && ~isempty(config.maxRest) 
+    if config.task.isRest == 1 && ~isnan(config.maxRest) 
         ntrials                          = size(cfg.trl, 1); % grab number of trials
         maxSamp                          = config.maxRest*cfg.origFs; % grab max sample
         lastTrial                        = find(cfg.trl(:,2) <= maxSamp, 1, 'last'); % find trial containing end sample

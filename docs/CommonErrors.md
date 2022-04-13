@@ -5,6 +5,7 @@
 - [Subjects missing matching MRI and MEG data](#mismatch)
 - [Incorrect file extension for MRI data (mri data is not .mri extension](#mri-filetype)
 - [Incorrect interactive JSON config file population](#interactive-config)
+- [Issues with file permissions on x11 forwarding](#x11-file-permissions)
 
 ## Improper JSON config file set up
 
@@ -133,3 +134,21 @@ presented in the interactive JSON config, else errors will occur.
 
 How to debug:
 1. Ensure you are following the exact format of inputs presented in the interactive config.Common mistakes include putting spaces between characters that shouldn't have spaces (e.g., freqanalaysis.ROIs is inputted as [1,2,3];[4];[5,6] with no spaces between any of the characters).
+
+
+## Issues with file permissions on x11 forwarding
+
+### Error occurrence: Cannot save output of interactive JSON config
+![](https://github.com/MabbottLab/MEGneto/blob/master/images/x11_error.png)
+
+Why did this occur?
+The JSON file does not have write permissions, so it cannot save the changes the user is trying to make to it.
+
+How to debug:
+1. Using powershell, navigate to the folder which contains the JSON config file (it is located within the config folder). As a verification that the issue is indeed a lack of writing permission, type `ls -l` and you will see the file permissions for each file in this folder, as pictured below.
+![](https://github.com/MabbottLab/MEGneto/blob/master/images/x11_permission_verification.png)
+
+The information displayed in the leftmost column on the image represents the permissions in clusters, as described in the image below.
+![](https://github.com/MabbottLab/MEGneto/blob/master/images/permission_description.png)
+
+As seen in the first image, the JSON file (`OIRMFake.json`, highlighted in green), does not have a w in the owner cluster, indicating that there are no writing permissions to this file. To remedy this, simply type the following command, while remaining in this folder: `chmod +w OIRMFake.json` (where OIRMFake.json would be the name of your JSON file).
