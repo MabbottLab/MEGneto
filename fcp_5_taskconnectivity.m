@@ -126,7 +126,11 @@ all_conn_mat = nan(num_sources, num_sources, ... % num_nodes x num_nodes x ...
         catch
             load([ssSubjPath(ss) '/AAL_beamforming_results.mat'], '-mat');
         end
-    
+  
+	% load data struct to grab time
+	time_info = load([ssSubjPath(ss) '/ft_meg_data_cfg.mat']);
+	time_info = time_info.data.time{1};
+  
         % define some dimensions
         num_samples = size(catmatrix, 1);
         num_trials  = size(catmatrix, 2);
@@ -141,7 +145,7 @@ all_conn_mat = nan(num_sources, num_sources, ... % num_nodes x num_nodes x ...
 %   Dimensions = [sources] x [sources] x [freq. band]
         conn_mat  = nan(num_sources, num_sources, length(config.connectivity.filt_freqs)); 
         data    = [];
-        time_info = config.task.trialdef.parameters.tEpoch;
+ 
         for src = 1:num_sources
             data.label{src} = sprintf('ROI%d', src);
         end
@@ -154,7 +158,7 @@ all_conn_mat = nan(num_sources, num_sources, ... % num_nodes x num_nodes x ...
           %%% FOR EACH TRIAL
           for tt = 1:num_trials
             fprintf('Processing trial %d...\n', tt);
-            data.time{tt} = time_info(1):(1/srate):time_info(2);
+            data.time{tt} = time_info;
             %%% FOR EACH OF THE NODES/SOURCES
             for kk = 1:num_sources
               % mean center or z-score the timeseries before filtering
