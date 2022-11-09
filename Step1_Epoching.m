@@ -81,6 +81,10 @@ out = [];
     out.step1.numTrials_headMotionRejected = ...
         out.step1.numTrials_epoched - length(cfg.trl);
 
+    % figure out which channels are the actual MEG channels
+    hdr             = ft_read_header(cfg.dataset);
+    cfg.channel     = hdr.label(contains(hdr.chantype, ["meg", "ref"]));
+    
     %%% muscle and jump artifacts -----------------------------------------
     if config.step1.clean_muscleJump == 1 % if user indicated they wish to perform artifact detection
         
@@ -141,6 +145,7 @@ out = [];
 
 %%% BAD CHANNEL DETECTION -------------------------------------------------
     cfg             = []; % set up config for detecting bad channels
+    cfg.channel     = out.step1.cfg.channel;
     cfg.dataset     = ds_path;
     cfg.bchthr      = 60; % threshold; 75-85 quantile
     cfg.sections    = 3; % divide into 3 sections
@@ -156,8 +161,8 @@ out = [];
     out.step1.badChanDef.out   = badChannels;
 
 %% PREPROCESS THE DATA %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    cfg             = out.step1.cfg; % call up again our trial def
-    cfg.channel     = {'MEG', 'MEGREF', 'REFGRAD', 'REFMAG'};
+
+    cfg             = out.step1.cfg; % call up again our trial def    
     % line noise removal
     cfg.dftfilter   = 'yes'; % line noise removal using discrete fourier transform? 
     cfg.dftfreq     = [60, 120]; % line noise frequencies
