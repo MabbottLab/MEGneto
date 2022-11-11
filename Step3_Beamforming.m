@@ -44,7 +44,7 @@ clear sourcemodel;
     clear data_clean
     
 %%% PREPARE SUBJECT-SPECIFIC SOURCE MODEL WITH TEMPLATE HEAD MODEL ----------
-    cfg                 = []; % set upp config for participant source model preparation 
+    cfg                 = []; % set up config for participant source model preparation 
     cfg.mri             = mri;
     cfg.nonlinear       = 'yes';
     cfg.unit            = 'mm';
@@ -117,7 +117,7 @@ clear sourcemodel;
     %%% project virtual sources to strongest (dominant) orientation
     %%% (taking the largest eigenvector of the sources timeseries)
     cfg                  = []; % set up config for projecting to dominant orientation
-    cfg.projectmom       = config.beamforming.timeDomain.projectmom;
+    cfg.projectmom       = 'yes';
     cfg.keeptrials       = 'yes';
     projection           = ft_sourcedescriptives(cfg, source_t_trials); % project to dominant orientation
     
@@ -127,19 +127,13 @@ clear sourcemodel;
     sourcemodel.pos = template_grid.pos; 
     
     % load atlas
-    if contains(config.beamforming.atlas.filepath, 'mmp') % if MMP glasser atlas
-        megneto_path        = fileparts(which('fcp_4_beamforming.m'));
-        atlas               = ft_read_atlas([megneto_path '/external/atlas/mmp.mat']);
-    else
-        fullPath                = which('ft_preprocessing.m');
-        [pathstr,~,~]           = fileparts(fullPath);
-        atlas                   = ft_read_atlas([pathstr config.beamforming.atlas.filepath]);
-        if contains(config.beamforming.atlas.filepath, 'aal')
-            atlas.tissuelabel   = atlas.tissuelabel(1:90); % we only want non-cerebellar regions (isolate desired regions)
-            atlas.tissue(atlas.tissue > 90) = 0;
-        end
+    if contains(config.step3.atlas, 'mmp') % if MMP glasser atlas
+        atlas = ft_read_atlas([config.meta.megneto_path '/external/atlas/mmp.mat']);
+    elseif contains(config.step3.atlas, 'aal')
+        atlas = ft_read_atlas([config.meta.fieldtrip_path '/template/atlas/aal/ROI_MNI_V4.nii']);
+        atlas.tissuelabel   = atlas.tissuelabel(1:90); % we only want non-cerebellar regions (isolate desired regions)
+        atlas.tissue(atlas.tissue > 90) = 0;
     end
-    atlas           = ft_convert_units(atlas, 'cm'); % convert atlas units to centimeters
 
     % source interpolate
     cfg              = [];
@@ -147,19 +141,14 @@ clear sourcemodel;
     cfg.parameter    = 'tissue';
     source_atlas       = ft_sourceinterpolate(cfg,atlas,sourcemodel); % interpolate source activity onto voxels of anatomical description of the brain
 
-    % actual interpolation
-    catmatrix      = NaN(length(projection.time), ... % set up empty matrix to store reconstructed timeseries for each trial and region of interest
-                         length(projection.trial), ...
-                         length(source_atlas.tissuelabel));   % over all ROI timeseries across trial
-
-    var_explained  = NaN(1, ... % set up empty matrix to store variance explained of first principial component for each trial and region of interest 
-                         length(projection.trial), ...
-                         length(source_atlas.tissuelabel));
-    %%% FOR EACH TRIAL ----------------------------------------------------
-    right_now = clock;
-    fprintf('%02.f:%02.f:%02.f       Identifying ROI timeseries!\n', ...
-        right_now(4:6))
-    
+    % set it up in a fieldtrip-looking structure
+    data_roi                        = [];
+    data_roi.time                   = data.time;
+    data_roi.fsample                = data.fsample;
+    data_roi.label                  = atlas.tissuelabel;
+    data_roi.sourceinterp.pos       = source_atlas.pos;
+    data_roi.sourceinterp.tissue    = source_atlas.tissue;
+        
     for t = 1:projection.df
         %%% AND FOR EACH NODE ---------------------------------------------
         for i = 1:max(size(atlas.tissuelabel))
@@ -170,12 +159,12 @@ clear sourcemodel;
             
             % IF NODE EXISTS
             if size(source_timeseries, 1) >= 1 
-                if config.beamforming.rep_timeseries == "mean"
-                    catmatrix(:,t,i) = nanmean(source_timeseries,1); % take avg across source points
-                elseif config.beamforming.rep_timeseries == "pca"
+                if config.step3.combineDipoles == "mean"
+                    data_roi.trial{t}(i,:) = nanmean(source_timeseries,1); % take avg across source points
+                elseif config.step3.combineDipoles == "pca"
                     [~, score, ~, ~, explained] = pca(transpose(source_timeseries)); % perform pca
-                    catmatrix(:,t,i) = transpose(score(:, 1)); % store first principal component across timeseries
-                    var_explained(:,t,i) = explained(1);
+                    data_roi.trial{t}(i,:) = transpose(score(:, 1)); % store first principal component across timeseries
+                    data_roi.var{t}(i) = explained(1);
                 end
                 % ori_avg(:,t,i) = nanmean(ori_region,1);
             % IF NO SOURCE POINTS W/IN NODE
@@ -185,34 +174,6 @@ clear sourcemodel;
         end
     end
     
-%%% FINAL PARTICIPANT OUTPUT VARIABLES ------------------------------------
-    srate     = data.fsample;                            % keep track of sampling rate
-    coords    = projection.pos;                          % coordinates
-
-%%% SAVE OUTPUT -----------------------------------------------------------
-    if isnan(var_explained) % if the variance explained has not been populated, don't save it
-        save([ssSubjPath(ss) '/atlas_beamforming_results.mat'],'catmatrix', 'srate','coords','-mat','-v7.3')
-    else
-        save([ssSubjPath(ss) '/atlas_beamforming_results.mat'],'catmatrix', 'var_explained', 'srate','coords','-mat','-v7.3')
-    end 
-        
-%%% OPTIMIZING RUN SPACE --------------------------------------------------
-    clear coords catmatrix srate source_timeseries ...
-        atlas sourcemodel source_t_trials projection seg mri data grid hdm ...
-        source_t_avg tlock leadfield 
-    
-    right_now = clock;
-    fprintf('%02.f:%02.f:%02.f       Done subject %s!\n', ...
-        right_now(4:6), subj_match.pid{ss})
-    
+    save([this_output '/step3_data_roi.mat'], 'data_roi') 
+                
 end
-
-%% turn off diary
-right_now = clock;
-fprintf('%02.f:%02.f:%02.f       Done running **%s**.\n', ...
-    right_now(4:6), mfilename)
-
-%% send email to user
-sendEmail("beamforming", string(config.contact));
-
-diary off
