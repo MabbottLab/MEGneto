@@ -12,9 +12,9 @@ load([this_output '/step3_data_roi.mat'])
 
 %%% RUN CONNECTIVITY ANALYSIS ---------------------------------------------
     %%% FOR EACH FREQUENCY BAND
-    freq = [];
-    freq.dimord = 'chan_chan_freq';
-    freq.label = data_roi.label;
+    conn = [];
+    conn.dimord = 'chan_chan_freq';
+    conn.label = data_roi.label;
     
     for fq = 1:length(bpfilt) 
           cfg = [];
@@ -42,21 +42,22 @@ load([this_output '/step3_data_roi.mat'])
             % COMPUTE CONNECTIVITY METRIC
             cfg             = []; % set up config for computing connectivity metric
             cfg.method      = config.step4b.connmethod;
-            conn            = ft_connectivityanalysis(cfg, freq_filt); % compute connectivity metric
+            this_conn            = ft_connectivityanalysis(cfg, freq_filt); % compute connectivity metric
             
             % RESHAPE INTO SOURCE X SOURCE CONN MAT AND STORE
-            conn            = ft_checkdata(conn, 'cmbstyle', 'full');
-            freq.freq(fq) = mean(conn.freq);
+            this_conn            = ft_checkdata(conn, 'cmbstyle', 'full');
+            conn.freq(fq) = mean(conn.freq);
             
             % collapse frequencies within band
             if ~strcmp(config.step4b.bandavgmethod, 'max') % default to max across band
-                freq.(sprintf('%sspctrm',cfg.method))(:,:,fq) = ...
+                conn.(sprintf('%sspctrm',cfg.method))(:,:,fq) = ...
                     squeeze(max(conn.(sprintf('%sspctrm', cfg.method)),[], 3));
             else % otherwise, use mean
-                freq.(sprintf('%sspctrm',cfg.method))(:,:,fq) = ...
+                conn.(sprintf('%sspctrm',cfg.method))(:,:,fq) = ...
                     squeeze(mean(conn.(sprintf('%sspctrm', cfg.method)), 3));
             end
     end
     
+    save([this_output '/step4b_conn.mat'], 'conn');
 
 end
