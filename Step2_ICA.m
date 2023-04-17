@@ -58,20 +58,21 @@ load([this_output '/out_struct.mat']) % out variable
         close all
         
         out.step2.ica_bad_comp = bad_comp;
-        save([this_output '/out_struct.mat'], 'out', '-v7.3')
+        writematrix(bad_comp, [this_output '/step2_badComp.csv']) % note to JT: fix this
 
 %% regress ICA noise components and fix bad channels
     elseif run_check_or_fix == "fix"
         
         load([this_output '/step2_icaComponents.mat'])
         load([this_output '/step1_data_clean.mat'])
+        load([this_output '/step2_badComp.csv'])
         
         % first, ICA component regress (if there are any)
-        if ~isempty(out.step2.ica_bad_comp)
+%        if ~isempty([this_output '/step2_badComp.mat'])
             cfg = [];
-            cfg.component = out.step2.ica_bad_comp;
+            cfg.component = step2_badComp;
             data_clean = ft_rejectcomponent(cfg, comp, data_clean);
-        end
+%        end
         
         % then fix bad channels
         if ~isempty(out.step1.badChanDef.out)
@@ -97,8 +98,8 @@ load([this_output '/out_struct.mat']) % out variable
             data_clean          = ft_channelrepair(cfg, data_clean);
         end
         
-        save([this_output '/step2_data_fullyProcessed'], 'data_clean', '-v7.3')
-        save([this_output '/out_struct.mat'], 'out', '-v7.3')
+        save([this_output '/step2_data_fullyProcessed'], 'data_clean')
+        save([this_output '/out_struct.mat'], 'out')
     end
 
 end

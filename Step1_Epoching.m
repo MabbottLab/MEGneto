@@ -8,12 +8,12 @@ function Step1_Epoching(config, pid, ds_path)
 %
 %% SETUP
 
-this_output = [config.meta.project_path '/' config.meta.analysis_name '/' pid];
-if ~exist(this_output, 'dir') 
+this_output = [config.meta.project_path '/' config.meta.analysis_name '/' pid]; % indicate subject-specific output folder path
+if ~exist(this_output, 'dir') % if it doesn't exist, create it
     mkdir(this_output)
 end
 
-out = [];
+out = []; % variable for storing useful output information
 
 %% EPOCHING %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -32,6 +32,9 @@ out = [];
         cfg             = []; % set up config parameters for ft_definetrial
         cfg.datafile    = ds_path;
         cfg.trialdef    = config.step1.trialdef;
+        if isfield(config.step1, 'trialfun')
+            cfg.trialfun = config.step1.trialfun;
+        end
         cfg             = ft_definetrial(cfg); 
     else % if this is a resting state scan     
         cfg                      = [];

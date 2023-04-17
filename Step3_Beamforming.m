@@ -20,7 +20,7 @@ clear sourcemodel;
 
 %%% LOAD ANATOMICAL MRI DATA ----------------------------------------------
     load([this_output '/Prep_T1_aligned.mat']);
-    mri     = ft_convert_units(mri,'cm');
+    % mri     = ft_convert_units(mri,'cm');
     
     % check for fiducials which help to localize head position relative to
     % the sensors
@@ -80,17 +80,20 @@ clear sourcemodel;
     cfg.sourcemodel  = grid;
     cfg.reducerank   = 2;
     cfg.grad         = data.grad;
-    cfg.normalize    = config.step3.normLeadField;
+    cfg.normalize    = config.step3.normLeadfield;
     leadfield        = ft_prepare_leadfield(cfg, data); % create leadfield
 
 %% ACTUAL BEAMFORMING
 %%% VECTOR - Time Domain Source Reconstruction ----------------------------
+    
+    % need to make sure that only MEG-proper channels are selected
 
     %%% compute common spatial filter (returns: COVARIANCE MATRIX)
     % the covariance matrix tells us how related the sensors are
     cfg                    = []; % set up config to compute covariance matrix
     cfg.covariance         = 'yes';
     cfg.keeptrials         = 'yes';
+    cfg.channel           = data.label(1:183);
     tlock                  = ft_timelockanalysis(cfg, data); % compute covariance matrix
 
     %%% calculate sensor weights (actual beamforming)
