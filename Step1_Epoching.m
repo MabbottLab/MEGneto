@@ -32,8 +32,8 @@ out = []; % variable for storing useful output information
         cfg             = []; % set up config parameters for ft_definetrial
         cfg.datafile    = ds_path;
         cfg.trialdef    = config.step1.trialdef;
-        if isfield(config.step1, 'trialfun')
-            cfg.trialfun = config.step1.trialfun;
+        if isfield(config.step1.trialdef, 'trialfun')
+            cfg.trialfun = config.step1.trialdef.trialfun;
         end
         cfg             = ft_definetrial(cfg); 
     else % if this is a resting state scan     
