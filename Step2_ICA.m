@@ -1,11 +1,16 @@
-function Step2_ICA(config, pid, run_check_or_fix)
+function Step2_ICA(config, pid, run_check_or_fix, visitnum)
 
 % same wrapper function for initial ICA component analysis, custom
 % browsing, and regressing components
 
 %% SETUP: LOAD THINGS
 
-this_output = [config.meta.project_path '/' config.meta.analysis_name '/' pid];
+if exist('visitnum', 'var')
+    this_output = [config.meta.project_path '/' config.meta.analysis_name '/' pid '/' sprintf('ses-%.2d', visitnum)]; % indicate subject-specific output folder path
+else
+    this_output = [config.meta.project_path '/' config.meta.analysis_name '/' pid]; 
+end
+
 load([this_output '/out_struct.mat']) % out variable
 
 %% run ICA

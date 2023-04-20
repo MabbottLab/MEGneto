@@ -1,4 +1,4 @@
-function Step1_Epoching(config, pid, ds_path)
+function Step1_Epoching(config, pid, ds_path, visitnum)
 %
 % some sort of documentation will be here
 % 1. epoch
@@ -8,7 +8,12 @@ function Step1_Epoching(config, pid, ds_path)
 %
 %% SETUP
 
-this_output = [config.meta.project_path '/' config.meta.analysis_name '/' pid]; % indicate subject-specific output folder path
+if exist('visitnum', 'var')
+    this_output = [config.meta.project_path '/' config.meta.analysis_name '/' pid '/' sprintf('ses-%.2d', visitnum)]; % indicate subject-specific output folder path
+else
+    this_output = [config.meta.project_path '/' config.meta.analysis_name '/' pid]; 
+end
+
 if ~exist(this_output, 'dir') % if it doesn't exist, create it
     mkdir(this_output)
 end
