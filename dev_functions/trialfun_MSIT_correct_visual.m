@@ -29,11 +29,6 @@ sampToTime  = @(s) s / hdr.Fs; % sample / sampling rate = time
 % extract list of events from the MEG dataset
 eventslist  = ft_read_event(cfg.dataset);
 
-% handle FIT_004's missing buttons
-if contains(cfg.dataset, "FIT-004-01")
-    eventslist = ft_read_event('/media/mabbotthpf/datasets/FitABCS/FIT_004/ses-01/meg/FIT-004-01_RESEARCH_20220811_MSIT.ds/MarkerFile_addButtons_20230420.mat');
-end
-
 % get list of possible event types
 uniquetypes = unique({eventslist.type});
 
@@ -81,7 +76,7 @@ marker_present = cellfun(@(x) any(ismember(x,'Correct')), ...             % retu
                         unfiltered_trials.event, 'UniformOutput', false);
 marker_present = cell2mat(marker_present);       % make it into a matrix
 deleteRows = marker_present == 0; % get rows of incorrect trials
-marker_present = marker_present(marker_present > 0);  
+marker_present = marker_present(marker_present > 0);
 
 %% ASSEMBLE TRL MATRIX
 
@@ -94,7 +89,7 @@ selected_trials(deleteRows,:)   = [];
 
 %%% FORM TRL MATRIX -------------------------------------------------------
 for rr = 1:size(selected_trials, 1)
-    t0_index = contains(selected_trials{rr, 'event'}{1}, 'Button');
+    t0_index = contains(selected_trials{rr, 'event'}{1}, 'CONG');
     these_eventTimings = cell2mat(selected_trials{rr, 'eventTiming'}{1});
     this_t0 = these_eventTimings(t0_index);
     
@@ -106,7 +101,6 @@ for rr = 1:size(selected_trials, 1)
     trl(rr,2) = this_t0 + timeToSamp(cfg.trialdef.poststim);
     trl(rr,3) = -1 * timeToSamp(cfg.trialdef.prestim);
     trl(rr,4) = string(selected_trials{rr, 'condition'}{1}) == "CONG";
-
 end
     
 %% print some messages
