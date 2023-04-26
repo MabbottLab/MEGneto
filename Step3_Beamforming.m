@@ -1,10 +1,15 @@
-function Step3_Beamforming(config, pid)
+function Step3_Beamforming(config, pid, visitnum)
 
 % to fill this part in...
 
 %% SET UP LOGGING FILE
 
-this_output = [config.meta.project_path '/' config.meta.analysis_name '/' pid];
+if exist('visitnum', 'var')
+    this_output = [config.meta.project_path '/' config.meta.analysis_name '/' pid '/' sprintf('ses-%.2d', visitnum)]; % indicate subject-specific output folder path
+else
+    this_output = [config.meta.project_path '/' config.meta.analysis_name '/' pid]; 
+end
+
 load([this_output '/out_struct.mat'])
 
 %% TEMPLATE SOURCE MODEL
@@ -19,7 +24,8 @@ clear sourcemodel;
 %% PARTICIPANT MODELS
 
 %%% LOAD ANATOMICAL MRI DATA ----------------------------------------------
-    load([this_output '/Prep_T1_aligned.mat']);
+    T1_path = [config.meta.project_path '/Prep_T1s/' pid '/' sprintf('ses-%.2d', visitnum)];
+    load([T1_path '/Prep_T1_aligned.mat']);
     % mri     = ft_convert_units(mri,'cm');
     
     % check for fiducials which help to localize head position relative to
@@ -87,13 +93,14 @@ clear sourcemodel;
 %%% VECTOR - Time Domain Source Reconstruction ----------------------------
     
     % need to make sure that only MEG-proper channels are selected
+    selchan = ft_channelselection({'all', '-MMSTC*'}, data.label);
 
     %%% compute common spatial filter (returns: COVARIANCE MATRIX)
     % the covariance matrix tells us how related the sensors are
     cfg                    = []; % set up config to compute covariance matrix
     cfg.covariance         = 'yes';
     cfg.keeptrials         = 'yes';
-    cfg.channel           = data.label(1:183);
+    cfg.channel            = selchan;
     tlock                  = ft_timelockanalysis(cfg, data); % compute covariance matrix
 
     %%% calculate sensor weights (actual beamforming)

@@ -1,10 +1,15 @@
-function Step4b_Connectivity(config, pid)
+function Step4b_Connectivity(config, pid, visitnum)
 %
 % docs
 %
 %% SETUP
 
-this_output = [config.meta.project_path '/' config.meta.analysis_name '/' pid];
+if exist('visitnum', 'var')
+    this_output = [config.meta.project_path '/' config.meta.analysis_name '/' pid '/' sprintf('ses-%.2d', visitnum)]; % indicate subject-specific output folder path
+else
+    this_output = [config.meta.project_path '/' config.meta.analysis_name '/' pid]; 
+end
+
 load([this_output '/out_struct.mat'])
 load([this_output '/step3_data_roi.mat'])
 
