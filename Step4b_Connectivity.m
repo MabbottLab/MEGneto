@@ -41,7 +41,8 @@ load([this_output '/step3_data_roi.mat'])
               % select relevant time period
               cfg = [];
               cfg.latency = config.step4b.toi;
-              cfg.trials = config.step4b.conditions{cond,2};
+              cfg.trials = setdiff(config.step4b.conditions{cond,2}, ...
+                                   config.step4b.exclude);
               data_roi_filt_toi = ft_selectdata(cfg, data_roi_filt);
 
     %%% CALCULATE CONNECTIVITY ------------------------------------------------
