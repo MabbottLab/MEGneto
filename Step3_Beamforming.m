@@ -21,7 +21,7 @@ load(sprintf('%s/template/sourcemodel/standard_sourcemodel3d%dmm', ...
 template_grid = ft_convert_units(sourcemodel, 'mm');
 clear sourcemodel;
 
-%% PARTICIPANT MODELS
+%% PARTICIPANT MODEL
 
 %%% LOAD ANATOMICAL MRI DATA ----------------------------------------------
     T1_path = [config.meta.project_path '/Prep_T1s/' pid '/' sprintf('ses-%.2d', visitnum)];
@@ -78,12 +78,96 @@ clear sourcemodel;
      clear grad_mm
      close all
 
-%%% COMPUTE LEADFIELD -----------------------------------------------------
+ %% INTERPOLATE ATLAS ONTO VIRTUAL SOURCES ----------------------------
+
+    % setup for atlas interpolation - get coordinates
+    if config.step3.nativeSpace % when atlas MRI file is already native
+        sourcemodel.pos = grid.pos;
+    else
+        sourcemodel.pos = template_grid.pos; % MNI space atlas
+    end
+    
+    % load atlas
+    labeltype = 'tissue';
+    if contains(config.step3.atlas, 'mmp') % if MMP glasser atlas in MNI
+        atlas = ft_read_atlas([config.meta.megneto_path '/external/atlas/mmp.mat']);
+    elseif contains(config.step3.atlas, 'aal')
+        atlas                           = ft_read_atlas([config.meta.fieldtrip_path '/template/atlas/aal/ROI_MNI_V4.nii']);
+        atlas.tissuelabel               = atlas.tissuelabel(1:90); % we only want non-cerebellar regions (isolate desired regions)
+        atlas.tissue(atlas.tissue > 90) = 0;
+    elseif contains(config.step3.atlas, 'wmp') 
+        % MMP native space atlas load
+        atlas = ft_read_atlas([config.meta.rawdata_path ...
+                                '/derivatives/T1w_fastsurfer_jtseng/' ...
+                                pid '/' sprintf('ses-%.2d', visitnum) ...
+                                '/mri/hcpmmp1_ordered.mgz']);
+        atlas.transformorig     = atlas.transform;
+        atlas.transform         = mri.transform;
+        atlas.coordsys          = 'ctf';
+        atlas_labels            = load([config.meta.megneto_path '/external/atlas/mmp_labels.mat']); % mat file of labels as cellstring
+        atlas.parcellationlabel = atlas_labels.hcpmmp1_labels;
+        clear atlas_labels
+        
+        % fMRI-based ROI spehres for L/R-FFA/LOC
+        fmri_spheres            = ft_read_atlas([config.meta.project_path ...
+                                      '/fMRI_FFA-LOC_ROIs/' ...
+                                      pid '_' sprintf('ses-%.2d', visitnum) ...
+                                      '_fMRI_spheres.nii.gz']);
+        fmri_spheres.transformorig = fmri_spheres.transform;
+        fmri_spheres.transform      = mri.transform;
+        fmri_spheres.coordsys       = 'ctf';
+        fmri_spheres.parcellationlabel = {'L_FFA', 'R_FFA', 'L_LOC', 'R_LOC'}';
+        labeltype                   = 'parcellation';
+    end
+
+    % source interpolate
+    cfg              = [];
+    cfg.interpmethod = 'nearest';
+    cfg.parameter    = labeltype;
+    source_atlas     = ft_sourceinterpolate(cfg,atlas,sourcemodel); % interpolate source activity onto voxels of anatomical description of the brain
+    
+    % in the case of additional custom sphere ROIs derived from fMRI
+    if contains(config.step3.atlas, 'wmp')
+        % identify dipoles corresponding to fMRI spheres
+        source_fmri = ft_sourceinterpolate(cfg, fmri_spheres, sourcemodel);
+    end
+    
+    % identify pos corresponding to actual ROIs
+    if ~(isstring(config.step3.ROIs)) % if it's numbers and not "all"
+        roi_pos = any(source_atlas.parcellation == config.step3.ROIs, 2);
+        source_atlas.parcellationlabel_all = source_atlas.parcellationlabel;
+        source_atlas.parcellationlabel = source_atlas.parcellationlabel(config.step3.ROIs);
+        num_rois = length(config.step3.ROIs);
+    else % else it says "all" and we should choose any ROI
+        roi_pos = any(source_atlas.parcellation > 0, 2);
+        num_rois = length(atlas.parcellationlabel);
+    end
+    
+    if contains(config.step3.atlas, 'wmp')
+        roi_pos = any([roi_pos, ...
+                   any(source_fmri.parcellation > 0, 2)],2);
+        
+       % handle overlapping dipoles between Glasser ROIs and fMRI
+       overlap = find(sum([roi_pos, source_fmri.parcellation] > 0, 2) == 2);
+       source_atlas.parcellation(overlap) = 0;
+    end
+
+    
+    
+    % interim notes:
+    %   grid = subject specific coordinates
+    %   template_grid = template loaded in from fieldtrip
+    %   sourcemodel = either grid/template_grid depending on atlas
+    %   roi_pos = x,y,z coordinates of dipoles that actually belong to an
+    %             ROI: either all ROIs, or a subset of them by index
+    
+%% COMPUTE LEADFIELD -----------------------------------------------------
     % the leadfield is used to provide information on the contribution of a
     % dipole source at a given location in a sensor's region
     cfg              = []; % set up config to prepare the leadfield
     cfg.headmodel    = hdm;
-    cfg.sourcemodel  = grid;
+    cfg.sourcemodel.pos  = grid.pos;
+    cfg.sourcemodel.inside = roi_pos;
     cfg.reducerank   = 2;
     cfg.grad         = data.grad;
     cfg.normalize    = config.step3.normLeadfield;
@@ -107,14 +191,16 @@ clear sourcemodel;
     cfg                 = []; % set up config for sensor weight calculation
     cfg.grad            = data.grad;            % sensor position (gradiometer)
     cfg.headmodel       = hdm;
-    cfg.sourcemodel     = grid;          % source model
+    cfg.sourcemodel.pos     = sourcemodel.pos;          % source model
+    cfg.sourcemodel.inside = leadfield.inside;
     cfg.sourcemodel.leadfield  = leadfield.leadfield;
     cfg.lcmv.keepfilter = 'yes';
     source_t_avg        = ft_sourceanalysis(cfg, tlock);
     
     %%% project all trials thru spatial filter
     cfg                  = []; % set up config for beamforming
-    cfg.sourcemodel      = grid; % source model
+    cfg.sourcemodel.pos      = sourcemodel.pos; % source model
+    cfg.sourcemodel.inside   = leadfield.inside;
     cfg.sourcemodel.filter = source_t_avg.avg.filter;
     cfg.sourcemodel.leadfield   = leadfield.leadfield;
     cfg.grad             = data.grad; % sensor position (gradiometer)
@@ -131,39 +217,22 @@ clear sourcemodel;
     cfg.keeptrials       = 'yes';
     projection           = ft_sourcedescriptives(cfg, source_t_trials); % project to dominant orientation
     
-%%% INTERPOLATE ATLAS ONTO VIRTUAL SOURCES ----------------------------
-
-    % setup for atlas interpolation - get coordinates
-    sourcemodel.pos = template_grid.pos; 
-    
-    % load atlas
-    if contains(config.step3.atlas, 'mmp') % if MMP glasser atlas
-        atlas = ft_read_atlas([config.meta.megneto_path '/external/atlas/mmp.mat']);
-    elseif contains(config.step3.atlas, 'aal')
-        atlas = ft_read_atlas([config.meta.fieldtrip_path '/template/atlas/aal/ROI_MNI_V4.nii']);
-        atlas.tissuelabel   = atlas.tissuelabel(1:90); % we only want non-cerebellar regions (isolate desired regions)
-        atlas.tissue(atlas.tissue > 90) = 0;
-    end
-
-    % source interpolate
-    cfg              = [];
-    cfg.interpmethod = 'nearest';
-    cfg.parameter    = 'tissue';
-    source_atlas       = ft_sourceinterpolate(cfg,atlas,sourcemodel); % interpolate source activity onto voxels of anatomical description of the brain
+%% collapse dipoles within ROIs and save data_roi to file
 
     % set it up in a fieldtrip-looking structure
     data_roi                        = [];
     data_roi.time                   = data.time;
     data_roi.fsample                = data.fsample;
-    data_roi.label                  = atlas.tissuelabel;
+    data_roi.trialinfo              = data.trialinfo;
     data_roi.sourceinterp.pos       = source_atlas.pos;
-    data_roi.sourceinterp.tissue    = source_atlas.tissue;
-        
+    data_roi.sourceinterp.(labeltype) = source_atlas.(labeltype);
+    data_roi.label                  = source_atlas.parcellationlabel;
+    
     for t = 1:projection.df
         %%% AND FOR EACH NODE ---------------------------------------------
-        for i = 1:max(size(atlas.tissuelabel))
+        for i = 1:num_rois
             % identify source coords that fall within ROI
-            node                     = find(source_atlas.tissue==i); 
+            node                     = find(source_atlas.(labeltype)==config.step3.ROIs(i)); 
             source_timeseries        = cell2mat(projection.trial(t).mom(node)); % get the timeseries; num_nodes x time
             % ori_region               = cell2mat(projection.trial(t).ori(node)); % orientations; num_nodes x time
             
@@ -179,7 +248,36 @@ clear sourcemodel;
                 % ori_avg(:,t,i) = nanmean(ori_region,1);
             % IF NO SOURCE POINTS W/IN NODE
             else
-                warning('No sources in ROI %s.\n',atlas.tissuelabel{i});
+                warning('No sources in ROI %s.\n',source_atlas.([labeltype 'label']){i});
+            end
+        end
+    end
+    
+    if contains(config.step3.atlas, 'wmp')
+        data_roi.label = [data_roi.label; source_fmri.parcellationlabel];
+        data_roi.sourceinterp.parcellation(:,2) = source_fmri.parcellation;
+        for t = 1:projection.df
+        %%% AND FOR EACH NODE ---------------------------------------------
+            for i = 1:4
+                % identify source coords that fall within ROI
+                node                     = find(source_fmri.(labeltype)==i); 
+                source_timeseries        = cell2mat(projection.trial(t).mom(node)); % get the timeseries; num_nodes x time
+                % ori_region               = cell2mat(projection.trial(t).ori(node)); % orientations; num_nodes x time
+
+                % IF NODE EXISTS
+                if size(source_timeseries, 1) >= 1 
+                    if config.step3.combineDipoles == "mean"
+                        data_roi.trial{t}(num_rois+i,:) = nanmean(source_timeseries,1); % take avg across source points
+                    elseif config.step3.combineDipoles == "pca"
+                        [~, score, ~, ~, explained] = pca(transpose(source_timeseries)); % perform pca
+                        data_roi.trial{t}(num_rois+i,:) = transpose(score(:, 1)); % store first principal component across timeseries
+                        data_roi.var{t}(i+1) = explained(1);
+                    end
+                    % ori_avg(:,t,i) = nanmean(ori_region,1);
+                % IF NO SOURCE POINTS W/IN NODE
+                else
+                    warning('No sources in ROI %s.\n',source_fmri.([labeltype 'label']){i});
+                end
             end
         end
     end
