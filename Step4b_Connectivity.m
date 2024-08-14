@@ -13,19 +13,22 @@ end
 load([this_output '/out_struct.mat'])
 load([this_output '/step3_data_roi.mat'])
 
+if isstring(data_roi.label)
+    data_roi.label = cellstr(data_roi.label);
+end
+
 %% RUN CONNECTIVITY ANALYSIS
 
 %%% RUN CONNECTIVITY ANALYSIS ---------------------------------------------
     %%% FOR EACH FREQUENCY BAND
     conn = [];
     conn.dimord = 'chan_chan_freq';
-    conn.label = data_roi.label;
     
     if ~isfield(config.step4b, 'conditions')
         config.step4b.conditions = {"all", 1:length(data_roi.trials)};
     else
         config.step4b.conditions(:,2) = ...
-            arrayfun(@(x) find(data_roi.trialinfo == x), ...
+            arrayfun(@(x) find(data_roi.trialinfo(:,1) == x & ~ismember(data_roi.trialinfo(:,2), config.step4b.excludeTrialByIndex)), ...
             [config.step4b.conditions{:,2}], 'UniformOutput', false)';
     end
     
@@ -41,8 +44,9 @@ load([this_output '/step3_data_roi.mat'])
               % select relevant time period
               cfg = [];
               cfg.latency = config.step4b.toi;
-              cfg.trials = setdiff(config.step4b.conditions{cond,2}, ...
-                                   config.step4b.exclude);
+              if isfield(config.step4b, 'conditions') % what if they don't have conditions but want to exclude trials?
+                  cfg.trials = config.step4b.conditions{cond,2};
+              end
               data_roi_filt_toi = ft_selectdata(cfg, data_roi_filt);
 
     %%% CALCULATE CONNECTIVITY ------------------------------------------------
@@ -60,14 +64,19 @@ load([this_output '/step3_data_roi.mat'])
                 % COMPUTE CONNECTIVITY METRIC
                 cfg             = []; % set up config for computing connectivity metric
                 cfg.method      = config.step4b.connmethod;
-                this_conn            = ft_connectivityanalysis(cfg, freq_filt); % compute connectivity metric
+                this_conn       = ft_connectivityanalysis(cfg, freq_filt); % compute connectivity metric
 
                 % RESHAPE INTO SOURCE X SOURCE CONN MAT AND STORE
                 this_conn            = ft_checkdata(this_conn, 'cmbstyle', 'full');
                 conn.freq(fq) = mean(this_conn.freq);
+                
+                % pull in labels which are impacted by reordering
+                if ~isfield(conn, 'label')
+                    conn.label = this_conn.label;
+                end
 
                 % collapse frequencies within band
-                if ~strcmp(config.step4b.bandavgmethod, 'max') % default to max across band
+                if strcmp(config.step4b.bandavgmethod, 'max') % default to max across band
                     conn.(sprintf('%sspctrm',cfg.method))(cond,:,:,fq) = ...
                         squeeze(max(this_conn.(sprintf('%sspctrm', cfg.method)),[], 3));
                 else % otherwise, use mean
