@@ -2,23 +2,27 @@ function Step4c_DynamicFC(config, pid, visitnum)
 % DynamicFC calculates specified FC metric using sliding window analysis
 % and ft_connectivityanalysis
 %
-% Inputs:
+% Configuration structure has to contain:
 %       connmethod: string, see ft_connectivityanalysis (ex: wpli_debiased)
-%       bandavgmethod: string (ex: max)
 %       toi: time of interest in seconds, double (ex: [0 1])
 %       winsize: size of sliding window in seconds, float  
 %       stepsize: how much time window slides over, in seconds, float
 %       freqbands: array of doubles containing frequency ranges
 %
-% Returns: 
-%       .mat containing connectivity matrices (window number x ROI x ROI x
+% Additional configuration options:
+%       bandavgmethod: string (ex: max)
+%
+% Saves: 
+%       step4c_connDFC.mat containing connectivity matrices (window number x ROI x ROI x
 %       frequency band)
-%       .png plotting metric of ROI x ROI over time windows for each frequency 
 %
 % Notes:
 %       - uses all trials/does not separate by conditions
 %       - if win_size/step_size aren't a perfect multiple of the full time
-%       window, truncates at last multiple
+%       window, cuts off at the last window
+%       ex: if toi is 0-1 s and both win_size and step_size are 0.3 s
+%           windows will be: 0-0.3 s, 0.3-0.6 s, 0.6-0.9 s, leaving out
+%           the last 0.1 s
 
 %% SETUP
     if exist('visitnum', 'var')
@@ -35,14 +39,13 @@ function Step4c_DynamicFC(config, pid, visitnum)
     connDFC.dimord = 'chan_chan_freq';
     connDFC.label  = data_roi.label;
     
-    t_start   = config.step4c.toi(1); 
-    t_end     = config.step4c.toi(2);
-    winsize  = config.step4c.winsize;
-    stepsize = config.step4c.stepsize;
+    t_start   = config.step4c.toi(1); % start of time of interest
+    t_end     = config.step4c.toi(2); % end of time of interest
+    winsize   = config.step4c.winsize; 
+    stepsize  = config.step4c.stepsize;
     
     if stepsize > winsize
         warning('Chosen step size is larger than window size');
-        
     end 
     
     %%% FOR EACH FREQUENCY BAND --------------------------------------------
@@ -51,9 +54,9 @@ function Step4c_DynamicFC(config, pid, visitnum)
         cfg           = [];
         cfg.bpfilter  = 'yes';
         cfg.bpfreq    = config.step4c.freqbands(fq,:);
-        data_roi_filt = ft_preprocessing(cfg, data_roi);
+        data_roi_filt = ft_preprocessing(cfg,data_roi);
         
-        % variables that get reused 
+        % defining variables for indexing and progress messages 
         win_num = 1; 
         f_low   = config.step4c.freqbands(fq,1);
         f_high  = config.step4c.freqbands(fq,2);
@@ -69,11 +72,11 @@ function Step4c_DynamicFC(config, pid, visitnum)
         for t = t_start:stepsize:(t_end-winsize)
             % select data based on smaller window 
             cfg               = [];
-            cfg.latency       = [t t+ winsize];
+            cfg.latency       = [t t+winsize];
             data_roi_filt_toi = ft_selectdata(cfg,data_roi_filt); 
             
             % keep track of centre of window 
-            connDFC.win_centre{fq}(win_num) = t + winsize/2; 
+            connDFC.win_centre{fq}(win_num) = t+winsize/2; 
             
             % CALCULATE CONNECTIVITY 
             fprintf('Connectivity calculations for window: %.3f to %.3f s \n',t,t + winsize)
@@ -106,86 +109,7 @@ function Step4c_DynamicFC(config, pid, visitnum)
             end            
             win_num = win_num + 1; 
         end 
-        
-        % -----------------------------------------------------------------------------
-        % SAVING ROI X ROI MATRICES OVER TIME AS FIGURE FOR CURRENT
-        % FREQUENCY BAND
-        % -----------------------------------------------------------------------------
-        matrix   = connDFC.(sprintf("%sspctrm",config.step4c.connmethod));
-        matrix_fq = matrix(:,:,:,fq); % selecting data for this freq band
-        n_win    = size(matrix, 1);
-            
-        % ROI labels
-        labels = this_conn.label;
         connDFC.label = labels; %re-assigning b/c ft_checkdata re-orders ROIs
-        
-        % window time labels for plots
-        t_init = t_start;
-        t_fin  = t_init + winsize; 
-        
-        % store max and min color values for uniform colorbar
-        colorLims = [];
-        
-        % prevent figures from popping up 
-        set(0, 'DefaultFigureVisible','off'); 
-        
-        % move onto rows of 4 cols if more than 4 time windows
-        if n_win > 4
-            if mod(n_win,4)==0 % if n_win is divisible by 4
-                n_row = n_win/4;
-            else
-                n_row = floor(n_win/4) + 1;
-            end
-            n_col = 4; 
-        else
-            n_row = 1;
-            n_col = n_win;
-        end 
-        
-        % create tiled layout figure for heatmaps
-        fig = figure(fq); 
-        tcl = tiledlayout(fig,n_row,n_col,'TileSpacing','Compact'); 
-        h   = gobjects(n_row,n_col); 
-        
-        % plot heatmap for each window 
-        for w = 1:n_win            
-            nexttile(tcl);
-            
-            % heatmap at window "w"
-            h(w) = heatmap(labels,labels,squeeze(matrix_fq(w,:,:)));
-            
-            %%% formatting 
-            if mod(w+3,4)~=0 % if the index+3 is not divisible by 4 (i.e. not in the first col)
-                h(w).YDisplayLabels = nan(size(h(w).YDisplayLabels)); % remove ylabels
-            end
-            
-            colorbar off
-            h(w).NodeChildren(3).TickLabelInterpreter = 'none'; % prevent letter subscripts for ROI names
-            set(h(w),'GridVisible','off','FontSize',6); 
-            colorLims=[colorLims; h(w).ColorLimits];
-            
-            % label matrix with time window 
-            title_text = compose([sprintf("%.3f to %.3f s",t_init,t_fin)]); 
-            h(w).Title = '\fontsize{10}' + title_text;
-            t_init     = t_init + stepsize;
-            t_fin      = t_init + winsize;
-            
-        end 
-        
-        title(tcl,sprintf('Dynamic Functional Connectivity For Frequency %d-%d Hz',f_low,f_high));
-        
-        % make colorbar constant for figure 
-        globalColorLim = [min(colorLims(:,1)), max(colorLims(:,2))];
-        set(h(1), 'ColorLimits', globalColorLim)
-        ax = axes(tcl,'visible','off','Colormap',h(1).Colormap,'CLim',globalColorLim);
-        cb             = colorbar(ax);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
-        cb.Layout.Tile = 'East';
-
-        % figure labeled with freq band 
-        saveas(fig,[this_output sprintf('dfc_freq_%d_%d.png',f_low,f_high)])
-               
-    end 
-    
-    save([this_output '/step4c_connDFC.mat'], 'connDFC'); 
-    
+    end   
+    save([this_output '/step4c_connDFC.mat'], 'connDFC');     
 end
