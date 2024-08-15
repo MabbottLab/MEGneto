@@ -34,15 +34,20 @@ function Step4c_DynamicFC(config, pid, visitnum)
     load([this_output '/out_struct.mat'])
     load([this_output '/step3_data_roi.mat'])
 
-%% RUN DFC ANALYSIS
-    connDFC        = [];
-    connDFC.dimord = 'chan_chan_freq';
-    connDFC.label  = data_roi.label;
-    
+%% RUN DFC ANALYSIS   
     t_start   = config.step4c.toi(1); % start of time of interest
     t_end     = config.step4c.toi(2); % end of time of interest
     winsize   = config.step4c.winsize; 
     stepsize  = config.step4c.stepsize;
+    
+    %initializing output structure 
+    connDFC           = [];
+    connDFC.dimord    = 'chan_chan_freq';
+    connDFC.label     = data_roi.label;
+    connDFC.toi       = config.step4c.toi;
+    connDFC.winsize   = winsize;
+    connDFC.stepsize  = stepsize;
+    connDFC.freqbands = config.step4c.freqbands;
     
     if stepsize > winsize
         warning('Chosen step size is larger than window size');
@@ -75,11 +80,13 @@ function Step4c_DynamicFC(config, pid, visitnum)
             cfg.latency       = [t t+winsize];
             data_roi_filt_toi = ft_selectdata(cfg,data_roi_filt); 
             
-            % keep track of centre of window 
-            connDFC.win_centre{fq}(win_num) = t+winsize/2; 
+            % keep track of centre of windows 
+            connDFC.win_centre{fq}(win_num) = t+winsize/2;
+            % keep track of edges of windows 
+            connDFC.win{fq}([win_num win_num+1]) = [t t+winsize];
             
             % CALCULATE CONNECTIVITY 
-            fprintf('Connectivity calculations for window: %.3f to %.3f s \n',t,t + winsize)
+            fprintf('Connectivity calculations for window: %.3f to %.3f s \n',t,t+winsize)
             cfg             = []; % set up config for connectivity calculation
             cfg.method      = 'mtmfft';
             cfg.output      = 'powandcsd';
