@@ -2,27 +2,36 @@
 % CFC calculates the mean vector length (a phase amplitude coupling
 % measure) between regions. 
 %
-% Inputs:
-%       chanlow (optional, see notes): cell array with channel names to be
-%       filtered into low frequency band (ex: {'chan1','chan2'} )
-%       chanhigh (optional, see notes):array with channel names to be
-%       filtered into high frequency band
-%       lowF: double with low frequency band (Hz) (ex: [4 8])
-%       highF: double with high frequency band (Hz) (ex: [8 12]) 
+% Configuration structure (config.step4d) has to contain:
+%       lowFreqband: double with low frequency band (Hz) (ex: [4 8])
+%       highFreqband: double with high frequency band (Hz) (ex: [8 12]) 
 %
-% Outputs:
+% Additional configuration options: 
+%       chanlow: cell array with channel names to be
+%       filtered into low frequency band (ex: {'chan1','chan2'} )
+%       chanhigh:array with channel names to be
+%       filtered into high frequency band
+%
+% Saves:
 %       .mat file containing data (cfc values chanlow x chanhigh), labels
 %       for chanlow, chanhigh
-%       .png with heatmap of chanlow x chanhigh 
 % 
 % Notes:
 %       - does not keep trials, averages them out 
 %       - whenever a list of channels (chanlow or chanhigh) isn't specified, 
 %        will default to using all the ROIs in the original data
+%% SETUP
+    if exist('visitnum', 'var')
+        this_output = [config.meta.project_path '/' config.meta.analysis_name '/' pid '/' sprintf('ses-%.2d', visitnum)]; % indicate subject-specific output folder path
+    else
+        this_output = [config.meta.project_path '/' config.meta.analysis_name '/' pid]; 
+    end
 
+    load([this_output '/out_struct.mat'])
+    load([this_output '/step3_data_roi.mat'])
 %% CHECKS
     % checking for missing, required fields
-    if ~isfield(config.step4d,'lowF')|| ~isfield(config.step4d,'highF')
+    if ~isfield(config.step4d,'lowFreqband')|| ~isfield(config.step4d,'highFreqband')
         error('Please specify both high and low frequency band ranges');
     end
     
@@ -39,8 +48,7 @@
         if ~isempty(chanLF_not_exist)
             chanLF_wrong = strjoin(string(config.step4d.chanlow(chanLF_not_exist)));
             error(sprintf('The following channels for low frequency do not exist in data: %s.',chanLF_wrong));
-        end
-    
+        end    
     % if chanlow not specified, automatically use all in data
     else 
         LFchan = sort(ft_channelselection('all', data_roi.label));
@@ -57,19 +65,7 @@
     else
         HFchan = sort(ft_channelselection('all', data_roi.label));
     end
-    
-   
-%% SETUP
-
-    if exist('visitnum', 'var')
-        this_output = [config.meta.project_path '/' config.meta.analysis_name '/' pid '/' sprintf('ses-%.2d', visitnum)]; % indicate subject-specific output folder path
-    else
-        this_output = [config.meta.project_path '/' config.meta.analysis_name '/' pid]; 
-    end
-
-    load([this_output '/out_struct.mat'])
-    load([this_output '/step3_data_roi.mat'])
-
+      
     ntrial = numel(data_roi.trial);
     nchanLF = numel(LFchan);
     nchanHF = numel(HFchan);
@@ -88,12 +84,12 @@
 %% PREPROCESS DATA
     cfg          = [];
     cfg.bpfilter = 'yes'; 
-    cfg.bpfreq   = config.step4d.lowF;
+    cfg.bpfreq   = config.step4d.lowFreqband;
     LFdata       = ft_preprocessing(cfg, data_roi);
 
     cfg          = [];
     cfg.bpfilter = 'yes'; 
-    cfg.bpfreq   = config.step4d.highF;
+    cfg.bpfreq   = config.step4d.highFreqband;
     HFdata       = ft_preprocessing(cfg, data_roi);
     
 %% CONNECTIVITY CALCULATIONS
@@ -125,23 +121,7 @@
     %%% plotting 
     cfc_plot = squeeze(mean(cfc.data,3));
     
-    fig = figure(1);
-    h   = heatmap(LFchan, HFchan, cfc_plot');
-    % formatting
-    LF1 = config.step4d.lowF(1);
-    LF2 = config.step4d.lowF(2);
-    HF1 = config.step4d.highF(1);
-    HF2 = config.step4d.highF(2);
-    
-    h.NodeChildren(3).TickLabelInterpreter = 'none'; % prevent letter subscripts for ROIs
-    h.XLabel = 'Low Frequency Channels';
-    h.YLabel = 'High Frequency Channels';
-    h.Title = sprintf('CFC Between %d-%d Hz and %d-%d Hz',LF1,LF2,HF1,HF2);
-    
-    % save fig 
-    saveas(fig,[this_output sprintf('dfc_freq_%d_%d.png',f_low,f_high)])
-    
     %%% saving data
     cfc.data = cfc_plot;
-    save([this_output '/step4c_connDFC.mat'], 'cfc'); 
+    save([this_output sprintf('/step4d_CFC_%d_%d_vs_%d_%d.mat',config.step4d.lowF(1),config.step4d.lowF(2),config.step4d.highF(1),config.step4d.highF(2))], 'cfc'); 
 end
