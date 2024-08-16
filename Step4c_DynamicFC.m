@@ -2,7 +2,7 @@ function Step4c_DynamicFC(config, pid, visitnum)
 % DynamicFC calculates specified FC metric using sliding window analysis
 % and ft_connectivityanalysis
 %
-% Configuration structure has to contain:
+% Configuration structure (config.step4c) has to contain:
 %       connmethod: string, see ft_connectivityanalysis (ex: wpli_debiased)
 %       toi: time of interest in seconds, double (ex: [0 1])
 %       winsize: size of sliding window in seconds, float  
