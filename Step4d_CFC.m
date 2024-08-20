@@ -38,10 +38,10 @@
     % checking frequency channels 
     chan_fields = {'chanlow','chanhigh'};
     
-    for i =1:length(chan_fields)
+    for i=1:length(chan_fields)
         if isfield(config.step4d,chan_fields(i)) 
             missing_chan = ~(ismember(config.step4d.(sprintf('%s',chan_fields{i})),data_roi.label)); % returns 1 for missing channels
-            if sum(missing_chan)>0 %if there's at least 1 missing channel
+            if sum(missing_chan)>0 %if there's at least 1 missing channel,display error with channel names
                 missing_chan_names = strjoin(string(config.step4d.(sprintf('%s',chan_fields{i}))(missing_chan)));
                 error(sprintf('The following channels for %s do not exist in data: %s.',chan_fields{i},missing_chan_names));
             end
@@ -49,14 +49,13 @@
         else %if no channels specified, use all ROIs by default
             chans{i} = sort(ft_channelselection('all', data_roi.label));
         end
-        
     end
     
     %grab ROIs 
     LFchan = chans{1};
     HFchan = chans{2};
       
-    ntrial = numel(data_roi.trial);
+    ntrial  = numel(data_roi.trial);
     nchanLF = numel(LFchan);
     nchanHF = numel(HFchan);
 
@@ -82,7 +81,6 @@
     HFdata       = ft_preprocessing(cfg, data_roi);
     
 %% CONNECTIVITY CALCULATIONS
-
     ncomb = size(labelcmb,1); %number label combinations
     % saving names for plotting
     cfc.LFlabel = LFchan;
@@ -91,7 +89,7 @@
     % actual computation
     fprintf('CFC Connectivity Calculations');
     for i=1:ncomb 
-        for j = 1:ntrial
+        for j=1:ntrial
             chandataLF = LFdata.trial{j}(strcmp(LFdata.label,labelcmb{i,1}),:);
             chandataHF = HFdata.trial{j}(strcmp(HFdata.label,labelcmb{i,2}),:);
             % abs = take magnitude of vector 
