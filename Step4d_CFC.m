@@ -35,51 +35,40 @@
         error('Please specify both high and low frequency band ranges');
     end
     
-    % checking low frequency channels 
-    if isfield(config.step4d,'chanlow')
-        LFchan = sort(ft_channelselection(config.step4d.chanlow, data_roi.label));
+    % checking frequency channels 
+    chan_fields = {'chanlow','chanhigh'};
+    
+    for i =1:length(chan_fields)
+        if isfield(config.step4d,chan_fields(i)) 
+            missing_chan = ~(ismember(config.step4d.(sprintf('%s',chan_fields{i})),data_roi.label)); % returns 1 for missing channels
+            if sum(missing_chan)>0 %if there's at least 1 missing channel
+                missing_chan_names = strjoin(string(config.step4d.(sprintf('%s',chan_fields{i}))(missing_chan)));
+                error(sprintf('The following channels for %s do not exist in data: %s.',chan_fields{i},missing_chan_names));
+            end
+            chans{i} = sort(ft_channelselection(config.step4d.(sprintf('%s',chan_fields{i})), data_roi.label));
+        else %if no channels specified, use all ROIs by default
+            chans{i} = sort(ft_channelselection('all', data_roi.label));
+        end
         
-        % checking if any of the inputted channels don't exist
-        % if it doesn't, will get 0s 
-        chanLF_not_exist = find(ismember(LFchan,data_roi.label)==0);
-  
-        % if there are channels that don't exist, looks for labels and
-        % reports them 
-        if ~isempty(chanLF_not_exist)
-            chanLF_wrong = strjoin(string(config.step4d.chanlow(chanLF_not_exist)));
-            error(sprintf('The following channels for low frequency do not exist in data: %s.',chanLF_wrong));
-        end    
-    % if chanlow not specified, automatically use all in data
-    else 
-        LFchan = sort(ft_channelselection('all', data_roi.label));
     end
     
-    % repeat for high frequency channels 
-    if isfield(config.step4d,'chanhigh')
-        HFchan = sort(ft_channelselection(config.step4d.chanhigh, data_roi.label));
-        chanHF_exist = find(ismember(HFchan,data_roi.label)==0); 
-        if ~isempty(chanHF_exist)
-            chanHF_wrong = strjoin(string(config.step4d.chanhigh(chanHF_exist)));
-            error(sprintf('The following channels for high frequency do not exist in data: %s.',chanHF_wrong));
-        end
-    else
-        HFchan = sort(ft_channelselection('all', data_roi.label));
-    end
+    %grab ROIs 
+    LFchan = chans{1};
+    HFchan = chans{2};
       
     ntrial = numel(data_roi.trial);
     nchanLF = numel(LFchan);
     nchanHF = numel(HFchan);
 
-    % The line below puts lowF channels left col, highF on right, patterned
-    % alternating lowF first; includes within channel 
-    %{
-    ex:
-    chan1 chan1
-    chan2 chan1
-    chan1 chan2
-    chan2 chan2
-    %}
-    labelcmb = ft_channelcombination({LFchan,HFchan},union(data_roi.label,data_roi.label),1,2);
+    % create array of channel name combinations
+    counter=1;
+    for i=1:length(HFchan)
+        for j=1:length(LFchan)
+            labelcmb(counter,1) = LFchan(j);
+            labelcmb(counter,2) = HFchan(i);
+            counter=counter+1;
+        end
+    end
     
 %% PREPROCESS DATA
     cfg          = [];
@@ -94,34 +83,27 @@
     
 %% CONNECTIVITY CALCULATIONS
 
-    % create matrix that is lowchan x highchan x trials 
-    cfc.data  = zeros(nchanLF,nchanHF,ntrial);     
+    ncomb = size(labelcmb,1); %number label combinations
+    % saving names for plotting
     cfc.LFlabel = LFchan;
     cfc.HFlabel = HFchan; 
-    % channel combination number 
-    comb_num = 1;
-    
+
     % actual computation
     fprintf('CFC Connectivity Calculations');
-    for i=1:nchanHF
-        for j=1:nchanLF
-            for k=1:ntrial
-                % grab data for kth trial at current combination of
-                % channels
-                chandataLF = LFdata.trial{k}(strcmp(LFdata.label,labelcmb{comb_num,1}),:);
-                chandataHF = HFdata.trial{k}(strcmp(HFdata.label,labelcmb{comb_num,2}),:);
-                % abs = take magnitude of vector 
-                % hilbert to get analytic signal
-                cfc.data(j,i,k) = abs(mvl_calc(hilbert(chandataLF),hilbert(chandataHF)));
-            end
-            comb_num = comb_num + 1;
+    for i=1:ncomb 
+        for j = 1:ntrial
+            chandataLF = LFdata.trial{j}(strcmp(LFdata.label,labelcmb{i,1}),:);
+            chandataHF = HFdata.trial{j}(strcmp(HFdata.label,labelcmb{i,2}),:);
+            % abs = take magnitude of vector 
+            % hilbert to get analytic signal
+            % data = num combinations x num trials 
+            cfc.data(i,j) = abs(mvl_calc(hilbert(chandataLF),hilbert(chandataHF)));
         end
     end
     
-    %%% plotting 
-    cfc_plot = squeeze(mean(cfc.data,3));
+    cfc.data = squeeze(mean(cfc.data,2)); % average across trials
+    cfc.data = reshape(cfc.data,[nchanLF, nchanHF]); % reshape into chanlow x chanhigh
     
     %%% saving data
-    cfc.data = cfc_plot;
     save([this_output sprintf('/step4d_CFC_%d_%d_vs_%d_%d.mat',config.step4d.lowF(1),config.step4d.lowF(2),config.step4d.highF(1),config.step4d.highF(2))], 'cfc'); 
 end
