@@ -13,7 +13,7 @@ function DynamicFC_plot(config)
 %
 % Saves:
 %       dfc_avg.mat: average dfc values across all data (n_win x ROI x ROI
-%       x freqband)
+%       x freqband), pids and visitnums used to calculate values
 %       .png: saves figures of heatmaps for all specified frequency bands
 %       as avg_dfc_freq_%d_%d.png where %d is replaced by the bounds of the
 %       frequency band 
@@ -22,7 +22,7 @@ function DynamicFC_plot(config)
 %       - works if given just one pid and one visit number  
 %       - assumes all data contains same frequency bands, ROIs and windows  
 
-    %%% CHECKS
+    %%% CHECKS -----------------------------------------------------------
     % checking that required fields exist
     if ~isfield(config.DFCplot,'pids')
         error('Please specify patient ids');
@@ -42,50 +42,64 @@ function DynamicFC_plot(config)
         error('Please specify visit numbers for each participant');
     end
     
-    % extracting dFC values for participants
+    %%% EXTRACTING DFC VALUES --------------------------------------------
     i=1; % dataset counter
     for p=1:length(config.DFCplot.pids)
-        pid = config.DFCplot.pids(p);
-        visits=config.DFCplot.visitnum{p};
+        pid    = config.DFCplot.pids(p);
+        visits = config.DFCplot.visitnum{p};
         
         for v=1:length(visits)
             % grab dfc matrix for that participant and visit number
-            this_output = sprintf('/home/bha/%s/ses-%.2d',pid,visits(v));
-            % change to proper one when done testing
-            %this_output = [config.meta.project_path '/' config.meta.analysis_name '/' pid '/' sprintf('ses-%.2d', visits(v))]; 
+            this_output = [config.meta.project_path '/' config.meta.analysis_name sprintf('/WMP_%.2d/ses-%.2d', pid, visits(v))]; 
             load([this_output '/step4c_connDFC.mat']);
+            
             p_dfc = connDFC.(sprintf('%sspctrm',config.DFCplot.connmethod)); 
             
-            % this is assuming all participants have the same number of
-            % windows, ROIs and frequency bands analyzed 
+            % assuming all participants have the same number of
+            % windows, ROIs and frequency bands analyzed, grab this info 
             if p==1 && v==1
                 % get dimensions of matrix to store all dfc data
-                dims = size(p_dfc);
-                n_win  = dims(1);
-                n_ROI  = dims(2);
-                n_freq = dims(4);
+                dims    = size(p_dfc);
+                n_win   = dims(1);
+                n_ROI   = dims(2);
+                n_freq  = dims(4);
                 dfc_all = zeros(dims); % matrix to store all dfc values
+                
                 % extracting variables for plotting
-                labels = connDFC.label;
+                labels    = connDFC.label;
                 freqbands = connDFC.freqbands;
-                wins = connDFC.win{1};
+                wins      = connDFC.win{1};
             end
             % n_win x ROI x ROI x freqband x data i 
-            dfc_all(:,:,:,:,i) = p_dfc;
+            dfc_all(:,:,:,:,i) = p_dfc; 
             
             i = i+1;
         end
     end 
+    
+    % calculating average and saving
+    dfc_avg.data     = squeeze(mean(dfc_all,5)); % average across all data
+    dfc_avg.pids     = config.DFCplot.pids;
+    dfc_avg.visitnum = config.DFCplot.visitnum;
+    
+    % save data to group folder if multiple pids; if just one participant
+    % doesn't save (would be the same as step4c_connDFC.mat)
+    if length(config.DFCplot.pids)>1
+        % check if group folder to save group results exists, if not, create it
+        group_folder = [config.meta.project_path '/' config.meta.analysis_name '/group_results/DynamicFC']; 
+        
+        if not(isfolder(group_folder))
+            mkdir(group_folder);
+        end
+        
+        save([group_folder '/dfc_avg.mat'], 'dfc_avg');
+    end
             
     % -----------------------------------------------------------------------------
     % SAVING ROI X ROI MATRICES OVER TIME AS FIGURE FOR EACH
     % FREQUENCY BAND
-    % -----------------------------------------------------------------------------
+    % -----------------------------------------------------------------------------     
     for fq = 1:size(freqbands,1) 
-        dfc_avg = squeeze(mean(dfc_all,5)); % average across all data
-        % where would this be saved/should the path be an input too? 
-        %save('/home/bha/dfc_avg.mat', 'dfc_avg');
-        
         % selecting average dfc for specific freq band
         dfc_avg_fq = dfc_avg(:,:,:,fq);
         
@@ -116,7 +130,7 @@ function DynamicFC_plot(config)
         % plot heatmap for each window 
         for w = 1:n_win
             win_start = wins(w);
-            win_end = wins(w+1);
+            win_end   = wins(w+1);
 
             % heatmap at window "w"
             nexttile(tcl);
@@ -130,22 +144,27 @@ function DynamicFC_plot(config)
             colorbar off
             h(w).NodeChildren(3).TickLabelInterpreter = 'none'; % prevent letter subscripts for ROI names
             set(h(w),'GridVisible','off','FontSize',6); 
-            colorLims=[colorLims; h(w).ColorLimits];
+            colorLims = [colorLims; h(w).ColorLimits];
 
             % label matrix with time window 
             title_text = compose([sprintf("%.3f to %.3f s",win_start,win_end)]); 
             h(w).Title = '\fontsize{10}' + title_text;
         end 
-
-        title(tcl,sprintf('Average Dynamic Functional Connectivity For Frequency %d-%d Hz',freqbands(fq,1),freqbands(fq,2)));
-
+        
         % make colorbar constant for figure 
         globalColorLim = [min(colorLims(:,1)), max(colorLims(:,2))];
         set(h(1), 'ColorLimits', globalColorLim)
-        ax = axes(tcl,'visible','off','Colormap',h(1).Colormap,'CLim',globalColorLim);
+        
+        ax             = axes(tcl,'visible','off','Colormap',h(1).Colormap,'CLim',globalColorLim);
         cb             = colorbar(ax);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
         cb.Layout.Tile = 'East';
-        %where would want to save
-        %saveas(fig,[this_output sprintf('avg_dfc_freq_%d_%d.png',f_low,f_high)])
+        
+        if length(config.DFCplot.pids)>1
+            title(tcl,sprintf('Average Dynamic Functional Connectivity For Frequency %d-%d Hz',freqbands(fq,1),freqbands(fq,2)));
+            saveas(fig,[group_folder sprintf('/avg_dfc_freq_%d_%d.png',freqbands(fq,1),freqbands(fq,2))])
+        else
+            title(tcl,sprintf('WMP_%.2d Dynamic Functional Connectivity For Frequency %d-%d Hz',pid,freqbands(fq,1),freqbands(fq,2)),'interpreter','none');
+            saveas(fig,[this_output sprintf('/dfc_freq_%d_%d.png',freqbands(fq,1),freqbands(fq,2))])
+        end
     end
 end
