@@ -58,16 +58,6 @@
     ntrial  = numel(data_roi.trial);
     nchanLF = numel(LFchan);
     nchanHF = numel(HFchan);
-
-    % create array of channel name combinations
-    counter=1;
-    for i=1:length(HFchan)
-        for j=1:length(LFchan)
-            labelcmb(counter,1) = LFchan(j);
-            labelcmb(counter,2) = HFchan(i);
-            counter=counter+1;
-        end
-    end
     
 %% PREPROCESS DATA
     cfg          = [];
@@ -88,19 +78,21 @@
 
     % actual computation
     fprintf('CFC Connectivity Calculations');
-    for i=1:ncomb 
-        for j=1:ntrial
-            chandataLF = LFdata.trial{j}(strcmp(LFdata.label,labelcmb{i,1}),:);
-            chandataHF = HFdata.trial{j}(strcmp(HFdata.label,labelcmb{i,2}),:);
-            % abs = take magnitude of vector 
-            % hilbert to get analytic signal
-            % data = num combinations x num trials 
-            cfc.data(i,j) = abs(mvl_calc(hilbert(chandataLF),hilbert(chandataHF)));
+    for i=1:nchanHF
+        for j=1:nchanLF
+            for k=1:ntrial
+                % grab data for kth trial at current combination of
+                % channels
+                chandataLF = LFdata.trial{k}(strcmp(LFdata.label,LFchan(j)),:);
+                chandataHF = HFdata.trial{k}(strcmp(HFdata.label,HFchan(i)),:);
+                % abs = take magnitude of vector 
+                % hilbert to get analytic signal
+                cfc.data(j,i,k) = abs(mvl_calc(hilbert(chandataLF),hilbert(chandataHF)));
+            end
         end
     end
     
-    cfc.data = squeeze(mean(cfc.data,2)); % average across trials
-    cfc.data = reshape(cfc.data,[nchanLF, nchanHF]); % reshape into chanlow x chanhigh
+    cfc.data = squeeze(mean(cfc.data,3));
     
     %%% saving data
     save([this_output sprintf('/step4d_CFC_%d_%d_vs_%d_%d.mat',config.step4d.lowF(1),config.step4d.lowF(2),config.step4d.highF(1),config.step4d.highF(2))], 'cfc'); 
