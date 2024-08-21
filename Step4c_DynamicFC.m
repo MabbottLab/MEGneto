@@ -33,6 +33,10 @@ function Step4c_DynamicFC(config, pid, visitnum)
 
     load([this_output '/out_struct.mat'])
     load([this_output '/step3_data_roi.mat'])
+    
+    if isstring(data_roi.label)
+        data_roi.label = cellstr(data_roi.label);
+    end
 
 %% RUN DFC ANALYSIS   
     t_start   = config.step4c.toi(1); % start of time of interest
@@ -116,6 +120,7 @@ function Step4c_DynamicFC(config, pid, visitnum)
             end            
             win_num = win_num + 1; 
         end 
+        labels = this_conn.label;
         connDFC.label = labels; %re-assigning b/c ft_checkdata re-orders ROIs
     end   
     save([this_output '/step4c_connDFC.mat'], 'connDFC');     
