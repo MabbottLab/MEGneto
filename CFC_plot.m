@@ -58,17 +58,16 @@ function CFC_plot(config)
         
         for v=1:length(visits)
             % grab cfc matrix for that participant and visit number
-            this_output = sprintf('/home/bha/%s/ses-%.2d',pid,visits(v));
-            % change to proper one when done testing
-            %this_output = [config.meta.project_path '/' config.meta.analysis_name '/' pid '/' sprintf('ses-%.2d', visits(v))]; 
+            this_output = [config.meta.project_path '/' config.meta.analysis_name sprintf('/WMP_%.2d/ses-%.2d', pid, visits(v))];
             load([this_output sprintf('/step4d_CFC_%d_%d_vs_%d_%d.mat',LF1,LF2,HF1,HF2)]);
+            
             p_cfc = cfc.data;
             
             % this is assuming all participants have the ROIs in low and
             % high frequency
             if p==1 && v==1
                 % get dimensions of matrix to store all cfc data
-                n_ROI = size(p_cfc,1);
+                n_ROI   = size(p_cfc,1);
                 cfc_all = zeros(n_ROI,n_ROI); % matrix to store all cfc values
                 
                 % extracting variables for plotting
@@ -82,20 +81,33 @@ function CFC_plot(config)
         end
     end 
     
+    % taking average across trials and saving
+    cfc_avg = squeeze(mean(cfc_all,3));
+    if length(config.CFCplot.pids)>1
+        % check if group folder to save group results exists, if not, create it
+        group_folder = [config.meta.project_path '/' config.meta.analysis_name '/group_results/CFC']; 
+        
+        if not(isfolder(group_folder))
+            mkdir(group_folder);
+        end
+        
+        save([group_folder '/cfc_avg.mat'], 'cfc_avg');
+    end
+    
     % -----------------------------------------------------------------------------
     % SAVING ROI X ROI MATRICES OVER TIME AS FIGURE 
     % -----------------------------------------------------------------------------
-    cfc_avg = squeeze(mean(cfc_all,3));
-    % change this
-    %save('/home/bha/cfc_avg.mat', 'cfc_avg');
-    
     fig = figure(1);
     h   = heatmap(LFlabel, HFlabel, cfc_avg');
     h.NodeChildren(3).TickLabelInterpreter = 'none'; % prevent letter subscripts for ROIs
     h.XLabel = 'Low Frequency Regions';
     h.YLabel = 'High Frequency Regions';
-    h.Title = sprintf('Average CFC Between %d-%d Hz and %d-%d Hz',LF1,LF2,HF1,HF2);
     
-    % save fig somewhere
-    %saveas(fig,[this_output sprintf('avg_CFC_%d_%d_vs_%d_%d.png',LF1,LF2,HF1,HF2)])
+    if length(config.DFCplot.pids)>1
+        h.Title = sprintf('Average CFC Between %d-%d Hz and %d-%d Hz',LF1,LF2,HF1,HF2);
+        saveas(fig,[group_folder sprintf('/avg_CFC_%d_%d_vs_%d_%d.png',LF1,LF2,HF1,HF2)]);
+    else
+        h.Title = sprintf('WMP_%.2d CFC Between %d-%d Hz and %d-%d Hz',pid,LF1,LF2,HF1,HF2);
+        saveas(fig,[this_output sprintf('/CFC_%d_%d_vs_%d_%d.png',LF1,LF2,HF1,HF2)]);
+    end
 end
