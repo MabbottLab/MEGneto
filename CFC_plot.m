@@ -67,12 +67,13 @@ function CFC_plot(config)
             % high frequency
             if p==1 && v==1
                 % get dimensions of matrix to store all cfc data
-                n_ROI   = size(p_cfc,1);
-                cfc_all = zeros(n_ROI,n_ROI); % matrix to store all cfc values
+                nLF = numel(cfc.LFlabel);
+                nHF = numel(cfc.HFlabel);
+                cfc_all = zeros(nLF,nHF); % matrix to store all cfc values
                 
                 % extracting variables for plotting
-                 LFlabel = cfc.LFlabel;
-                 HFlabel = cfc.HFlabel;
+                LFlabel = cfc.LFlabel;
+                HFlabel = cfc.HFlabel;
             end
             % ROI x ROI x data i 
             cfc_all(:,:,i) = p_cfc;
@@ -83,6 +84,7 @@ function CFC_plot(config)
     
     % taking average across trials and saving
     cfc_avg = squeeze(mean(cfc_all,3));
+    
     if length(config.CFCplot.pids)>1
         % check if group folder to save group results exists, if not, create it
         group_folder = [config.meta.project_path '/' config.meta.analysis_name '/group_results/CFC']; 

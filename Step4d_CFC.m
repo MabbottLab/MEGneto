@@ -44,8 +44,9 @@
             if sum(missing_chan)>0 %if there's at least 1 missing channel,display error with channel names
                 missing_chan_names = strjoin(string(config.step4d.(sprintf('%s',chan_fields{i}))(missing_chan)));
                 error(sprintf('The following channels for %s do not exist in data: %s.',chan_fields{i},missing_chan_names));
+            else
+                chans{i} = sort(ft_channelselection(config.step4d.(sprintf('%s',chan_fields{i})), data_roi.label));
             end
-            chans{i} = sort(ft_channelselection(config.step4d.(sprintf('%s',chan_fields{i})), data_roi.label));
         else %if no channels specified, use all ROIs by default
             chans{i} = sort(ft_channelselection('all', data_roi.label));
         end
@@ -71,7 +72,6 @@
     HFdata       = ft_preprocessing(cfg, data_roi);
     
 %% CONNECTIVITY CALCULATIONS
-    ncomb = size(labelcmb,1); %number label combinations
     % saving names for plotting
     cfc.LFlabel = LFchan;
     cfc.HFlabel = HFchan; 
