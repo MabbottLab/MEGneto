@@ -29,6 +29,10 @@
 
     load([this_output '/out_struct.mat'])
     load([this_output '/step3_data_roi.mat'])
+    
+    if isstring(data_roi.label)
+        data_roi.label = cellstr(data_roi.label);
+    end
 %% CHECKS
     % checking for missing, required fields
     if ~isfield(config.step4d,'lowFreqband')|| ~isfield(config.step4d,'highFreqband')
