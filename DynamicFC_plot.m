@@ -50,7 +50,7 @@ function DynamicFC_plot(config)
         
         for v=1:length(visits)
             % grab dfc matrix for that participant and visit number
-            this_output = [config.meta.project_path '/' config.meta.analysis_name sprintf('/WMP_%.2d/ses-%.2d', pid, visits(v))]; 
+            this_output = [config.meta.project_path '/' config.meta.analysis_name '/' pid '/' sprintf('ses-%.2d',visits(v))]; 
             load([this_output '/step4c_connDFC.mat']);
             
             p_dfc = connDFC.(sprintf('%sspctrm',config.DFCplot.connmethod)); 
@@ -93,6 +93,11 @@ function DynamicFC_plot(config)
         end
         
         save([group_folder '/dfc_avg.mat'], 'dfc_avg');
+     % if it's one participant id but over multiple visits
+    elseif length(config.DFCplot.pids)==1 && length(config.DFCplot.visitnum{1})>1 
+        save([config.meta.project_path '/' config.meta.analysis_name '/' pid '/dfc_avg.mat'],'dfc_avg');
+    else
+        % one participant one visit, do nothing (same info as dfc matrix)
     end
             
     % -----------------------------------------------------------------------------
@@ -162,8 +167,11 @@ function DynamicFC_plot(config)
         if length(config.DFCplot.pids)>1
             title(tcl,sprintf('Average Dynamic Functional Connectivity For Frequency %d-%d Hz',freqbands(fq,1),freqbands(fq,2)));
             saveas(fig,[group_folder sprintf('/avg_dfc_freq_%d_%d.png',freqbands(fq,1),freqbands(fq,2))])
+        elseif length(config.DFCplot.pids)==1 && length(config.DFCplot.visitnum{1})>1 
+            title(tcl,sprintf('%s Average Dynamic Functional Connectivity For Frequency %d-%d Hz',pid,freqbands(fq,1),freqbands(fq,2)),'interpreter','none');
+            saveas(fig,[config.meta.project_path '/' config.meta.analysis_name '/' pid sprintf('/avg_dfc_freq_%d_%d.png',freqbands(fq,1),freqbands(fq,2))]);
         else
-            title(tcl,sprintf('WMP_%.2d Dynamic Functional Connectivity For Frequency %d-%d Hz',pid,freqbands(fq,1),freqbands(fq,2)),'interpreter','none');
+            title(tcl,sprintf('%s Dynamic Functional Connectivity For Frequency %d-%d Hz',pid,freqbands(fq,1),freqbands(fq,2)),'interpreter','none');
             saveas(fig,[this_output sprintf('/dfc_freq_%d_%d.png',freqbands(fq,1),freqbands(fq,2))])
         end
     end
