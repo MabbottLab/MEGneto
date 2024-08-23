@@ -134,8 +134,8 @@ function DynamicFC_plot(config)
 
         % plot heatmap for each window 
         for w = 1:n_win
-            win_start = wins(w);
-            win_end   = wins(w+1);
+            win_start = wins(1,w);
+            win_end   = wins(2,w);
 
             % heatmap at window "w"
             nexttile(tcl);

@@ -87,7 +87,7 @@ function Step4c_DynamicFC(config, pid, visitnum)
             % keep track of centre of windows 
             connDFC.win_centre{fq}(win_num) = t+winsize/2;
             % keep track of edges of windows 
-            connDFC.win{fq}([win_num win_num+1]) = [t t+winsize];
+            connDFC.win{fq}([1 2],win_num) = [t t+winsize];
             
             % CALCULATE CONNECTIVITY 
             fprintf('Connectivity calculations for window: %.3f to %.3f s \n',t,t+winsize)
