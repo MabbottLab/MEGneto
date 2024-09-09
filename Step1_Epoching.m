@@ -1,24 +1,58 @@
 function Step1_Epoching(config, pid, ds_path, visitnum)
-%
-% some sort of documentation will be here
-% 1. epoch
-% 2. artifact: head motion, muscle, jump
-% ... excess cleanup if rest
-% 3. bad channel detection
-%
-%% SETUP
 
-if exist('visitnum', 'var')
-    this_output = [config.meta.project_path '/' config.meta.analysis_name '/' pid '/' sprintf('ses-%.2d', visitnum)]; % indicate subject-specific output folder path
-else
+% Step1_Epoching will epoch MEG data into trials depending on the
+% desired marker, detect and reject muscle/jump artifacts, and bad
+% channels. This step will only reject trials with excessive head motion
+% and muscle/jump artifacts. Bad channels are recorded but are repaired
+% later on in the pipeline. 
+%
+% INPUTS:
+%   > config: 
+%       struct, configured in your "main" script with
+%       all analysis parameters and options and paths
+%   > pid:
+%       string, participant ID used to build the paths
+%       to relevant data files and output folders
+%   > ds_path:
+%       string, full path to MEG *.ds folder for this participant
+%   > visitnum:
+%       int, visit number if longitudinal, optional arg)
+%
+% OUTPUTS:
+%   > step1_data_clean.mat:
+%       fieldtrip style data object with data epoched into trials and 
+%       noisy trials (head motion, artifact) identified + rejected
+%   > out_struct.mat:
+%       a MATLAB structure with meta-information about the pipeline step
+%       run, e.g.: number of trials epoched, left after rejection
+%   > plot_markers.png:
+%       a PNG image visualizing the markers found in the *.ds file, that
+%       can be used as a quick inspection of task markers
+% See also: PLOT_TRIGGERS, FT_READ_EVENT, FT_DEFINETRIAL, HEADMOTIONTOOL,
+%           FT_REJECTARTIFACT, FT_ARTIFACT_MUSCLE, FT_ARTIFACT_JUMP, 
+%           DETECTBADCHANNELS, FT_PREPROCESSING
+
+% Last updated by: Julie Tseng, 2024-09-09
+%   This file is part of MEGneto, see https://github.com/MabbottLab/MEGneto
+%   for the documentation and details.
+
+%% SETUP %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% build the output path depending on whether there are multiple visits
+if exist('visitnum', 'var') % multiple visits
+    this_output = [config.meta.project_path '/' config.meta.analysis_name '/' ...
+                    pid '/' sprintf('ses-%.2d', visitnum)]; % indicate subject-specific output folder path
+else % no multiple visits
     this_output = [config.meta.project_path '/' config.meta.analysis_name '/' pid]; 
 end
 
-if ~exist(this_output, 'dir') % if it doesn't exist, create it
+% if the participant's output dir under the analysis folder doesn't exist,
+% then create it
+if ~exist(this_output, 'dir') 
     mkdir(this_output)
 end
 
-out = []; % variable for storing useful output information
+out = []; % struct variable for storing useful output information
 
 %% EPOCHING %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -47,7 +81,10 @@ out = []; % variable for storing useful output information
         cfg.continuous           = 'yes';
         data                     = ft_preprocessing(cfg);
 
-        % trim to remove recordings with no participant
+        % trim to remove recordings with no actual participant data:
+        % if aborted early (e.g., scan was configured for 10 min but only
+        % recorded actual task for 5 min), CTF will pad the end of the file
+        % with 0s so need to trim it down
         last_sample              = find(data.trial{1,1}(4,:) == 0, 1, 'first')-1;
         if ~isempty(last_sample)
             data.hdr.nSamples        = last_sample;

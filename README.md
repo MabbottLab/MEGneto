@@ -6,11 +6,11 @@ This MEG analysis pipeline is built on MATLAB using the FieldTrip toolbox to ana
 - [System Requirements](#system-requirements)
 - [Installation Guide](#installation-guide)
 - [How to Use](#how-to-use)
-   0. [Initial Setup](#initial-setup)
-   1. [Epoching](#epoching)
-   2. [ICA and Channel Repair](#ica-checkpoint)
-   3. [Beamforming and Atlas Interpolation](#beamforming)
-   4. [Pipeline Endpoints](#pipeline-endpoints)
+   1. [Initial Setup](#initial-setup)
+   2. [Epoching](#epoching)
+   3. [ICA and Channel Repair](#ica-checkpoint)
+   4. [Beamforming and Atlas Interpolation](#beamforming)
+   5. [Pipeline Endpoints](#pipeline-endpoints)
       * [Frequency Analysis](#frequency-analysis)
       * [Functional Connectivity (Static)](#functional-connectivity)
       * [Functional Connectivity (Dynamic)](#dynamic-connectivity)
@@ -69,27 +69,14 @@ After making a copy of the main template and renaming it, open it and:
 
 ### Epoching
 
-`FCP_1_TASKEPOCHING.m` will epoch MEG data into trials depending on the desired marker, detect trials with excessive head motion, muscle/jump artifacts, and bad channels. However, the epoching only rejects trials for excessive head motion and muscle/jump artifacts. Bad channels are detected and recorded, but repaired later on in the pipeline, after the ICA process at the final stage of preprocessing.
+`Step1_Epoching.m` will epoch MEG data into trials, detect trials with excessive head motion, muscle/jump artifacts, and bad channels. However, the epoching only rejects trials for excessive head motion and muscle/jump artifacts. Bad channels are detected and recorded, but repaired later on in the pipeline, after the ICA process at the final stage of preprocessing.
 
-Note: if there are participants who do not have a matching MRI file, this step will not run until you: a) find the missing MRI and put it in the MRI folder, or b) remove their entry from the `subj_fcp1.csv`. 
-
-Output: A struct with output file names, and for each subject: the number of trials per subject, trials marked with head motion, trials marked with noise, number of removed trials, names of bad channels 
-![](images/config_JSON1.PNG)
-![](images/config_JSON2.PNG)
-
-Notes:
-- Ensure that subj_fcp1.csv is populated with the subject IDs of included participants.
-- Prior to running this step, all desired parameters should be defined in the JSON config file. The user should double-check that the JSON config file is populated appropriately, especially if a template JSON was copied over. Information on the meaning of each parameter in the JSON config file can be found in the [Config Params Guide](https://github.com/dunjamatic/MEGneto/blob/configParams/ConfigParams.md).
-
-- At the beginning of this step, a logging file for progress tracking is set up and matching MEG/MRI data is identified.
-- If the user wishes to browse the output of plot_triggers function (a plot), they must indicate “true” for ‘ShowFigure’ when the plot_triggers function is called. By default, this is set to ‘“false”. See the code snippet from fcp_1_taskepoching below for reference.
-![](images/showFigure_plotTriggers.PNG)
+Output: 
+* step1_data_clean.mat: cleaned, epoched data
+* out_struct.mat: MATLAB struct with some bookkeeping info about the step
+* plot_markers.png: image of markers plotted along the timeseries
 
 See also: 
-- `ds_pid_match` to get the PIDs where there is matching MEG and MRI data
-- `load_participants` to load participants and get *.ds files
-- `write_match_if_not_empty` to write down the matching meg/mri data if they exist
-- `check_csv_has_empty` to check for empty values in the pid matches table
 - `plot_triggers` to plot trigger events that are present in the data over time
 ![](images/plotTriggers.PNG)
 - `ft_read_event`  to generate an event list and isolare unique events
