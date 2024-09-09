@@ -12,6 +12,9 @@ function Step3_Beamforming(config, pid, visitnum)
 %           thereby assigning to each dipole/source an atlas label. Based
 %           on user input, only dipoles within relevant ROIs are source
 %           reconstructed to save on compute resources
+%       5. Beamforming occurs with all sensor weight calculations. 
+%       6. Dipoles all belonging to particular ROIs are combined into
+%           representative timeseries for that ROI, then saved.
 %
 % INPUTS:
 %   > config: 

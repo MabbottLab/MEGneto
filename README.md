@@ -165,25 +165,19 @@ See also:
 
 After beamforming, you now have a set of timeseries for each participant describing brain activity over time within each atlas ROI and for each trial. 
 
-If you have hypotheses about whether some ROI has more or less activity within a certain frequency band, or if you want to look at how power changes across certain frequencies as a result of some stimulus marker, proceed with `fcp_5_freqanalysis` (currently set up to do power-over-time analyses). 
+#### Step4a: Frequency Analysis
+`Step4a_FrequencyAnalysis.m` uses spectral analysis on time-frequency representations of data to test hypotheses based on spectral power. The virtual sensor data from the beamforming step is loaded in and frequency analysis is performed on sliding timewindows of the data. Thus, for each subject and each interpolated atlas region, a power spectrum is calculated and corrected to a baseline to control for general/random spikes in power. 
+This can be configured to be an overall power analysis, or a TFR (sliding time window) power analysis. 
 
-Otherwise, if you have hypotheses about the _functional connectivity_ between ROIs and within certain frequency bands, proceed with `fcp_5_taskconnectivity`. 
-
-#### Frequency Analysis
-`FCP_5_FREQANALYSIS.m` uses spectral analysis on time-frequency representations of data to test hypotheses based on spectral power. The virtual sensor data from the beamforming step is loaded in and frequency analysis is performed on sliding timewindows of the data. Thus, for each subject and each interpolated atlas region, a power spectrum is calculated and corrected to a baseline to control for general/random spikes in power. 
-
-Output: A 4-D matrix containing power spectrum data. Matrix dimensions are [participants] x [regions] x [frequency] x [time]. Users can plot a power spectrum (frequency by time) for a specific region of a given participant’s data by plotting a slice of the matrix's first (participant) dimension (e.g., `imagesc(squeeze(powspctrm(participant_number, :, :, :)))`. 
-
-Notes:
-- Prior to running the function, ensure that subj_fcp5.csv is populated with the subject IDs of participants you want to include.
-- At the start of this step, outputs from fcp_4 will be loaded in and a logging file will be set up to keep track of progress. Also, the pipeline will check for matching MEG/MRI data.
+Output: 
+* step4a_freq_overallpower.mat: No sliding timewindow power analysis
+* step4a_freq_tfr.mat: Power analysis with sliding window
 
 See also: `ft_freqanalysis.m`
 
+#### Step 4b: Static Functional Connectivity
 
-#### Functional Connectivity
-
-`FCP_5_TASKCONNECTIVITY.m` estimates functional connectivity (i.e., analyzes the synchrony of signals from two regions). At the start of this step, outputs from fcp_4 will be loaded in and a logging file will be set up to keep track of progress. Also, the pipeline will check for matching MEG/MRI data.
+`Step4b_Connectivity.m` estimates functional connectivity (i.e., analyzes the synchrony of signals from two regions). 
 
 Currently supports the following connectivity metrics (relevant FieldTrip documentation [here](https://www.fieldtriptoolbox.org/reference/ft_connectivityanalysis/):
 - 'plv' (phase locking value)
@@ -192,7 +186,8 @@ Currently supports the following connectivity metrics (relevant FieldTrip docume
 - 'wpli_debiased' (as above, but debiased)
 - 'coh' (coherence) The strings listed above should be specified in the config JSON file exactly as presented.
 
-Output: A connectivity matrix for all participants containing region by region by participant by frequency band.
+Output: 
+* 
 
 See also: 
 - `ft_freqanalysis.m` to perform time-frequency and frequency analysis on the time series data 
