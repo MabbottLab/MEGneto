@@ -180,6 +180,10 @@ writetable(participants, [cfg.meta.project_path '/' cfg.meta.analysis_name '/con
     
 %% actual commands
 
+% each step is run on a single participant at a time, so that once you are
+% confident in its operation, you can use a for loop to loop across several
+% participants (and parfor for parallelization)
+
 % run individually
 Step1_Epoching(cfg, participants.ParticipantID{1}, participants.ds_path{1}, 1)
 Step2_ICA(cfg, participants.ParticipantID{1}, "run", 1);
@@ -192,9 +196,9 @@ end
 % regress bad components and fix bad channels
 Step2_ICA(cfg, participants.ParticipantID{1}, "fix", 1);
 
-% mark fiducial points on MRI
+% mark fiducial points on MRI, ***if not already done***
 for p = participants.ParticipantsID
-    Prep_T1(cfg, p)
+    Prep_T1(mri_path, out_path, participants.ParticipantID{1}, visitnum)
 end
 
 % run beamforming
