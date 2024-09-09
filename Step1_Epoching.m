@@ -28,6 +28,10 @@ function Step1_Epoching(config, pid, ds_path, visitnum)
 %   > plot_markers.png:
 %       a PNG image visualizing the markers found in the *.ds file, that
 %       can be used as a quick inspection of task markers
+%   > headmotion_[date].png:
+%       a PNG image outputted by the HeadMotionTool visualizing head motion
+%       across the timeseries
+%
 % See also: PLOT_TRIGGERS, FT_READ_EVENT, FT_DEFINETRIAL, HEADMOTIONTOOL,
 %           FT_REJECTARTIFACT, FT_ARTIFACT_MUSCLE, FT_ARTIFACT_JUMP, 
 %           DETECTBADCHANNELS, FT_PREPROCESSING

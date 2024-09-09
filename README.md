@@ -75,6 +75,7 @@ Output:
 * step1_data_clean.mat: cleaned, epoched data
 * out_struct.mat: MATLAB struct with some bookkeeping info about the step
 * plot_markers.png: image of markers plotted along the timeseries
+* headmotion_[date].png: head motion plot across timeseries
 
 See also: 
 - `plot_triggers` to plot trigger events that are present in the data over time
