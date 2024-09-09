@@ -60,8 +60,8 @@ writetable(participants, [cfg.meta.project_path '/' cfg.meta.analysis_name '/con
 
 % Step1_Epoching %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % task definition
-        cfg.step1.isTask = 1; % 1 = task, 0 = rest
-        cfg.step1.maxRest = NaN; % NaN when isTask = 1
+        cfg.step1.isTask    = 1; % 1 = task, 0 = rest
+        cfg.step1.maxRest   = NaN; % NaN when isTask = 1
     % epoch definition
         % identify marker name to epoch around
         % use ft_read_event on the *.ds folder to probe list of markers if
@@ -69,7 +69,7 @@ writetable(participants, [cfg.meta.project_path '/' cfg.meta.analysis_name '/con
         cfg.step1.trialdef.eventtype = 'MarkerName'; 
         
         % define how much pre/post marker to grab in seconds
-        cfg.step1.trialdef.prestim = 1; % sec
+        cfg.step1.trialdef.prestim  = 1; % sec
         cfg.step1.trialdef.poststim = 1; % sec
 
         % which "trial function" to use for epoching?
@@ -95,14 +95,14 @@ writetable(participants, [cfg.meta.project_path '/' cfg.meta.analysis_name '/con
 
     % atlas details
         % is the atlas in the subject's native space (e.g., Glasser)?
-        cfg.step3.nativeSpace = 1; % 1 = yes, 0 = no
-        cfg.step3.atlas = 'mmp'; % provide atlas name
+        cfg.step3.nativeSpace   = 1; % 1 = yes, 0 = no
+        cfg.step3.atlas         = 'mmp'; % provide atlas name
 
         cfg.step3.normLeadfield = 'no'; % set to 'yes' if analyzing resting state
         
     % source interpolation onto regions of interest
         % what ROI indices are you interested in? 
-        cfg.step3.ROIs = [7, 163, 22, 5];
+        cfg.step3.ROIs          = [7, 163, 22, 5];
 
         % how do you want to combine signal from multiple dipoles belonging
         % to a particular region? PCA or mean?
@@ -123,34 +123,60 @@ writetable(participants, [cfg.meta.project_path '/' cfg.meta.analysis_name '/con
                         70, 100];
 
     % IF YOU WANT TO RUN A POWER ANALYSIS (NO TIMEWINDOWS)
-        cfg.step4a.type = 'power'; % power = overall power for the whole timewindow
-        cfg.step4a.toi = [0.1 1]; % timewindow of interest in sec
-        cfg.step4a.boi = [-1 -0.1]; % baseline window in sec
+        cfg.step4a.type     = 'power'; % power = overall power for the whole timewindow
+        cfg.step4a.toi      = [0.1 1]; % timewindow of interest in sec
+        cfg.step4a.boi      = [-1 -0.1]; % baseline window in sec
         cfg.step4a.baselinetype = 'absolute'; % options: absolute, relative, relchange
     % IF YOU WANT TO RUN A TIME WINDOW ANALYSIS (TFR)
-        cfg.step4a.type = 'tfr'; % power at multiple timewindows
-        cfg.step4a.toi = -1:0.01:1; % timewindows of interest in sec (e.g., -1 to 1 sec in increments of 0.01 sec) 
-        cfg.step4a.boi = [-1 -0.1]; % baseline window in sec
+        cfg.step4a.type     = 'tfr'; % power at multiple timewindows
+        cfg.step4a.toi      = -1:0.01:1; % timewindows of interest in sec (e.g., -1 to 1 sec in increments of 0.01 sec) 
+        cfg.step4a.boi      = [-1 -0.1]; % baseline window in sec
         cfg.step4a.baselinetype = 'relchange'; % see ft_freqbaseline for options
 
 % Step4b_Connectivity %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    cfg.step4b.connmethod = 'wpli_debiased';
-    cfg.step4b.bandavgmethod = 'max';
-    cfg.step4b.toi = [0 1]; 
-    cfg.step4b.conditions = {"face_target", 1;
+    cfg.step4b.connmethod   = 'wpli_debiased'; % functional connectivity metric
+    cfg.step4b.bandavgmethod = 'max'; % how to combine individual frequencies within freq. band (max? avg?)
+    cfg.step4b.toi          = [0 1]; % timewindow of interest for connectivity calculation
+    cfg.step4b.conditions   = {"face_target", 1; % defining conditions, if there are trial conditions
                             "thing_target", 2};
     cfg.step4b.excludeTrialByIndex = [1, 2, 3]; % indexes of trials to exclude
-    cfg.step4b.freqbands = [1, 3; ...
-                    4, 8; ...
-                    8, 12; ...
-                    13, 30; ...
-                    30, 70; ...
-                    70, 100];
+    cfg.step4b.freqbands    = [1, 3; ... % desired frequency bands
+                                4, 8; ...
+                                8, 12; ...
+                                13, 30; ...
+                                30, 70; ...
+                                70, 100];
 
-% TO DO LIST %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Step4c_DynamicFC %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % the following options mirror Step4b, but with sliding window
+    % specification and no accounting for trial conditions yet. 
+    % refer to "docs/DynamicFC_Usage_Guide.pdf" for more details
+    
+    % similar to Step4b
+    cfg.step4c.connmethod       = 'wpli_debiased'; % functional connectivity metric
+    cfg.step4c.bandavgmethod    = 'max'; % or avg
+    cfg.step4c.toi              = [0, 1]; % timewindow of interest
 
-% Group connectivity analysis 
+    % dynamic FC specific settings
+    cfg.step4c.winsize          = 0.25; % size of window in seconds
+    cfg.step4c.stepsize         = 0.25; % interval between windows
+    
+    % frequency bands of interest
+    cfg.step4b.freqbands    = [1, 3; ... % desired frequency bands
+                            4, 8; ...
+                            8, 12; ...
+                            13, 30; ...
+                            30, 70; ...
+                            70, 100];
 
+% Step4d_CFC %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % cross frequency coupling pipeline function
+    % refer to "docs/CFC_Usage_Guide.pdf" for more details
+    
+    cfg.step4d.lowFreqBand  = [8, 12]; % pick lower frequency band range
+    cfg.step4d.highFreqBand = [30, 70]; % pick higher frequency band range
+    cfg.step4d.chanhigh     = {'L_V8', 'L_VVC', 'L_PIT'}; % identify which channels to analyze for high frequency range, according to the data_roi.labels field
+    cfg.step4d.chanlow      = {'L_VMV1', 'L_VMV2'};       % as above but with high frequency band
     
 %% actual commands
 
@@ -177,10 +203,34 @@ Step3_Beamforming(cfg, participants.ParticipantID{1}, 1)
 % run power or tfr analysis
 Step4a_FrequencyAnalysis(cfg, participants.ParticipantsID{1})
 
-% run connectivity analysis
+% run static connectivity analysis
 Step4b_Connectivity(cfg, participants.ParticipantID{1}, 1)
-    
-%% localizing oscillatory sources 
 
-cfg                  = [];
+% run dynamic connectivity analysis
+Step4c_DynamicFC(cfg, participants.ParticipantID{1}, 1);
+
+% run cross frequency coupling analysis
+Step4d_CFC(cfg, participants.ParticipantID{1}, 1);
+
+%% group level plots or statistics
+
+% Network Brain Statistics? %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% nbs...
+
+% Dynamic FC plots %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % see "docs/DynamicFC_Usage_Guide.pdf" for more details
+    config.DFCplot.pids         = ["WMP_01", "WMP_04"]; % specify participant IDs
+    config.DFCplot.visitnum     = {[1], [1 2]}; % specify corresponding visit #s
+    config.DFCplot.connmethod   = 'wpli_debiased'; % type of conn method
+    
+    DynamicFC_plot(config); % run plotting function
+
+% Cross frequency coupling plots %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % see "docs/CFC_Usage_Guide.pdf" for more details
+    config.CFCplot.pids         = ["WMP_01", "WMP_04"];
+    config.CFCplot.visitnum     = {[1], [1 2]};
+    config.CFCplot.lowFreqband  = [8 12];
+    config.CFCplot.highFreqband = [30 70];
+    
+    CFC_plot(config); % run plotting function
 

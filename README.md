@@ -1,29 +1,26 @@
 # MEGneto 3.0 
 
-This functional connectivity pipeline (fcp) is built on MATLAB using the FieldTrip toolbox to analyze MEG data. Developed @ SickKids Research Institute, Toronto, Canada. See docs folder for additional documentation.
+This MEG analysis pipeline is built on MATLAB using the FieldTrip toolbox to analyze MEG data. Developed @ SickKids Research Institute, Toronto, Canada. See docs folder for additional documentation.
 
 - [Credits](#credits)
 - [System Requirements](#system-requirements)
 - [Installation Guide](#installation-guide)
-- [Common Terms](#common-terms)
-- [Errors and Updates](#errors-updates)
 - [How to Use](#how-to-use)
-   1. [Initial Setup](#initial-setup)
-   2. [JSON Config Setup](#json-config-setup)
-   3. [Epoching](#epoching)
-   4. [Preprocessing](#preprocessing)
-   5. [ICA Checkpoint](#ica-checkpoint)
-   6. [Channel Repair](#channel-repair)
-   7. [Beamforming](#beamforming)
-   8. [Pipeline Endpoints](#pipeline-endpoints)
+   0. [Initial Setup](#initial-setup)
+   1. [Epoching](#epoching)
+   2. [ICA and Channel Repair](#ica-checkpoint)
+   3. [Beamforming and Atlas Interpolation](#beamforming)
+   4. [Pipeline Endpoints](#pipeline-endpoints)
       * [Frequency Analysis](#frequency-analysis)
-      * [Functional Connectivity](#functional-connectivity)
+      * [Functional Connectivity (Static)](#functional-connectivity)
+      * [Functional Connectivity (Dynamic)](#dynamic-connectivity)
+      * [Cross-Frequency Coupling](#cross-frequency-coupling)
 - [On Downsampling](#on-downsampling)
 - [Supplementary Reading Material](#supplementary-reading-material)
 
 ## Credits
 
-Many individuals have contributed to this pipeline prior to its upload onto Github:
+Many individuals have contributed to this pipeline, including before its initial upload to Github:
 
 - Sam Doesburg
 - Sonya Bells
@@ -32,83 +29,43 @@ Many individuals have contributed to this pipeline prior to its upload onto Gith
 - Ming Scott
 - Julie Tseng 
 - Dunja Matic
+- Bianca Ha
 
 ## System Requirements
 
 * MATLAB
 * FieldTrip Toolbox
-* Machine with enough RAM
+* Machine with enough RAM (depending on beamforming processing parameters)
 
-This pipeline is currently being developed with MATLAB R2019a in a Linux environment. Analysis configuration is kept in a JSON file, and can be inspected with any basic text editor. The [FieldTrip toolbox](https://www.fieldtriptoolbox.org/) contains compatibility functions should you need older or newer versions of certain key functions. 
-
-Note that, depending on available RAM on your system, the pipeline may crash during [beamforming](#beamforming) if your MEG data is not adequately downsampled or if you have requested too many virtual sources to be reconstructed (e.g., dipole grid resolution is too high). (See the [On Downsampling](#on-downsampling) section for more on how to handle this.)
+This pipeline was developed with MATLAB R2019a in a Linux environment. The [FieldTrip toolbox](https://www.fieldtriptoolbox.org/) contains compatibility functions should you need older or newer versions of certain key functions. 
 
 ## Installation Guide
 
-Download the repo through the Github website or use git in the command line to clone it on your machine. 
-
-## Common Terms
-
-| Term  | Meaning |
-| ------------- | ------------- |
-| *.ds folder  | Folder containing all MEG-related files for a single participant and single task (if multiple tasks). |
-| Fiducial   | Three reference points visible to the MEG that aid in head position localization relative to sensor positions, and positions also used in subsequent MRI for MEG-MRI coregistration in analysis. |
-| JSON config file  | A configuration file storing user-specified analysis parameters for various steps of the pipeline. See [this write-up](docs/ConfigParams.md) for an explanation of all necessary parameters. |
-| ICA   | Independent component analysis. A computational method for separating a linearly mixed signal into its independent components. |
-| Leadfield   | Matrix that describes solution to the [forward problem](https://www.fieldtriptoolbox.org/reference/ft_compute_leadfield/#:~:text=FT_COMPUTE_LEADFIELD%20computes%20a%20forward%20solution,z%2Dorientations%20of%20the%20dipole.) (i.e., how dipole sources contribute to an MEG channel's measured signal). |
-| MEG  | Magnetoencephalography |
-| MRI  | Magnetic resonance imaging |
-| Struct   | In MATLAB, a [struct](https://www.mathworks.com/help/matlab/ref/struct.html) is a data type that stores multiple different data items in a single container. |
-| Time window analysis  | A data analysis approach that examines how power at certain frequencies change over consecutive time bins. See FieldTrip tutorial [here](https://www.fieldtriptoolbox.org/tutorial/timefrequencyanalysis/). |
-
-## Errors and Updates
-Often times, the pipeline's users experience the same errors as each other due to common set-up mistakes. If users encounter an error, they should first consult the [Common error guide](https://github.com/MabbottLab/MEGneto/blob/master/docs/CommonErrors.md) on the MEGneto GitHub page which details how to resolve commonly encountered errors. 
-
-The pipeline is continuiously updated and as such, users may encounter changes to the pipeline that they were not directly informed about. If this is the case, users can head to the [MEGneto Github page](https://github.com/MabbottLab/MEGneto) and mouse over to the [Issues tab](https://github.com/MabbottLab/MEGneto/issues) where they will see a tab of Open issues and Closed issues. Users should navigate to the [Closed issues tab](https://github.com/MabbottLab/MEGneto/issues?q=is%3Aissue+is%3Aclosed) where they will find a log of resolved issues. Clicking on any one of the issues will reveal any comments the pipeline's developers made in reference to the issue which will shed light on the new changes.
+Download the repo through the Github website or use git in the command line to clone it on your machine. In MATLAB, use `addpath(genpath('/path/to/megneto'))` to add the functions to your path. This can also be included at the top of your `main_xyz.m` file, which is used as a master script to document your specific analysis (see the `main_template.m` file in the templates folder of this repo).  
 
 ## How to Use
 
 A template "main" function is provided under `templates/main_template.m` which guides the user through the pipeline steps. You should begin by making a copy of this file and renaming it (e.g., main_motor_both if you're running a motor analysis). A unique main file should be created for each of your analyses, as it can serve as a record of what settings you used. 
 
-Also, please note the following naming convention tipes:
-A few important notes to remember before running the pipeline are:
-1. The functions associated with the steps laid out below are found in the top-level MEGneto folder. Any related functions listed below are found in subfolders of the repo (e.g., the `functions` folder). Anything under development is, accordingly, under `dev_functions`. 
-2. The naming convention of your MRI files (which must have a .mri extension) is as follows. These file names should not have more than one underscore or period (i.e., the only period should be the file's extension `.mri`). If there is an underscore, the typical naming convention is `PID_version.mri`. 
-3. Participant IDs follow the structure of study name prepended to participant number. For example, OIRM01 would mean that OIRM is the study name and 01 is the first participant. Other examples (for different studies) include ST05 and MEG04. The participant IDs do not require changing - they should be left as they already are. 
-4. The pipeline can only process one task and condition at a time. If multiple tasks/conditions are fed in, there will be one set of .ds files for participants for task/condition 1 and one for task/condition 2, meaning there will be multiple .ds files for one participant. The pipeline is not equipped to handle this. If you have multiple tasks/conditions you wish to analyze, please do one at a time.
-5. For an overview of MEGNETO's folder structure please refer to the image below.
-
-![](docs/filefolder_structure.jpg)
-
+Folder structure within your analysis folder will look as follows:
+```
+study/derivatives/project_path/
+    > main_analysis.m (file with your pipeline parameters)
+    > analysis_name
+        > participant_1
+            > output files from pipeline
+        > participant_2
+    > config
+        > participants_list.csv (participant IDs to be analyzed)
+```
 
 ### Initial Setup
 
 After making a copy of the main template and renaming it, open it and:
-* Fill in the relevant folder paths and analysis name (lines 16-21)
-* Add the MEGneto and FieldTrip folders to the path, so MATLAB can find those functions (lines 25-27)
-* Assuming this is your first run, skip the paths variable reloading at line 32
-* Proceed to the section labelled "%%  fcp_0: setup (megne2setup)"
-
-`MEGNE2SETUP.m` will create the folder structure for your analysis (e.g., config and analysis folders), and create empty setup files in the config directory (e.g., an empty config file to be filled in with analysis parameters, empty CSV files for each pipeline step that you will use to indicate which participants to analyze). If you already have a config file with your preferred parameters, replace the empty config file with that one. 
-
-Note that this step will fail if your MEG and MRI data are not setup properly, namely:
-* The `rawdata_path` string should be the path to the folder that contains all *.ds folders for all participants
-* The `mri_path` string should be the path to the folder that contains all MRI files with the naming convention [PID].mri
-
-Output: Struct called `paths` with all filepath definitions.
-
-![](images/paths_struct.PNG)
-
-See also: 
-- `path_generation.m` to generate path locations
-- `path_check.m` to check that all paths are properly initialized
-
-### JSON Config Setup
-Prior to running the first step of the pipeline, the user must ensure that the JSON config file is populated with their desired parameters. `interactive_JSON_config.m` will prompt users to fill this JSON config file through an interactive graphical user interface (GUI). There are 10 total GUI pop ups that resemble that of the image below. The user is repsonsible for filling in each field and sample inputs are presented to the user to demonstrate each field's format (note: the user can leave the sample input as is, if they wish to use that value for their analysis).
-
-For more detail on the meaning of each parameter in the JSON Config please see the [Config Params doc](https://github.com/MabbottLab/MEGneto/blob/master/ConfigParams.md).
-
-![](images/interactive_config1.PNG)
+* Fill in the relevant folder paths and analysis name (lines 15-26)
+* Add the MEGneto and FieldTrip folders to the path, so MATLAB can find those functions (lines 30-32)
+* Follow the "FIRST TIME SETUP ONLY" section to generate a list of participant IDs based on data folder
+* Continue on to configure analysis options for each pipeline step (lines 57-179)
 
 ### Epoching
 
