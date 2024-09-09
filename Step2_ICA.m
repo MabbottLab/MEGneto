@@ -1,12 +1,50 @@
 function Step2_ICA(config, pid, run_check_or_fix, visitnum)
 
-% same wrapper function for initial ICA component analysis, custom
-% browsing, and regressing components
+% Step2_ICA will:
+%       1) Carry out ICA on preprocessed data ("run")
+%       2) Open the interactive component checker GUI ("check"), or
+%       3) Backproject components to be removed and run channel repair ("fix")
+% 
+% NOTES:
+%   - Check participants who had excessive head motion or excessive numbers
+%   of bad channels and remove them from this step if necessary. 
+%   - Need to omit bad channels from ica - if not you will get complex 
+%   numbers. Because during repair channels procedure bad channels are 
+%   repaired according to neighbours, thus the new ones are not unique (no 
+%   independent components).
+%
+% INPUTS:
+%   > config: 
+%       struct, configured in your "main" script with
+%       all analysis parameters and options and paths
+%   > pid:
+%       string, participant ID used to build the paths
+%       to relevant data files and output folders
+%   > run_check_or_fix:
+%       string, either "run", "check", or "fix" corresponding to which
+%       utility you'd like to use
+%   > visitnum:
+%       int, visit number if longitudinal, optional arg)
 
+% OUTPUTS:
+%   > step2_data_fullyProcessed.mat: 
+%       post-ICA input into step3
+%   > step2_icaComponents.mat:
+%       output of running ICA ("run") on step1 data output
+%   > step2_badComp.csv:
+%       CSV list of component #s to be rejected, outputted by the "check"
+%       option
+%
+% See also: FT_DENOISE_SYNTHETIC, FT_RESAMPLEDATA, FT_SELECTDATA, FT_COMPONENTANALYSIS 
+
+% Last updated by: Julie Tseng, 2020-01-08
+%   This file is part of MEGneto, see https://github.com/SonyaBells/MEGneto
+%   for the documentation and details.
 %% SETUP: LOAD THINGS
 
 if exist('visitnum', 'var')
-    this_output = [config.meta.project_path '/' config.meta.analysis_name '/' pid '/' sprintf('ses-%.2d', visitnum)]; % indicate subject-specific output folder path
+    this_output = [config.meta.project_path '/' config.meta.analysis_name '/' ...
+                    pid '/' sprintf('ses-%.2d', visitnum)]; % indicate subject-specific output folder path
 else
     this_output = [config.meta.project_path '/' config.meta.analysis_name '/' pid]; 
 end
@@ -63,7 +101,7 @@ load([this_output '/out_struct.mat']) % out variable
         close all
         
         out.step2.ica_bad_comp = bad_comp;
-        writematrix(bad_comp, [this_output '/step2_badComp.csv']) % note to JT: fix this
+        writematrix(bad_comp, [this_output '/step2_badComp.csv']) 
 
 %% regress ICA noise components and fix bad channels
     elseif run_check_or_fix == "fix"
@@ -73,11 +111,11 @@ load([this_output '/out_struct.mat']) % out variable
         load([this_output '/step2_badComp.csv'])
         
         % first, ICA component regress (if there are any)
-%        if ~isempty([this_output '/step2_badComp.mat'])
+        if ~isempty(step2_badComp)
             cfg = [];
             cfg.component = step2_badComp;
             data_clean = ft_rejectcomponent(cfg, comp, data_clean);
-%        end
+        end
         
         % then fix bad channels
         if ~isempty(out.step1.badChanDef.out)

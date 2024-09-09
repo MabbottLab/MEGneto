@@ -90,69 +90,31 @@ See also:
 - `detectbadchannels` to detect channels that contain poor data
 - `ft_preprocessing` to preprocess data
 
-### Preprocessing
+### Artifact rejection with ICA and Channel Repair
 
-`FCP_2_PREPROCESSINGICA.m` will prepare epoched data for ICA preprocessing by downsampling and filtering with 3rd order gradients (derived from measurements taken by gradiometers). If indicated in the config JSON file, ICA will be carried out and the ICA components will be saved. The pipeline will downsample to whatever frequency the user specified in the config JSON.
+`Step2_ICA.m` handles the ICA processing, component checking, eventual rejection, and channel repair for the pipeline. You can indicate which phase of ICA (ICA, component checking, or component backprojection) you would like to carry out using the 3rd input argument to the function.
+When using the ICA checking step, an interactive window will pop up that allows you to scrub through ICA components by trial. 
 
-Output: A struct with file names for the configuration of the preprocessed data, the data noise correlation matrix, and the ICA components.
+See also the guide under "docs/ICA_Inspection_Guide_v2.0.pdf" for visual examples of artifacts. 
+
+Output: 
+* step2_data_fullyProcessed.mat: cleaned, epoched, ICA component rejected data
+* step2_icaComponents.mat: output of running ICA on the step1 data
+* step2_badComp.csv: list of components to be rejected
 
 Notes:
-- Prior to running the function, ensure that `subj_fcp2.csv` is populated with the subject IDs of participants you want to include after checking over initial results.
-- Outputs from fcp_1 will be loaded in at the start of this step. Additionally, a logging file will be set up to keep track of progress and the pipeline will check for matching MEG/MRI data. 
-- Check participants who had excessive head motion or excessive numbers of bad channels.
+- Check participants who had excessive head motion or excessive numbers of bad channels and exclude them from further steps if needed.
 - Need to remove bad channels from ica - if not you will get complex numbers. Because during repair channels procedure bad channels are repaired according to neighbours, thus the new ones are not unique (no independent components).
 
 See also: 
-- `ds_pid_match` to get the PIDs where there is matching MEG and MRI data
-- `write_match_if_not_empty` to write down the matching MEG/MRI data if they exist
 - `ft_denoise_synthetic` to compute third order gradients for gradiometer definition and denoise data.
-- `ft_resamepledata` to resample the data to a user specified sampling rate. 
+- `ft_resampledata` to resample the data to a user specified sampling rate. 
 - `ft_selectdata` to select data portions of the data
 - `ft_componentanalysis` to perform independent component analysis 
-
-### ICA Checkpoint
-
-`FCP_2_5_CHECKPOINT.m` is an interactive session that guides the user through inspection of ICA components to identify components associated with artifacts such as heartbeats, blinks, etc. After inspection, the pipeline backprojects ICA components to remove the signal corresponding with the bad ICA components. For help on identifying components containing artifacts, see [ICA Inspection Guide](https://github.com/MabbottLab/MEGneto/blob/master/docs/ICA%20Inspection%20Guide%20v1.0.pdf).
-
-Output: A struct with file names for the configuration of the preprocessed data, the data noise correlation matrix, and the ICA components and the bad components specified by the user. 
-
-Notes:
-- Prior to running the function, ensure that subj_fcp2_5.csv is populated with the subject IDs of participants you want to include.
-
-See also: 
-- `ds_pid_match` to get the PIDs where there is matching MEG and MRI data
-- `write_match_if_not_empty` to write down the matching MEG/MRI data if they exist
 - `ft_rejectcomponent` to backproject an ICA decomposition to the channel level after removing component that have artifacts
 - `disp_ica_chans.m` (at bottom of script) 
 - `ft_databrowser` to visually inspect the data
-
-*Visualization of this step:*
-Below is a sample image of the interactive user display for identifying bad ICA component. Users can browse the components using the left and right arrow buttons, zoom in and out horizontally/vertically using the appropriate “+” and “-” buttons, and more. 
-
-![](images/ICA_interaction_plot.PNG)
-
-After browsing the ICA components and noting which ones are bad, the user should return to the Matlab command prompt where they are asked to enter those components, as seen in the image below. The sample participant ID is thing image, ‘ST01’, represents the participant who is currently being analyzed. This is repeated for all participants. 
-
-![](images/ICA_interaction_input.PNG)
-
-
-### Channel Repair
-
-`FCP_3_CHANNELREPAIR.m` repairs bad channels detected from fcp_1, but we held off on removing until the data had been ICA-cleaned. The channels are repaired by replacing them with some combination of neighbouring channels (default is 'weighted' average, other options include 'average', 'spline', or 'slap').
-
-Output: *.mat file of fully cleaned data (i.e., removed head motion/muscle and jump artifacts, 3rd order gradients, ICA cleaned data, and repaired bad channels). 
-
-Notes:
-- Prior to running the function, ensure that subj_fcp3.csv is populated with the subject IDs of participants you want to include.
-- Outputs from fcp2 are loaded at the start of this step and a logging file will be set up to keep track of progress. Further, the pipeline will check for matching MEG/MRI data.
-- The output data of this step is in the sensor space MEG data (fully processed).
-
-See also: 
-- `ds_pid_match` to extract a list of matching PIDs from the MRI files and output a CSV file with each input DS matched to a PID
-- `write_match_if_not_empty` writes a list of PIDs with matched MEG/MRI data if the PIDs aren’t empty
-- `ft_prepare_neighbours` to find neighbouring channels based on distance
-- `ft_channelrepair` to repair bad channels by replacing them with an average of all neighbours 
-
+- `ft_prepareneighbours` for channel repair
 
 ### Beamforming
 
