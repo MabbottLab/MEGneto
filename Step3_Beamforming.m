@@ -1,11 +1,56 @@
 function Step3_Beamforming(config, pid, visitnum)
 
-% to fill this part in...
+% Step3_Beamforming carries out beamforming and source projection on
+% cleaned data. Steps:
+%       1. Template grid (sourcemodel) from FieldTrip is loaded in with preselected
+%           dipole grid resolution, in MNI position space
+%       2. Participant model is created using the aligned T1 (output of Prep_T1)
+%           to create a brain segmentation for use in modelling
+%       3. Image saved to file depicting alignment between head, source, and
+%           sensors
+%       4. Atlas is loaded in and dipole grid is interpolated to atlas,
+%           thereby assigning to each dipole/source an atlas label. Based
+%           on user input, only dipoles within relevant ROIs are source
+%           reconstructed to save on compute resources
+%
+% INPUTS:
+%   > config: 
+%       struct, configured in your "main" script with
+%       all analysis parameters and options and paths
+%   > pid:
+%       string, participant ID used to build the paths
+%       to relevant data files and output folders
+%   > visitnum:
+%       int, visit number if longitudinal, optional arg)
+%
+% OUTPUTS:
+%   > step3_data_roi.mat:
+%       fieldtrip style data object with source-reconstructed data by ROI
+%   > step3_source_head_sens_align.png:
+%       image of the lineup between sensors, dipole sources, brain
+%       segmentation
+%
+% NOTES ON VARIABLES BELOW:
+%   grid = subject specific coordinates
+%   template_grid = template loaded in from fieldtrip
+%   sourcemodel = either grid/template_grid depending on atlas
+%   roi_pos = x,y,z coordinates of dipoles that actually belong to an
+%             ROI: either all ROIs, or a subset of them by index
+%
+% See also: FT_READ_MRI, FT_VOLUMESEGMENT, FT_CONVERT_UNITS, FT_PREPARE_HEADMODEL,
+% FT_PREPARE_SOURCEMODEL, FT_RESAMPLEDATA, FT_PREPARE_LEADFIELD,
+% FT_TIMELOCKANALYSIS, FT_SOURCEANALYSIS, FT_SOURCEDESCRIPTIVES,
+% FT_READ_ATLAS, FT_SOURCEINTERPOLATE, FT_VOLUMELOOKUP
+%
+% Last updated by: Julie Tseng, 2024-09-09
+%   This file is part of MEGneto, see https://github.com/MabbottLab/MEGneto
+%   for the documentation and details.
 
-%% SET UP LOGGING FILE
+%% SETUP
 
 if exist('visitnum', 'var')
-    this_output = [config.meta.project_path '/' config.meta.analysis_name '/' pid '/' sprintf('ses-%.2d', visitnum)]; % indicate subject-specific output folder path
+    this_output = [config.meta.project_path '/' config.meta.analysis_name '/' ...
+        pid '/' sprintf('ses-%.2d', visitnum)]; % indicate subject-specific output folder path
 else
     this_output = [config.meta.project_path '/' config.meta.analysis_name '/' pid]; 
 end
@@ -14,23 +59,31 @@ load([this_output '/out_struct.mat'])
 
 %% TEMPLATE SOURCE MODEL
 
-% load from FieldTrip templates
+% load from FieldTrip templates a dipole grid with user-specified
+% resolution (defines spacing between dipoles, e.g., 5mm)
 load(sprintf('%s/template/sourcemodel/standard_sourcemodel3d%dmm', ...
                 config.meta.fieldtrip_path, ...
                 config.step3.templateRes), 'sourcemodel');
+
+% convert units and clean up
 template_grid = ft_convert_units(sourcemodel, 'mm');
 clear sourcemodel;
 
 %% PARTICIPANT MODEL
 
 %%% LOAD ANATOMICAL MRI DATA ----------------------------------------------
-    T1_path = [config.meta.project_path '/Prep_T1s/' pid '/' sprintf('ses-%.2d', visitnum)];
-    load([T1_path '/Prep_T1_aligned.mat']);
-    % mri     = ft_convert_units(mri,'cm');
+    if exist('visitnum', 'var')
+        this_T1_path = fullfile(config.step3.PrepT1path, pid, ...
+                        sprintf('ses-%.2d', visitnum), "Prep_T1_aligned.mat");
+    else
+        this_T1_path = fullfile(config.step3.PrepT1path, pid, ...
+                "Prep_T1_aligned.mat");
+    end
+    load(this_T1_path);
     
     % check for fiducials which help to localize head position relative to
     % the sensors
-    if any(mri.cfg.fiducial.nas) == 0 || any(mri.cfg.fiducial.lpa) == 0  || any(mri.cfg.fiducial.rpa) == 0
+    if ~isfield(mri.cfg.fiducial, 'nas')
         error('No fiducials found for subject %s!', pid);
     end
 
@@ -95,79 +148,75 @@ clear sourcemodel;
         atlas                           = ft_read_atlas([config.meta.fieldtrip_path '/template/atlas/aal/ROI_MNI_V4.nii']);
         atlas.tissuelabel               = atlas.tissuelabel(1:90); % we only want non-cerebellar regions (isolate desired regions)
         atlas.tissue(atlas.tissue > 90) = 0;
-    elseif contains(config.step3.atlas, 'wmp') 
+    elseif contains(config.step3.atlas, 'glasser_native') 
         % MMP native space atlas load
-        atlas = ft_read_atlas([config.meta.rawdata_path ...
-                                '/derivatives/T1w_fastsurfer_jtseng/' ...
-                                pid '/' sprintf('ses-%.2d', visitnum) ...
-                                '/mri/hcpmmp1_ordered.mgz']);
+        
+        % first, build the path to fastsurfer output
+        atlas_path = fullfile(config.step3.glasserPath, ...
+                                pid, sprintf('ses-%.2d', visitnum), ...
+                                '/mri/hcpmmp1_ordered.mgz');
+        
+        % check for the file's existence and throw error otherwise
+        if ~isfile(atlas_path)
+            error("Did not find the hcpmmp1_ordered.mgz native space Glasser parcellation in the glasserPath folder - please fix!")
+        end
+        
+        % if it exists, load it in
+        atlas = ft_read_atlas(atlas_path);
+
+        % assuming the native atlas parcellation and your Prep_T1 are from the same space, 
+        % pull over the spatial transforms that were already identified
+        % during Prep_T1
         atlas.transformorig     = atlas.transform;
         atlas.transform         = mri.transform;
         atlas.coordsys          = 'ctf';
+        
+        % grab ROI labels
         atlas_labels            = load([config.meta.megneto_path '/external/atlas/mmp_labels.mat']); % mat file of labels as cellstring
         atlas.parcellationlabel = atlas_labels.hcpmmp1_labels;
         clear atlas_labels
-        
-        % fMRI-based ROI spehres for L/R-FFA/LOC
-        fmri_spheres            = ft_read_atlas([config.meta.project_path ...
-                                      '/fMRI_FFA-LOC_ROIs/' ...
-                                      pid '_' sprintf('ses-%.2d', visitnum) ...
-                                      '_fMRI_spheres.nii.gz']);
-        fmri_spheres.transformorig = fmri_spheres.transform;
-        fmri_spheres.transform      = mri.transform;
-        fmri_spheres.coordsys       = 'ctf';
-        fmri_spheres.parcellationlabel = {'L_FFA', 'R_FFA', 'L_LOC', 'R_LOC'}';
-        labeltype                   = 'parcellation';
     end
 
-    % source interpolate
+    % source interpolate: this takes each dipole grid position and assigns
+    % to it an atlas label based on the lineup between the sourcemodel
+    % (template grid) and the atlas - critical at this point that the
+    % sourcemodel and atlas are both aligned in positions
     cfg              = [];
     cfg.interpmethod = 'nearest';
     cfg.parameter    = labeltype;
-    source_atlas     = ft_sourceinterpolate(cfg,atlas,sourcemodel); % interpolate source activity onto voxels of anatomical description of the brain
-    
-    % in the case of additional custom sphere ROIs derived from fMRI
-    if contains(config.step3.atlas, 'wmp')
-        % identify dipoles corresponding to fMRI spheres
-        source_fmri = ft_sourceinterpolate(cfg, fmri_spheres, sourcemodel);
-    end
-    
-    % identify pos corresponding to actual ROIs
+    source_atlas     = ft_sourceinterpolate(cfg,sourcemodel,atlas); 
+   
+    % identify dipoles corresponding to actual ROIs
     if ~(isstring(config.step3.ROIs)) % if it's numbers and not "all"
-        roi_pos = any(source_atlas.parcellation == config.step3.ROIs, 2);
+        % find corresponding labels to specified ROI indices
+        roi_labels = atlas.parcellationlabel(config.step3.ROIs);
+        
+        % ensure index values are the exact same
+        roi_idx = find(ismember(source_atlas.parcellationlabel, ...
+                                string(atlas.parcellationlabel(config.step3.ROIs))));
+        
+        % find dipoles that fall into one of the specified ROIs                    
+        roi_pos = any(source_atlas.parcellation == roi_idx', 2);
+        
+        % retain list of all ROIs
         source_atlas.parcellationlabel_all = source_atlas.parcellationlabel;
-        source_atlas.parcellationlabel = source_atlas.parcellationlabel(config.step3.ROIs);
+        
+        % grab number of ROIs
         num_rois = length(config.step3.ROIs);
     else % else it says "all" and we should choose any ROI
         roi_pos = any(source_atlas.parcellation > 0, 2);
         num_rois = length(atlas.parcellationlabel);
+        config.step3.ROIs = 1:num_rois; % <----- this is the new line to try adding
     end
     
-    if contains(config.step3.atlas, 'wmp')
-        roi_pos = any([roi_pos, ...
-                   any(source_fmri.parcellation > 0, 2)],2);
-        
-       % handle overlapping dipoles between Glasser ROIs and fMRI
-       overlap = find(sum([roi_pos, source_fmri.parcellation] > 0, 2) == 2);
-       source_atlas.parcellation(overlap) = 0;
-    end
-
-    
-    
-    % interim notes:
-    %   grid = subject specific coordinates
-    %   template_grid = template loaded in from fieldtrip
-    %   sourcemodel = either grid/template_grid depending on atlas
-    %   roi_pos = x,y,z coordinates of dipoles that actually belong to an
-    %             ROI: either all ROIs, or a subset of them by index
     
 %% COMPUTE LEADFIELD -----------------------------------------------------
     % the leadfield is used to provide information on the contribution of a
     % dipole source at a given location in a sensor's region
-    cfg              = []; % set up config to prepare the leadfield
-    cfg.headmodel    = hdm;
-    cfg.sourcemodel.pos  = grid.pos;
-    cfg.sourcemodel.inside = roi_pos;
+    cfg                         = []; % set up config to prepare the leadfield
+    cfg.headmodel               = hdm;
+    cfg.sourcemodel.pos         = grid.pos;
+    cfg.sourcemodel.inside      = roi_pos; % defines which sources to reconstruct
     cfg.reducerank   = 2;
     cfg.grad         = data.grad;
     cfg.normalize    = config.step3.normLeadfield;
@@ -198,7 +247,7 @@ clear sourcemodel;
     source_t_avg        = ft_sourceanalysis(cfg, tlock);
     
     %%% project all trials thru spatial filter
-    cfg                  = []; % set up config for beamforming
+    cfg                      = []; % set up config for beamforming
     cfg.sourcemodel.pos      = sourcemodel.pos; % source model
     cfg.sourcemodel.inside   = leadfield.inside;
     cfg.sourcemodel.filter = source_t_avg.avg.filter;
@@ -228,13 +277,16 @@ clear sourcemodel;
     data_roi.sourceinterp.(labeltype) = source_atlas.(labeltype);
     data_roi.label                  = source_atlas.parcellationlabel;
     
-    for t = 1:projection.df
+    for t = 1:projection.df % FOR EACH TRIAL-------------------------------
         %%% AND FOR EACH NODE ---------------------------------------------
         for i = 1:num_rois
+            % handle filtered ROIs
+            this_roi_idx = find(string(source_atlas.(sprintf('%slabel_all', labeltype))) == roi_labels{i});
+            data_roi.label(i,1) = string(roi_labels{i});
+            
             % identify source coords that fall within ROI
-            node                     = find(source_atlas.(labeltype)==config.step3.ROIs(i)); 
+            node                     = find(source_atlas.(labeltype)==this_roi_idx); 
             source_timeseries        = cell2mat(projection.trial(t).mom(node)); % get the timeseries; num_nodes x time
-            % ori_region               = cell2mat(projection.trial(t).ori(node)); % orientations; num_nodes x time
             
             % IF NODE EXISTS
             if size(source_timeseries, 1) >= 1 
@@ -245,39 +297,10 @@ clear sourcemodel;
                     data_roi.trial{t}(i,:) = transpose(score(:, 1)); % store first principal component across timeseries
                     data_roi.var{t}(i) = explained(1);
                 end
-                % ori_avg(:,t,i) = nanmean(ori_region,1);
             % IF NO SOURCE POINTS W/IN NODE
             else
-                warning('No sources in ROI %s.\n',source_atlas.([labeltype 'label']){i});
-            end
-        end
-    end
-    
-    if contains(config.step3.atlas, 'wmp')
-        data_roi.label = [data_roi.label; source_fmri.parcellationlabel];
-        data_roi.sourceinterp.parcellation(:,2) = source_fmri.parcellation;
-        for t = 1:projection.df
-        %%% AND FOR EACH NODE ---------------------------------------------
-            for i = 1:4
-                % identify source coords that fall within ROI
-                node                     = find(source_fmri.(labeltype)==i); 
-                source_timeseries        = cell2mat(projection.trial(t).mom(node)); % get the timeseries; num_nodes x time
-                % ori_region               = cell2mat(projection.trial(t).ori(node)); % orientations; num_nodes x time
-
-                % IF NODE EXISTS
-                if size(source_timeseries, 1) >= 1 
-                    if config.step3.combineDipoles == "mean"
-                        data_roi.trial{t}(num_rois+i,:) = nanmean(source_timeseries,1); % take avg across source points
-                    elseif config.step3.combineDipoles == "pca"
-                        [~, score, ~, ~, explained] = pca(transpose(source_timeseries)); % perform pca
-                        data_roi.trial{t}(num_rois+i,:) = transpose(score(:, 1)); % store first principal component across timeseries
-                        data_roi.var{t}(i+1) = explained(1);
-                    end
-                    % ori_avg(:,t,i) = nanmean(ori_region,1);
-                % IF NO SOURCE POINTS W/IN NODE
-                else
-                    warning('No sources in ROI %s.\n',source_fmri.([labeltype 'label']){i});
-                end
+                warning('No sources in ROI %s.\n',source_atlas.([labeltype 'label']){this_roi_idx});
+                data_roi.trial{t}(i,:) = NaN(1, size(data_roi.time{1}, 2));
             end
         end
     end

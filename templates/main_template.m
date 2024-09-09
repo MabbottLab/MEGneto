@@ -93,12 +93,17 @@ writetable(participants, [cfg.meta.project_path '/' cfg.meta.analysis_name '/con
     % dipole grid resolution, defines dipole spacing in source grid
         cfg.step3.templateRes = 6; % in mm
 
+    % Prep_T1 output location
+        cfg.step3.PrepT1path = "/this/study/derivatives/folder/T1w_meg-beamforming";
+    
+    % T1 brain mask output location
+        cfg.step3.brainMaskPath = "/this/study/derivatives/folder/T1w_fastsurfer/";
+        
     % atlas details
         % is the atlas in the subject's native space (e.g., Glasser)?
         cfg.step3.nativeSpace   = 1; % 1 = yes, 0 = no
-        cfg.step3.atlas         = 'mmp'; % provide atlas name
-
-        cfg.step3.normLeadfield = 'no'; % set to 'yes' if analyzing resting state
+        cfg.step3.atlas         = 'glasser_native'; % 'aal', or 'glasser_native'
+        cfg.step3.glasserPath   = "/this/study/derivatives/folder/T1w_fastsurfer"; % path to FreeSurfer output
         
     % source interpolation onto regions of interest
         % what ROI indices are you interested in? 
@@ -106,7 +111,10 @@ writetable(participants, [cfg.meta.project_path '/' cfg.meta.analysis_name '/con
 
         % how do you want to combine signal from multiple dipoles belonging
         % to a particular region? PCA or mean?
-        cfg.step3.combineDipoles = 'pca'; % or 'mean'
+        cfg.step3.combineDipoles = 'mean'; % or 'pca'
+        
+        % resting state option
+        cfg.step3.normLeadfield = 'no'; % set to 'yes' if analyzing resting state
     
 % Step4a_FrequencyAnalysis %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
