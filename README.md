@@ -165,7 +165,7 @@ See also:
 
 After beamforming, you now have a set of timeseries for each participant describing brain activity over time within each atlas ROI and for each trial. 
 
-#### Step4a Frequency Analysis
+#### Step4a: Frequency Analysis
 `Step4a_FrequencyAnalysis.m` uses spectral analysis on time-frequency representations of data to test hypotheses based on spectral power. The virtual sensor data from the beamforming step is loaded in and frequency analysis is performed on sliding timewindows of the data. Thus, for each subject and each interpolated atlas region, a power spectrum is calculated and corrected to a baseline to control for general/random spikes in power. 
 This can be configured to be an overall power analysis, or a TFR (sliding time window) power analysis. 
 
@@ -175,7 +175,7 @@ Output:
 
 See also: `ft_freqanalysis.m`
 
-#### Step 4b Static Functional Connectivity
+#### Step4b: Static Functional Connectivity
 
 `Step4b_Connectivity.m` estimates functional connectivity (i.e., analyzes the synchrony of signals from two regions).
 You can use any of the metrics listed in FieldTrip's `ft_connectivityanalysis` function, but our recommendation is wpli_debiased. 
@@ -188,7 +188,7 @@ See also:
 - `ft_connectivityanalysis.m` to calculate connectivity between channels
 - `ft_checkdata.m` to check the input data of the main FieldTrip functions 
 
-#### Step 4c Dynamic Functional Connectivity
+#### Step4c: Dynamic Functional Connectivity
 
 `Step4c_DynamicFC.m` estimates dynamic functional connectivity (i.e., analyzes the synchrony of signals from two regions with a sliding window across time).
 You can use any of the metrics listed in FieldTrip's `ft_connectivityanalysis` function, but our recommendation is wpli_debiased. 
@@ -201,7 +201,7 @@ See also:
 - `ft_connectivityanalysis.m` to calculate connectivity between channels
 - `ft_checkdata.m` to check the input data of the main FieldTrip functions 
 
-#### Step 4d Cross Frequency Coupling
+#### Step4d: Cross Frequency Coupling
 
 `Step4d_CFC.m` is a cross-frequency coupling function that calculates the mean vector length (a phase-amplitude coupling measure) between regions.
 
