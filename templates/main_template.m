@@ -179,8 +179,7 @@ writetable(participants, [cfg.meta.project_path '/' cfg.meta.analysis_name '/con
 
 % Step4d_CFC %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % cross frequency coupling pipeline function
-    % refer to "docs/CFC_Usage_Guide.pdf" for more details
-    
+    % refer to "docs/CFC_Usage_Guide.pdf" for more details 
     cfg.step4d.lowFreqBand  = [8, 12]; % pick lower frequency band range
     cfg.step4d.highFreqBand = [30, 70]; % pick higher frequency band range
     cfg.step4d.chanhigh     = {'L_V8', 'L_VVC', 'L_PIT'}; % identify which channels to analyze for high frequency range, according to the data_roi.labels field

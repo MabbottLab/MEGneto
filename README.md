@@ -202,29 +202,10 @@ See also:
 
 #### Step 4d: Cross Frequency Coupling
 
-`Step4b_Connectivity.m` estimates functional connectivity (i.e., analyzes the synchrony of signals from two regions).
-You can use any of the metrics listed in FieldTrip's `ft_connectivityanalysis` function, but our recommendation is wpli_debiased. 
+`Step4d_CFC.m` is a cross-frequency coupling function that calculates the mean vector length (a phase-amplitude coupling measure) between regions.
 
 Output: 
-* `step4b_conn.mat`: connectivity matrices in the *.conn_method field with the dimensions condition x roi x roi x frequency_band. 
-
-See also: 
-- `ft_freqanalysis.m` to perform time-frequency and frequency analysis on the time series data 
-- `ft_connectivityanalysis.m` to calculate connectivity between channels
-- `ft_checkdata.m` to check the input data of the main FieldTrip functions 
-
-#### Step 4c: Dynamic Functional Connectivity
-
-`Step4c_DynamicFC.m` estimates dynamic functional connectivity (i.e., analyzes the synchrony of signals from two regions with a sliding window across time).
-You can use any of the metrics listed in FieldTrip's `ft_connectivityanalysis` function, but our recommendation is wpli_debiased. 
-
-Output: 
-* `step4b_connDFC.mat`: connectivity matrices in the *.conn_method field with the dimensions timewindow x roi x roi x frequency_band. 
-
-See also: 
-- `ft_freqanalysis.m` to perform time-frequency and frequency analysis on the time series data 
-- `ft_connectivityanalysis.m` to calculate connectivity between channels
-- `ft_checkdata.m` to check the input data of the main FieldTrip functions 
+* `step4d_CFC_lowfreq_highfreq.mat`: MATLAB struct containing data, where CFC values are organized as chanlow x chanhigh
 
 ## On Downsampling
 
