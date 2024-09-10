@@ -187,6 +187,45 @@ See also:
 - `ft_connectivityanalysis.m` to calculate connectivity between channels
 - `ft_checkdata.m` to check the input data of the main FieldTrip functions 
 
+#### Step 4c: Dynamic Functional Connectivity
+
+`Step4c_DynamicFC.m` estimates dynamic functional connectivity (i.e., analyzes the synchrony of signals from two regions with a sliding window across time).
+You can use any of the metrics listed in FieldTrip's `ft_connectivityanalysis` function, but our recommendation is wpli_debiased. 
+
+Output: 
+* `step4b_connDFC.mat`: connectivity matrices in the *.conn_method field with the dimensions timewindow x roi x roi x frequency_band. 
+
+See also: 
+- `ft_freqanalysis.m` to perform time-frequency and frequency analysis on the time series data 
+- `ft_connectivityanalysis.m` to calculate connectivity between channels
+- `ft_checkdata.m` to check the input data of the main FieldTrip functions 
+
+#### Step 4d: Cross Frequency Coupling
+
+`Step4b_Connectivity.m` estimates functional connectivity (i.e., analyzes the synchrony of signals from two regions).
+You can use any of the metrics listed in FieldTrip's `ft_connectivityanalysis` function, but our recommendation is wpli_debiased. 
+
+Output: 
+* `step4b_conn.mat`: connectivity matrices in the *.conn_method field with the dimensions condition x roi x roi x frequency_band. 
+
+See also: 
+- `ft_freqanalysis.m` to perform time-frequency and frequency analysis on the time series data 
+- `ft_connectivityanalysis.m` to calculate connectivity between channels
+- `ft_checkdata.m` to check the input data of the main FieldTrip functions 
+
+#### Step 4c: Dynamic Functional Connectivity
+
+`Step4c_DynamicFC.m` estimates dynamic functional connectivity (i.e., analyzes the synchrony of signals from two regions with a sliding window across time).
+You can use any of the metrics listed in FieldTrip's `ft_connectivityanalysis` function, but our recommendation is wpli_debiased. 
+
+Output: 
+* `step4b_connDFC.mat`: connectivity matrices in the *.conn_method field with the dimensions timewindow x roi x roi x frequency_band. 
+
+See also: 
+- `ft_freqanalysis.m` to perform time-frequency and frequency analysis on the time series data 
+- `ft_connectivityanalysis.m` to calculate connectivity between channels
+- `ft_checkdata.m` to check the input data of the main FieldTrip functions 
+
 ## On Downsampling
 
 You may run out of RAM during the beamforming step if your MEG data is not adequately downsampled. MEG data is typically gathered at 1200Hz or 600Hz. However, based on the [Nyquist-Shannon sampling theorem](https://en.wikipedia.org/wiki/Nyquist%E2%80%93Shannon_sampling_theorem), you can downsample to 2x the max frequency you want to recover. But what does that mean in practice?

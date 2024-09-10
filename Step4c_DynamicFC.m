@@ -1,20 +1,27 @@
 function Step4c_DynamicFC(config, pid, visitnum)
-% DynamicFC calculates specified FC metric using sliding window analysis
-% and ft_connectivityanalysis
 %
-% Configuration structure (config.step4c) has to contain:
-%       connmethod: string, see ft_connectivityanalysis (ex: wpli_debiased)
-%       toi: time of interest in seconds, double (ex: [0 1])
-%       winsize: size of sliding window in seconds, float  
-%       stepsize: how much time window slides over, in seconds, float
-%       freqbands: array of doubles containing frequency ranges
+% Step4c_DynamicFC calculates specified functional connectivity metric 
+% across a series of sliding windows, thereby returning dynamic functional
+% connectivity rather than static (i.e., 1 value for connectivity between
+% pairwise ROIs). 
+%
+% INPUTS:
+%    > config: 
+%       struct, configured in your "main" script with all analysis
+%       parameters and paths. specifically, need the following fields:
+%           > config.step4c.connmethod: string, see ft_connectivityanalysis (ex: wpli_debiased)
+%           > config.step4c.toi: time of interest in seconds, double (ex: [0 1])
+%           > config.step4c.winsize: size of sliding window in seconds, float  
+%           > config.step4c.stepsize: how much time window slides over, in seconds, float
+%           > config.step4c.freqbands: array of doubles containing frequency ranges
 %
 % Additional configuration options:
-%       bandavgmethod: string (ex: max)
+%       > config.step4c.bandavgmethod: string (ex: max)
 %
-% Saves: 
-%       step4c_connDFC.mat containing connectivity matrices (window number x ROI x ROI x
-%       frequency band)
+% OUTPUTS: 
+%       > step4c_connDFC.mat:
+%           struct containing connectivity matrices (window number x ROI x ROI x
+%           frequency band)
 %
 % Notes:
 %       - uses all trials/does not separate by conditions
@@ -23,10 +30,15 @@ function Step4c_DynamicFC(config, pid, visitnum)
 %       ex: if toi is 0-1 s and both win_size and step_size are 0.3 s
 %           windows will be: 0-0.3 s, 0.3-0.6 s, 0.6-0.9 s, leaving out
 %           the last 0.1 s
-
+%
+% Last updated by: Bianca Ha and Julie Tseng, 2024-09-09
+%   This file is part of MEGneto, see https://github.com/MabbottLab/MEGneto
+%   for the documentation and details.
+%
 %% SETUP
     if exist('visitnum', 'var')
-        this_output = [config.meta.project_path '/' config.meta.analysis_name '/' pid '/' sprintf('ses-%.2d', visitnum)]; % indicate subject-specific output folder path
+        this_output = [config.meta.project_path '/' config.meta.analysis_name '/' ...
+            pid '/' sprintf('ses-%.2d', visitnum)]; % indicate subject-specific output folder path
     else
         this_output = [config.meta.project_path '/' config.meta.analysis_name '/' pid]; 
     end
@@ -39,6 +51,8 @@ function Step4c_DynamicFC(config, pid, visitnum)
     end
 
 %% RUN DFC ANALYSIS   
+
+    % set up parameters of dynamic FC analysis
     t_start   = config.step4c.toi(1); % start of time of interest
     t_end     = config.step4c.toi(2); % end of time of interest
     winsize   = config.step4c.winsize; 
@@ -53,6 +67,8 @@ function Step4c_DynamicFC(config, pid, visitnum)
     connDFC.stepsize  = stepsize;
     connDFC.freqbands = config.step4c.freqbands;
     
+    % send a warning if the step size is greater than the window size,
+    % which would result in hugely overlapping windows
     if stepsize > winsize
         warning('Chosen step size is larger than window size');
     end 
@@ -89,7 +105,8 @@ function Step4c_DynamicFC(config, pid, visitnum)
             % keep track of edges of windows 
             connDFC.win{fq}([1 2],win_num) = [t t+winsize];
             
-            % CALCULATE CONNECTIVITY 
+            % Obtain power and cross-spectral density values necessary for
+            % connectivity metric computation
             fprintf('Connectivity calculations for window: %.3f to %.3f s \n',t,t+winsize)
             cfg             = []; % set up config for connectivity calculation
             cfg.method      = 'mtmfft';
@@ -109,7 +126,12 @@ function Step4c_DynamicFC(config, pid, visitnum)
             % RESHAPE INTO SOURCE X SOURCE CONN MAT AND STORE -------------
             this_conn        = ft_checkdata(this_conn, 'cmbstyle', 'full'); % the one wpli debiased is a matrix nsensor x nsensor x nfreq matrix 
             connDFC.freq(fq) = mean(this_conn.freq);
-          
+
+            % pull in labels which are impacted by reordering
+            if ~isfield(conn, 'label') % if it hasn't already been done on a previous run
+                connDFC.label = this_conn.label;
+            end
+            
             % collapse frequencies within band
             if strcmp(config.step4c.bandavgmethod, 'max') % default to max across band
                 connDFC.(sprintf('%sspctrm',cfg.method))(win_num,:,:,fq) = ...
@@ -120,8 +142,6 @@ function Step4c_DynamicFC(config, pid, visitnum)
             end            
             win_num = win_num + 1; 
         end 
-        labels = this_conn.label;
-        connDFC.label = labels; %re-assigning b/c ft_checkdata re-orders ROIs
     end   
     save([this_output '/step4c_connDFC.mat'], 'connDFC');     
 end

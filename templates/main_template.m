@@ -161,7 +161,7 @@ writetable(participants, [cfg.meta.project_path '/' cfg.meta.analysis_name '/con
     % refer to "docs/DynamicFC_Usage_Guide.pdf" for more details
     
     % similar to Step4b
-    cfg.step4c.connmethod       = 'wpli_debiased'; % functional connectivity metric
+    cfg.step4c.connmethod       = 'wpli_debiased'; % functional connectivity metric, see also ft_connectivityanalysis
     cfg.step4c.bandavgmethod    = 'max'; % or avg
     cfg.step4c.toi              = [0, 1]; % timewindow of interest
 
