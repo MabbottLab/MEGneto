@@ -8,14 +8,15 @@ This MEG analysis pipeline is built on MATLAB using the FieldTrip toolbox to ana
 - [How to Use](#how-to-use)
    1. [Initial Setup](#initial-setup)
    2. [Epoching](#epoching)
-   3. [ICA and Channel Repair](#ica-checkpoint)
+   3. [Artifact Rejection and Channel Repair](#artifact-rejection-with-ICA-and-channel-repair)
    4. [Beamforming and Atlas Interpolation](#beamforming)
+        * [Marking Fiducial Points on T1](#prep_T1)
+        * [Actual Beamforming](#actual-beamforming)
    5. [Pipeline Endpoints](#pipeline-endpoints)
-      * [Frequency Analysis](#frequency-analysis)
-      * [Functional Connectivity (Static)](#functional-connectivity)
-      * [Functional Connectivity (Dynamic)](#dynamic-connectivity)
-      * [Cross-Frequency Coupling](#cross-frequency-coupling)
-- [On Downsampling](#on-downsampling)
+      * [Frequency Analysis](#Step4a-frequency-analysis)
+      * [Functional Connectivity (Static)](#Step4b-static-functional-connectivity)
+      * [Functional Connectivity (Dynamic)](#Step4c-dynamic-functional-connectivity)
+      * [Cross-Frequency Coupling](#step4d-cross-frequency-coupling)
 - [Supplementary Reading Material](#supplementary-reading-material)
 
 ## Credits
@@ -118,7 +119,7 @@ See also:
 
 ### Beamforming
 
-## Prep_T1
+#### Prep_T1
 
 Prior to beamforming, a T1 must be marked with the fiducial marker locations for use in beamforming. Use the `Prep_T1.m` script to do this. 
 As the same marked T1 can be used for any of the MEG analyses, this process only needs to be completed once. 
@@ -127,7 +128,7 @@ As this output can be reused, it should be stored in its own derivatives folder 
 
 See FieldTrip's [documentation on `ft_volumerealign` for more details](https://www.fieldtriptoolbox.org/faq/how_to_coregister_an_anatomical_mri_with_the_gradiometer_or_electrode_positions/). 
 
-## Actual beamforming
+#### Actual beamforming
 
 `Step3_Beamforming.m` maps functional data onto the source model and interpolates to an atlas. 
 
@@ -206,14 +207,6 @@ See also:
 
 Output: 
 * `step4d_CFC_lowfreq_highfreq.mat`: MATLAB struct containing data, where CFC values are organized as chanlow x chanhigh
-
-## On Downsampling
-
-You may run out of RAM during the beamforming step if your MEG data is not adequately downsampled. MEG data is typically gathered at 1200Hz or 600Hz. However, based on the [Nyquist-Shannon sampling theorem](https://en.wikipedia.org/wiki/Nyquist%E2%80%93Shannon_sampling_theorem), you can downsample to 2x the max frequency you want to recover. But what does that mean in practice?
-
-Assume that the max frequency you want to analyze is 100Hz (e.g., the upper limit of the high gamma frequency band). Then, the Nyquist-Shannon theorem suggests that your data needs to be sampled at 100 x 2 = 200Hz to recover information properly from that 100Hz frequency. 
-
-Based on this, you may choose to downsample your data from 1200Hz to 300Hz. For a 4-second epoch (e.g., -2s to +2s around a marker of interest), this means going from 4800 timepoints to 1200 timepoints for each of the *151* channels. That's 724,800 points to 181,200 - almost 600k less timepoints to crunch with no information loss. Way easier on the machine. 
 
 ## Supplementary Reading Material
 
