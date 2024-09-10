@@ -22,18 +22,12 @@ function Step4a_FrequencyAnalysis(config, pid, visitnum)
 %       int, visit number if longitudinal, optional arg)
 %
 % OUTPUTS:
-%   > step1_data_clean.mat:
-%       fieldtrip style data object with data epoched into trials and 
-%       noisy trials (head motion, artifact) identified + rejected
-%   > out_struct.mat:
-%       a MATLAB structure with meta-information about the pipeline step
-%       run, e.g.: number of trials epoched, left after rejection
-%   > plot_markers.png:
-%       a PNG image visualizing the markers found in the *.ds file, that
-%       can be used as a quick inspection of task markers
-%   > headmotion_[date].png:
-%       a PNG image outputted by the HeadMotionTool visualizing head motion
-%       across the timeseries
+%   > step4a_freq_overallpower.mat:
+%       fieldtrip style data object with power analysis results when the
+%       chosen method is for the whole time period
+%   > step4a_freq_tfr.mat:
+%       fieldtrip style data object with power analysis results when the
+%       chosen method includes a SLIDING WINDOW across time
 
 % Last updated by: Julie Tseng, 2024-09-09
 %   This file is part of MEGneto, see https://github.com/MabbottLab/MEGneto

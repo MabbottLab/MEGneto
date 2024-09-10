@@ -72,10 +72,10 @@ After making a copy of the main template and renaming it, open it and:
 `Step1_Epoching.m` will epoch MEG data into trials, detect trials with excessive head motion, muscle/jump artifacts, and bad channels. However, the epoching only rejects trials for excessive head motion and muscle/jump artifacts. Bad channels are detected and recorded, but repaired later on in the pipeline, after the ICA process at the final stage of preprocessing.
 
 Output: 
-* step1_data_clean.mat: cleaned, epoched data
-* out_struct.mat: MATLAB struct with some bookkeeping info about the step
-* plot_markers.png: image of markers plotted along the timeseries
-* headmotion_[date].png: head motion plot across timeseries
+* `step1_data_clean.mat`: cleaned, epoched data
+* `out_struct.mat`: MATLAB struct with some bookkeeping info about the step
+* `plot_markers.png`: image of markers plotted along the timeseries
+* `headmotion_[date].png`: head motion plot across timeseries
 
 See also: 
 - `plot_triggers` to plot trigger events that are present in the data over time
@@ -98,9 +98,9 @@ When using the ICA checking step, an interactive window will pop up that allows 
 See also the guide under "docs/ICA_Inspection_Guide_v2.0.pdf" for visual examples of artifacts. 
 
 Output: 
-* step2_data_fullyProcessed.mat: cleaned, epoched, ICA component rejected data
-* step2_icaComponents.mat: output of running ICA on the step1 data
-* step2_badComp.csv: list of components to be rejected
+* `step2_data_fullyProcessed.mat`: cleaned, epoched, ICA component rejected data
+* `step2_icaComponents.mat`: output of running ICA on the step1 data
+* `step2_badComp.csv`: list of components to be rejected
 
 Notes:
 - Check participants who had excessive head motion or excessive numbers of bad channels and exclude them from further steps if needed.
@@ -142,9 +142,8 @@ Broadly, steps include:
 LCMV is a common beamformer used, but any fieldtrip beamforming algorithms are available. 
 
 Output:
-* step3_data_roi.mat: cleaned, epoched, source reconstructed data by ROI
-* step3_source_head_sens_align.png: image showing alignment between source model, MEG sensors, and head model
-
+* `step3_data_roi.mat`: cleaned, epoched, source reconstructed data by ROI
+* `step3_source_head_sens_align.png`: image showing alignment between source model, MEG sensors, and head model
 
 See also:
 - `ft_read_mri` to import T1 template from spm8
@@ -170,24 +169,18 @@ After beamforming, you now have a set of timeseries for each participant describ
 This can be configured to be an overall power analysis, or a TFR (sliding time window) power analysis. 
 
 Output: 
-* step4a_freq_overallpower.mat: No sliding timewindow power analysis
-* step4a_freq_tfr.mat: Power analysis with sliding window
+* `step4a_freq_overallpower.mat`: No sliding timewindow power analysis
+* `step4a_freq_tfr.mat`: Power analysis with sliding window
 
 See also: `ft_freqanalysis.m`
 
 #### Step 4b: Static Functional Connectivity
 
-`Step4b_Connectivity.m` estimates functional connectivity (i.e., analyzes the synchrony of signals from two regions). 
-
-Currently supports the following connectivity metrics (relevant FieldTrip documentation [here](https://www.fieldtriptoolbox.org/reference/ft_connectivityanalysis/):
-- 'plv' (phase locking value)
-- 'pli' (phase lag index)
-- 'wpli' (weighted phase lag index)
-- 'wpli_debiased' (as above, but debiased)
-- 'coh' (coherence) The strings listed above should be specified in the config JSON file exactly as presented.
+`Step4b_Connectivity.m` estimates functional connectivity (i.e., analyzes the synchrony of signals from two regions).
+You can use any of the metrics listed in FieldTrip's `ft_connectivityanalysis` function, but our recommendation is wpli_debiased. 
 
 Output: 
-* 
+* `step4b_conn.mat`: connectivity matrices in the *.conn_method field with the dimensions condition x roi x roi x frequency_band. 
 
 See also: 
 - `ft_freqanalysis.m` to perform time-frequency and frequency analysis on the time series data 
